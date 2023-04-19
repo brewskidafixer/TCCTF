@@ -91,9 +91,9 @@ void onInit(CBlob@ this)
 	if (!this.get("vars", @vars))
 		return;
 	vars.walkForce.Set(15.0f, -4.4f);
-	vars.runForce.Set(40.0f, -20.0f);
+	vars.runForce.Set(40.0f, -35.0f);
 	vars.slowForce.Set(12.0f, 0.0f);
-	vars.jumpForce.Set(0.0f, -50.0f);
+	vars.jumpForce.Set(0.0f, -100.0f);
 	vars.maxVelocity = 1.8f;
 
 	AttachmentPoint@[] aps;

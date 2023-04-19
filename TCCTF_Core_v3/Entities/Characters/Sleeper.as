@@ -2,7 +2,6 @@
 
 void onInit(CBlob@ this)
 {
-	this.Tag("sleeper");
 	this.set_string("sleeper_name", "");
 	this.set_bool("sleeper_sleeping", false);
 	this.set_u16("sleeper_coins", 0);

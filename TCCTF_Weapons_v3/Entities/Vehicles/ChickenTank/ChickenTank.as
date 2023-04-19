@@ -1,5 +1,6 @@
 #include "VehicleCommon.as"
 #include "Hitters.as";
+#include "HittersTC.as";
 #include "Explosion.as";
 
 const Vec2f arm_offset = Vec2f(-24, -7.5);
@@ -231,6 +232,43 @@ void onDie(CBlob@ this)
 		wreck.server_setTeamNum(this.getTeamNum());
 		wreck.Init();
 	}
+}
+
+f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
+{
+	f32 dmg = damage;
+	switch (customData)
+	{
+		case Hitters::sword:
+		case Hitters::arrow:
+		case Hitters::stab:
+			dmg *= 0.25f;
+			break;
+
+		case Hitters::bomb:
+		case Hitters::bomb_arrow:
+		case Hitters::keg:
+		case Hitters::explosion:
+			dmg *= 4.0f;
+			break;
+
+		case Hitters::crush:
+		case Hitters::cata_stones:
+			dmg *= 1.0f;
+			break;
+
+		case Hitters::flying: // boat ram
+			dmg *= 0.5f;
+			break;
+
+		case HittersTC::bullet_low_cal:
+		case HittersTC::bullet_high_cal:
+		case HittersTC::shotgun:
+			dmg *= 0.2f;
+			break;
+	}
+
+	return dmg;
 }
 
 bool canBePickedUp(CBlob@ this, CBlob@ byBlob)

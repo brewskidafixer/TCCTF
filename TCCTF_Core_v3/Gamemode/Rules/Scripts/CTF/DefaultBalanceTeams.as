@@ -325,7 +325,25 @@ void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 		return;
 	}
 
-	addBalanceInfo(player.getUsername(), infos);
+	string playerName = player.getUsername().split('~')[0];;
+
+	CBlob@[] sleepers;
+	getBlobsByTag("sleeper", @sleepers);
+
+	if (sleepers != null && sleepers.length > 0)
+	{
+		for (u32 i = 0; i < sleepers.length; i++)
+		{
+			CBlob@ sleeper = sleepers[i];
+			if (sleeper !is null && !sleeper.hasTag("dead") && sleeper.get_string("sleeper_name") == playerName)
+			{
+				addBalanceInfo(playerName, infos);
+				core.ChangePlayerTeam(player, sleeper.getTeamNum());
+				return;
+			}
+		}
+	}
+	addBalanceInfo(playerName, infos);
 
 	if (player.getTeamNum() != this.getSpectatorTeamNum())
 	{
@@ -342,6 +360,31 @@ void onPlayerLeave(CRules@ this, CPlayer@ player)
 
 	removeBalanceInfo(player.getUsername(), infos);
 
+	CBlob@ blob = player.getBlob();
+
+	if (blob !is null) print(player.getUsername() + " left, leaving behind a sleeper " + blob.getName());
+
+	if (isServer())
+	{
+		if (blob !is null && blob.exists("sleeper_name"))
+		{
+			blob.server_SetPlayer(null);
+
+			blob.set_u16("sleeper_coins", player.getCoins());
+			blob.set_bool("sleeper_sleeping", true);
+			blob.set_string("sleeper_name", player.getUsername());
+			blob.Tag("sleeper");
+
+			CBitStream bt;
+			bt.write_bool(true);
+
+			blob.SendCommand(blob.getCommandID("sleeper_set"), bt);
+		}
+		else
+		{
+			if (blob !is null) blob.server_Die();
+		}
+	}
 }
 
 void onTick(CRules@ this)
@@ -416,40 +459,4 @@ void onPlayerRequestTeamChange(CRules@ this, CPlayer@ player, u8 newTeam)
 	}
 
 	core.ChangePlayerTeam(player, newTeam);
-}
-
-void onPlayerRequestSpawn(CRules@ this, CPlayer@ player)
-{
-	RulesCore@ core;
-	this.get("core", @core);
-
-	BalanceInfo[]@ infos;
-	this.get("autobalance infos", @infos);
-
-	if (core is null || infos is null) return;
-
-	BalanceInfo@ b = getBalanceInfo(player.getUsername(), infos);
-	if (b is null) return;
-
-	//player is already in smallest team -> no balance
-	if (player.getTeamNum() == getSmallestTeam(core.teams))
-		return;
-
-	if (getSecurity().checkAccess_Feature(player, "always_change_team")) return;
-
-	//difference is worth swapping for
-	if (getTeamDifference(core.teams) <= TEAM_DIFFERENCE_THRESHOLD)
-		return;
-
-	//player swapped/joined team ages ago -> no balance
-	if (b.lastBalancedTime < getAverageBalance(infos))
-		return;
-
-	s32 newTeam = getSmallestTeam(core.teams);
-	core.ChangePlayerTeam(player, newTeam);
-	getNet().server_SendMsg("Balancing " + b.username + " to " + core.teams[newTeam].name);
-	b.lastBalancedTime = getEarliestBalance(infos) - 10; //don't balance this guy again for approximately ever
-
-	// print("DOING BALANCE AND SETTING TEAM - requested "+ player.getTeamNum()
-	// 	+ " set " + getSmallestTeam( core.teams ));
 }

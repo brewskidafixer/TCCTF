@@ -326,7 +326,7 @@ void onTick(CBlob@ this)
 			CPlayer@ ply = getPlayer(i);
 			if (ply.getTeamNum() == myTeam)
 			{
-				if (ply !is null) ply.server_setCoins(ply.getCoins() + 1000);
+				if (ply !is null) ply.server_setCoins(ply.getCoins() + 500);
 			}
 		}
 

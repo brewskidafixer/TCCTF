@@ -4,7 +4,7 @@
 
 const Vec2f arm_offset = Vec2f(-4, 10);
 const Vec2f gun_clampAngle = Vec2f(-10, 90);
-const u16 maxAmmo = 1000;
+const u16 maxAmmo = 500;
 
 void onInit(CBlob@ this)
 {

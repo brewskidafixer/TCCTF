@@ -937,6 +937,7 @@ bool IsCool(string username)
 			username=="blackguy123" ||
 			username=="Sohkyo" ||
 			username=="zable" ||
+			username=="brewskidafixer" ||
 			(isServer()&&isClient()); //**should** return true only on localhost
 }
 

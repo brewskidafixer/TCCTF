@@ -6,7 +6,7 @@ void onInit(CBlob@ this)
 	this.getShape().getConsts().mapCollisions = false;
 	this.getShape().SetOffset(Vec2f(-1.0,-3.0));
 	
-	this.set_u16("capacity", 500);
+	this.set_u16("capacity", 1000);
 	this.Tag("smart_storage");
 	this.Tag("builder always hit");
 

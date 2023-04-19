@@ -23,7 +23,7 @@ void onInit(CBlob@ this)
 	this.Tag("explosive");
 	this.Tag("medium weight");
 
-	this.maxQuantity = 8;
+	this.maxQuantity = 16;
 }
 
 void onDie(CBlob@ this)

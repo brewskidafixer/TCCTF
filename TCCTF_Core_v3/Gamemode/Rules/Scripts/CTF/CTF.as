@@ -79,7 +79,6 @@ shared class CTFSpawns : RespawnSystem
 		for (uint team_num = 0; team_num < CTF_core.teams.length; ++team_num)
 		{
 			CTFTeamInfo@ team = cast < CTFTeamInfo@ > (CTF_core.teams[team_num]);
-
 			for (uint i = 0; i < team.spawns.length; i++)
 			{
 				CTFPlayerInfo@ info = cast < CTFPlayerInfo@ > (team.spawns[i]);
@@ -143,22 +142,61 @@ shared class CTFSpawns : RespawnSystem
 			{
 				player.server_setTeamNum(p_info.team);
 			}
-
-			// remove previous players blob
 			if (player.getBlob() !is null)
 			{
-				CBlob @blob = player.getBlob();
+				CBlob@ blob = player.getBlob();
 				blob.server_SetPlayer(null);
 				blob.server_Die();
 			}
+			CBlob@[] sleepers;
+			getBlobsByTag("sleeper", @sleepers);
 
-			CBlob@ playerBlob = SpawnPlayerIntoWorld(getSpawnLocation(p_info), p_info);
-
-			if (playerBlob !is null)
+			if (sleepers != null && sleepers.length > 0)
 			{
-				// spawn resources
-				p_info.spawnsCount++;
-				RemovePlayerFromSpawn(player);
+				string playerName = p_info.username;
+
+				for (u32 i = 0; i < sleepers.length; i++)
+				{
+					CBlob@ sleeper = sleepers[i];
+					if (sleeper !is null && !sleeper.hasTag("dead") && sleeper.get_string("sleeper_name") == playerName)
+					{
+						CBlob@ oldBlob = player.getBlob(); // It's glitchy and spawns empty blobs on rejoin
+						if (oldBlob !is null) oldBlob.server_Die();
+						if (!sleeper.hasTag("rejoined"))
+						{
+							p_info.spawnsCount++;
+							RemovePlayerFromSpawn(player);
+							sleeper.Tag("rejoined");
+							return;
+						}
+						sleeper.Untag("rejoined");
+						player.server_setCoins(sleeper.get_u16("sleeper_coins"));
+
+						sleeper.server_SetPlayer(player);
+						sleeper.set_bool("sleeper_sleeping", false);
+
+						CBitStream bt;
+						bt.write_bool(false);
+
+						sleeper.SendCommand(sleeper.getCommandID("sleeper_set"), bt);
+
+						print(""+playerName + " joined, respawning him at sleeper " + sleeper.getName());
+						p_info.spawnsCount++;
+						RemovePlayerFromSpawn(player);
+						return;
+					}
+				}
+			}
+			if (player.getBlob() is null)
+			{
+				CBlob@ playerBlob = SpawnPlayerIntoWorld(getSpawnLocation(p_info), p_info);
+
+				if (playerBlob !is null)
+				{
+					// spawn resources
+					p_info.spawnsCount++;
+					RemovePlayerFromSpawn(player);
+				}
 			}
 		}
 	}

@@ -160,7 +160,7 @@ void onTick(CBlob@ this)
 
 				if (isServer())
 				{
-					this.server_Hit(t, t.getPosition(), Vec2f(0, 0), 0.03f * burn_time * (t.hasTag("explosive") ? 20.00f : 1.00f), Hitters::fire, true);
+					this.server_Hit(t, t.getPosition(), Vec2f(0, 0), 0.03f * burn_time * (t.hasTag("explosive") ? 20.00f : 2.00f), Hitters::fire, true);
 
 					this.sub_u16("ammoCount", Maths::Max(0, 2));
 				}

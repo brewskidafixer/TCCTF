@@ -20,7 +20,6 @@ void onInit(CBlob@ this)
 
 	this.Tag("projectile");
 	this.Tag("explosive");
-	this.Tag("map_damage_dirt");
 
 	this.getSprite().getConsts().accurateLighting = false;
 	this.getSprite().SetFacingLeft(!this.getSprite().isFacingLeft());
@@ -144,7 +143,7 @@ void DoExplosion(CBlob@ this)
 	this.set_f32("map_damage_radius", 32.0f);
 	this.set_f32("map_damage_ratio", 0.25f);
 
-	Explode(this, 32.0f, 6.0f);
+	Explode(this, 64.0f, 6.0f);
 
 	for (int i = 0; i < 8; i++) 
 	{
@@ -152,13 +151,18 @@ void DoExplosion(CBlob@ this)
 		dir.x *= 2;
 		dir.Normalize();
 
-		LinearExplosion(this, dir, 16.0f + XORRandom(8) + (modifier * 4), 16 + XORRandom(16), 2, 4.00f, Hitters::explosion);
+		LinearExplosion(this, dir, 32.0f + XORRandom(16) + (modifier * 8), 24 + XORRandom(24), 4, 4.00f, Hitters::explosion);
 	}
 
 	if (isClient())
 	{
 		Vec2f pos = this.getPosition();
 		CMap@ map = getMap();
+
+		for (int i = 0; i < 35; i++)
+		{
+			MakeParticle(this, Vec2f( XORRandom(64) - 32, XORRandom(80) - 60), getRandomVelocity(-angle, XORRandom(220) * 0.01f, 90), particles[XORRandom(particles.length)]);
+		}
 
 		this.getSprite().Gib();
 	}

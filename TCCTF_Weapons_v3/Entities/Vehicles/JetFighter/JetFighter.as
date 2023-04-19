@@ -153,7 +153,12 @@ void onTick(CBlob@ this)
 							}
 							else
 							{
-								CBlob@ dropped = server_CreateBlob(item.getName(), this.getTeamNum(), this.getPosition());
+								Vec2f vel = this.getVelocity();
+								CBlob@ dropped = server_CreateBlob(item.getName(), this.getTeamNum(), this.getPosition()+Vec2f(0,24.0f));
+								dropped.IgnoreCollisionWhileOverlapped(this);
+								dropped.setVelocity(Vec2f(vel.x, 0));
+								dropped.AddForce(Vec2f(0, 15.0f));
+								dropped.setAngleDegrees(vel.x * -3.5f);
 								dropped.SetDamageOwnerPlayer(pilot.getPlayer());
 								dropped.Tag("no pickup");
 								

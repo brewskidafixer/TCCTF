@@ -41,7 +41,7 @@ void onInit(CBlob@ this)
 	this.inventoryButtonPos = Vec2f(-8, 0);
 
 	this.set_Vec2f("shop offset", Vec2f(0,0));
-	this.set_Vec2f("shop menu size", Vec2f(4, 7));
+	this.set_Vec2f("shop menu size", Vec2f(4, 11));
 	this.set_string("shop description", "Gunsmith's Workshop");
 	this.set_u8("shop icon", 15);
 
@@ -221,10 +221,80 @@ void onInit(CBlob@ this)
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Grenade Launcher", "$icon_grenadelauncher$", "grenadelauncher", "A short-ranged weapon that launches grenades.\n\nUses Grenades.");
-		AddRequirement(s.requirements, "blob", "mat_steelingot", "Steel Ingot", 5);
-		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 100);
 		AddRequirement(s.requirements, "coin", "", "Coins", 4000);
 
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
+
+		s.spawnNothing = true;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Big iron", "$truerevolver$", "truerevolver", "If a cowboy wants a cool handgun - he gets it no matter what.\n\nUses High Caliber Ammunition.\n$icon_rifleammo$");
+		AddRequirement(s.requirements, "coin", "", "Coins", 750);
+
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
+
+		s.spawnNothing = true;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Beagle", "$beagle$", "beagle", "A hand-made off-brand desert eagle. \n Uses High Calliber Ammo.");
+		AddRequirement(s.requirements, "coin", "", "Coins", 1250);
+
+		s.spawnNothing = true;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Soviet PPSH", "$ppsh$", "ppsh", "WW2 most-used russian weapon.\n\nUses Low Caliber Ammunition.\n$icon_pistolammo$");
+		AddRequirement(s.requirements, "coin", "", "Coins", 750);
+		
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
+
+		s.spawnNothing = true;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Brand-new AK", "$bnak$", "bnak", "Popular russian weapon.\n\nUses High Caliber Ammunition.\n$icon_rifleammo$");
+		AddRequirement(s.requirements, "coin", "", "Coins", 1250);
+		
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
+
+		s.spawnNothing = true;
+	}
+	{	
+		ShopItem@ s = addShopItem(this, "Sniper Rifle Dragunova", "$svd$", "svd", "A strong semi-auto half-sniper rifle.\n\nUses High Caliber Ammunition.\n$icon_rifleammo$");
+		AddRequirement(s.requirements, "coin", "", "Coins", 1500);
+
+		s.spawnNothing = true;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Handheld Machine Gun", "$macrogun$", "macrogun", "Remember gatling gun from vehicle shop? From now you can wield same thing if you strong enough...\n\nUses Gatling Ammunition.\n$icon_gatlingammo$");
+		AddRequirement(s.requirements, "coin", "", "Coins", 1500);
+
+		s.customButton = true;
+		s.buttonwidth = 4;
+		s.buttonheight = 1;
+		
+		s.spawnNothing = true;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "RP-46", "$rp46$", "rp46", "Powerful machinegun with medium fire rate and medium accuracy.\n\nUses Gatling Ammunition.\n$icon_gatlingammo$");
+		AddRequirement(s.requirements, "coin", "", "Coins", 2000);
+		
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
+
+		s.spawnNothing = true;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "TKB-521", "$tkb521$", "tkb521", "A nice machinegun with a big magazine and medium damage.\n\nUses Gatling Ammunition.\n$icon_gatlingammo$");
+		AddRequirement(s.requirements, "coin", "", "Coins", 2250);
+		
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;

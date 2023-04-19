@@ -15,7 +15,7 @@ void onInit(CBlob@ this)
 	this.Tag("upkeep building");
 	this.set_u8("upkeep cap increase", 4);
 	this.set_u8("upkeep cost", 0);
-	this.set_u16("capacity", 500);
+	this.set_u16("capacity", 2000);
 
 	this.set_TileType("background tile", CMap::tile_biron);
 	
