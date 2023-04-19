@@ -1,0 +1,6 @@
+#need this folder for sounds to work 
+#King Arthur's Gold\Mods\territory-control\Hope_TFlippy_TerritoryControl_Sounds
+# rename this file Mods.cfg and put in King Arthur's Gold
+#below mod folder list
+TCCTF
+territory-control/Hope_TFlippy_TerritoryControl_Sounds

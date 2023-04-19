@@ -1,0 +1,92 @@
+#include "MakeMat.as";
+#include "ParticleSparks.as";
+//#include "LoaderUtilities.as";
+#include "CustomBlocks.as";
+
+void onHitMap(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, u8 customData)
+{
+	if (damage <= 0.0f) return;
+
+	CMap@ map = getMap();
+
+	if (isClient() && !v_fastrender)
+	{
+		TileType tile = map.getTile(worldPoint).type;
+		// hit bedrock
+		if (map.isTileBedrock(tile))
+		{
+			this.getSprite().PlaySound("/metal_stone.ogg", 0.7f, 1.0f);
+			sparks(worldPoint, velocity.Angle(), damage);
+		}
+	}
+
+	if (isServer())
+	{
+		TileType tile = map.getTile(worldPoint).type;
+
+		map.server_DestroyTile(worldPoint, damage, this);
+
+		if (this.exists("hitmap_chance") ? (XORRandom(100) < (this.get_f32("hitmap_chance") * 100.00f)) : true)
+		{
+			f32 multiplier = this.exists("mining_multiplier") ? this.get_f32("mining_multiplier") : 1.00f;
+			multiplier += Maths::Min(this.get_f32("bobonged"), 6);
+			multiplier += this.get_f32("team_mining_multiplier");
+
+			f32 depth = 1 - ((worldPoint.y / 8) / map.tilemapheight);
+			// print("" + depth);
+			// print("Map height: " +  map.tilemapheight + "Y: " + worldPoint.y);
+
+			if (map.isTileStone(tile))
+			{
+				if (map.isTileThickStone(tile)){
+					MakeMat(this, worldPoint, "mat_stone", (10 + XORRandom(5)) * multiplier);
+
+					if (depth < 0.90f && XORRandom(100) < 70) MakeMat(this, worldPoint, "mat_copper", (2 + XORRandom(3)) * multiplier);
+					if (depth < 0.60f && XORRandom(100) < 60) MakeMat(this, worldPoint, "mat_iron", (5 + XORRandom(8)) * multiplier);
+					if (depth < 0.10f && XORRandom(100) < 10) MakeMat(this, worldPoint, "mat_mithril", (2 + XORRandom(6)) * multiplier);
+					if (depth < 0.60f && XORRandom(100) < 10) MakeMat(this, worldPoint, "mat_coal", (15 + XORRandom(10)) * multiplier);
+				} 
+				else 
+				{
+					MakeMat(this, worldPoint, "mat_stone", (4 + XORRandom(4)) * multiplier);
+					if (depth > 0.40f && depth < 0.80f && XORRandom(100) < 50) MakeMat(this, worldPoint, "mat_copper", (1 + XORRandom(2)) * multiplier);
+					if (depth < 0.60f && XORRandom(100) < 30) MakeMat(this, worldPoint, "mat_iron", (3 + XORRandom(6)) * multiplier);
+					if (depth < 0.60f && XORRandom(100) < 30) MakeMat(this, worldPoint, "mat_coal", (1 + XORRandom(3)) * multiplier);
+				}
+
+				if (XORRandom(300) < 1) 
+				{
+					CBlob@[] blobs;
+					getBlobsByName("methanedeposit", @blobs);
+					getBlobsByName("methanecollector", @blobs);
+
+					if (blobs.length < 12)
+					{
+						map.server_DestroyTile(worldPoint, 200, this);
+						server_CreateBlob("methanedeposit", -1, worldPoint);
+					}
+				}
+			}
+			else if (map.isTileGold(tile))
+			{
+				MakeMat(this, worldPoint, "mat_gold", (3 + XORRandom(4)) * multiplier);
+
+				if (depth < 0.10f && XORRandom(100) < 35)
+				{
+					MakeMat(this, worldPoint, "mat_mithril", (3 + XORRandom(8)) * multiplier * (1.2f - depth));
+				}
+			}
+			else if (map.isTileGround(tile))
+			{
+				// MakeMat(this, worldPoint, "mat_sand", 2 * multiplier);
+				MakeMat(this, worldPoint, "mat_dirt", (2 + XORRandom(3)) * multiplier);
+				if (depth < 0.80f && XORRandom(100) < 10) MakeMat(this, worldPoint, "mat_copper", (1 + XORRandom(2)) * multiplier);
+				if (depth < 0.35f && XORRandom(100) < 60 * (1 - depth)) MakeMat(this, worldPoint, "mat_sulphur", (1 + XORRandom(5)) * multiplier * (1.3f - depth));
+			}
+			else if (tile >= CMap::tile_matter && tile <= CMap::tile_matter_d2)
+			{
+				MakeMat(this, worldPoint, "mat_matter", (1 + XORRandom(10)) * multiplier);
+			}
+		}
+	}
+}
