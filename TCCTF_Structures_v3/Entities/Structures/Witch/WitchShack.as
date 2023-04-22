@@ -42,7 +42,7 @@ void onInit(CBlob@ this)
 
 	// SHOP
 	this.set_Vec2f("shop offset", Vec2f(0, 0));
-	this.set_Vec2f("shop menu size", Vec2f(2, 3));
+	this.set_Vec2f("shop menu size", Vec2f(2, 4));
 	this.set_string("shop description", "Witch's Dilapidated Shack");
 	this.set_u8("shop icon", 25);
 
@@ -83,6 +83,17 @@ void onInit(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "grain", "Grain", 20);
 		AddRequirement(s.requirements, "blob", "pumpkin", "Pumpkin", 20);
 		AddRequirement(s.requirements, "coin", "", "Coins", 12500);
+		s.spawnNothing = true;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Terdla's Bubble Gem", "$bubble_gem$", "bubblegem", "A useless pretty blue gem! May cause hiccups");
+		AddRequirement(s.requirements, "blob", "pumpkin", "Pumpkin", 1);
+		AddRequirement(s.requirements, "coin", "", "Coins", 500);
+		s.spawnNothing = true;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Funny Magical Card Booster Pack", "$card_pack$", "card_pack", "A full pack of fun!");
+		AddRequirement(s.requirements, "coin", "", "Coins", 500);
 		s.spawnNothing = true;
 	}
 

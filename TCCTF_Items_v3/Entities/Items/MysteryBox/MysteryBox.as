@@ -37,7 +37,7 @@ LootItem@[] c_items =
 	LootItem("bazooka", 1, 0, 164),
 	LootItem("flamethrower", 0, 1, 179),
 	LootItem("mat_shotgunammo", 4, 16, 674),
-	LootItem("scyther", 1, 0, 5), // lolz
+	//LootItem("scyther", 1, 0, 5), // lolz //too op had to remove
 	LootItem("ninjascroll", 1, 1, 250),
 	LootItem("puntgun", 1, 1, 225),
 	LootItem("juggernauthammer", 1, 1, 90),
