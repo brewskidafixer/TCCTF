@@ -16,6 +16,7 @@ LootItem@[] c_items =
 	//LootItem("bagel", 1, 1, 130),
 	LootItem("fishy", 1, 2, 650),
 	LootItem("pus", 1, 1, 20),
+	LootItem("scyther", 1, 0, 5),
 	LootItem("trader", 1, 1, 75),
 	LootItem("hobo", 1, 1, 40),
 	LootItem("pirategull", 1, 1, 70),

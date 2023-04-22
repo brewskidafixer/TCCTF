@@ -40,8 +40,8 @@ void onInit(CBlob@ this)
 		s.spawnNothing = true;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Buy a Friend (1)", "$heart$", "friend", "scyther. >:(");
-		AddRequirement(s.requirements, "coin", "", "Coins", 6666);
+		ShopItem@ s = addShopItem(this, "Buy a Friend (1)", "$heart$", "friend", "bison. >:(");
+		//AddRequirement(s.requirements, "coin", "", "Coins", 6666);
 		AddRequirement(s.requirements, "blob", "steak", "Steak", 3);
 		AddRequirement(s.requirements, "blob", "heart", "Heart", 2);
 		AddRequirement(s.requirements, "blob", "cake", "Cinnamon bun",1);
@@ -105,7 +105,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 			}
 			else if (spl[0] == "friend")
 			{
-				string friend = spl[0].replace("rien", "sche").replace("f", "").replace("ch", "cy").replace("d", "er").replace("ee", "the");
+				string friend = "bison" //spl[0].replace("rien", "sche").replace("f", "").replace("ch", "cy").replace("d", "er").replace("ee", "the");
 				CBlob@ blob = server_CreateBlob(friend, callerBlob.getTeamNum(), this.getPosition());
 			}
 			else if (name.findFirst("mat_") != -1)
