@@ -105,7 +105,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 			}
 			else if (spl[0] == "friend")
 			{
-				string friend = "bison" //spl[0].replace("rien", "sche").replace("f", "").replace("ch", "cy").replace("d", "er").replace("ee", "the");
+				string friend = "bison"; //spl[0].replace("rien", "sche").replace("f", "").replace("ch", "cy").replace("d", "er").replace("ee", "the");
 				CBlob@ blob = server_CreateBlob(friend, callerBlob.getTeamNum(), this.getPosition());
 			}
 			else if (name.findFirst("mat_") != -1)
