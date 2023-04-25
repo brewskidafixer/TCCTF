@@ -4,7 +4,7 @@
 // Mounted Bow logic
 
 const Vec2f arm_offset = Vec2f(-4, -2);
-const u32 shootDelay = 9; // Ticks
+const u32 shootDelay = 8; // Ticks
 
 void onInit(CBlob@ this)
 {
@@ -129,6 +129,7 @@ void onTick(CBlob@ this)
 
 void GetButtonsFor(CBlob@ this, CBlob@ caller)
 {
+	if (this.getDistanceTo(caller) > 96.0f) return;
 	if (!Vehicle_AddFlipButton(this, caller))
 	{
 		Vehicle_AddLoadAmmoButton(this, caller);
@@ -140,8 +141,6 @@ bool Vehicle_canFire(CBlob@ this, VehicleInfo@ v, bool isActionPressed, bool was
 void Vehicle_onFire(CBlob@ this, VehicleInfo@ v, CBlob@ bullet, const u8 _unused)
 {
 	if (getGameTime() < this.get_u32("fireDelay")) return;
-	this.set_u32("fireDelay", getGameTime() + shootDelay);
-	if (v_fastrender) return;
 
 	AttachmentPoint@ point = this.getAttachments().getAttachmentPointByName("GUNNER");
 	if (point is null) return;
@@ -149,14 +148,14 @@ void Vehicle_onFire(CBlob@ this, VehicleInfo@ v, CBlob@ bullet, const u8 _unused
 	CBlob@ gunner = point.getOccupied();
 	if (gunner is null) return;
 
+	f32 angle = this.getAngleDegrees() + Vehicle_getWeaponAngle(this, v);
+	angle = angle * (this.isFacingLeft() ? -1 : 1);
+
+	Vec2f dir = Vec2f((this.isFacingLeft() ? -1 : 1), 0.0f).RotateBy(angle);
+	Vec2f startPos = this.getPosition() + Vec2f((this.isFacingLeft() ? -16 : 16), -3).RotateBy(angle);
+
 	if (isServer())
 	{
-		f32 angle = this.getAngleDegrees() + Vehicle_getWeaponAngle(this, v);
-		angle = angle * (this.isFacingLeft() ? -1 : 1);
-
-		Vec2f dir = Vec2f((this.isFacingLeft() ? -1 : 1), 0.0f).RotateBy(angle);
-		Vec2f startPos = this.getPosition() + Vec2f((this.isFacingLeft() ? -16 : 16), -3).RotateBy(angle);
-
 		CBlob@ blob = server_CreateBlob("smallrocket", this.getTeamNum(), startPos);
 		blob.set_f32("velocity", 15.0f);
 		blob.setAngleDegrees(angle + 90 + (this.isFacingLeft() ? 180 : 0));
@@ -166,6 +165,14 @@ void Vehicle_onFire(CBlob@ this, VehicleInfo@ v, CBlob@ bullet, const u8 _unused
 		//bool blobHit = getMap().getHitInfosFromRay(startPos, angle + (this.isFacingLeft() ? 0.0f : 180.0f), 20.0f, this, @hitInfos);
 		//if (blobHit) for (u32 i = 0; i < hitInfos.length; i++) this.server_Hit(hitInfos[i].blob, hitInfos[i].hitpos, Vec2f(0, 0), 1.0f, Hitters::fire, true);
 	}
+
+	if (isClient())
+	{
+		for (int i = 1; i < 5; i++) MakeParticle(this, -dir * i, "SmallExplosion");
+		this.getSprite().PlaySound("KegExplosion", 1.0f, 0.8f);
+	}
+
+	this.set_u32("fireDelay", getGameTime() + shootDelay);
 }
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
@@ -178,6 +185,14 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 
 		Vehicle_onFire(this, v, null, charge);
 	}
+}
+
+void MakeParticle(CBlob@ this, const Vec2f vel, const string filename = "SmallSteam")
+{
+	if (!isClient()) return;
+
+	Vec2f offset = Vec2f(0, 0).RotateBy(this.getAngleDegrees());
+	ParticleAnimated(filename, this.getPosition() + offset, vel, float(XORRandom(360)), 1.0f, 2 + XORRandom(3), -0.1f, false);
 }
 
 bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
