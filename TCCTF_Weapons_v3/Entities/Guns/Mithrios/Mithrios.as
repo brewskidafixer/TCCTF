@@ -5,7 +5,7 @@
 #include "GunCommon.as";
 #include "DeityCommon.as";
 
-const f32 maxDistance = 40000;
+const f32 maxDistance = 800;
 const u32 delay = 15;
 const f32 radius = 128.0f;
 
@@ -314,12 +314,12 @@ bool HasAmmo(CBlob@ this, bool take, string ammoBlob)
 			if (itemName == ammoBlob)
 			{
 				u32 quantity = item.getQuantity();
-				bool has = quantity >= 10;
+				bool has = quantity >= 100;
 				if (has)
 				{
 					if (take)
 					{
-						if (quantity >= 10) item.server_SetQuantity(quantity - 10);
+						if (quantity >= 100) item.server_SetQuantity(quantity - 100);
 						else
 						{
 							item.server_SetQuantity(0);
