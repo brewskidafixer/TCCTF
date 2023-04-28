@@ -10,9 +10,12 @@ void onInit(CBlob@ this)
 void Take(CBlob@ this, CBlob@ blob)
 {
 	const string blobName = blob.getName();
-
-	if (!this.isAttached() && blob.hasTag("builder pickup") && !blob.hasTag("no pickup"))
+	if (this is null) return;
+	if (this !is null)
 	{
+	if (this !is null && !this.isAttached() && blob.hasTag("builder pickup") && !blob.hasTag("no pickup"))
+	{
+		if (this is null) return;
 		if ((this.getDamageOwnerPlayer() is blob.getPlayer()) || getGameTime() > blob.get_u32("autopick time"))
 		{
 			bool add = true;
@@ -51,6 +54,7 @@ void Take(CBlob@ this, CBlob@ blob)
 			}
 		}
 	}
+	}
 }
 
 void onCollision(CBlob@ this, CBlob@ blob, bool solid)
@@ -58,6 +62,16 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 	if (blob is null || blob.getShape().vellen > 1.0f)
 	{
 		return;
+	}
+
+	CInventory@ inv = this.getInventory();
+	if (inv !is null)
+	{
+		CBlob@ item = inv.getItem("apmagnet");
+		if (item !is null)
+		{
+			return;
+		}
 	}
 
 	Take(this, blob);
@@ -69,6 +83,15 @@ void onTick(CBlob@ this)
 
 	if (this.getOverlapping(@overlapping))
 	{
+		CInventory@ inv = this.getInventory();
+		if (inv !is null)
+		{
+			CBlob@ item = inv.getItem("apmagnet");
+			if (item !is null)
+			{
+				return;
+			}
+		}
 		for (uint i = 0; i < overlapping.length; i++)
 		{
 			CBlob@ blob = overlapping[i];

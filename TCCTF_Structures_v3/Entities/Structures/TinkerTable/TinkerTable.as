@@ -329,6 +329,16 @@ void onInit(CBlob@ this)
 
 		s.spawnNothing = true;
 	}
+	{
+		ShopItem@ s = addShopItem(this, "Anti-pickup Magnet", "$apmagnet$", "apmagnet", "Disables auto-pickup");
+		AddRequirement(s.requirements, "coin", "", "Coins", 250);
+
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
+
+		s.spawnNothing = true;
+	}
 }
 
 void onChangeTeam(CBlob@ this, const int oldTeam)
