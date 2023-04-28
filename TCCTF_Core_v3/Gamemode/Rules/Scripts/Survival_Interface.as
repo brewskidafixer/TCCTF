@@ -517,8 +517,8 @@ void onRenderScoreboard(CRules@ this)
 			if (controls.isKeyJustPressed(KEY_LBUTTON))
 			{
 				Sound::Play("option");
-
-				OpenWebsite("https://github.com/TFlippy/kag_territorycontrol");
+				OpenWebsite("https://github.com/brewskidafixer/TCCTF");
+				//OpenWebsite("https://github.com/TFlippy/kag_territorycontrol");
 				// Engine::AcceptWebsiteOpen(true);
 				// Menu::CloseAllMenus();
 			}
@@ -558,8 +558,8 @@ void onRenderScoreboard(CRules@ this)
 			if (controls.isKeyJustPressed(KEY_LBUTTON))
 			{
 				Sound::Play("option");
-
-				OpenWebsite("https://change.vamist.dev/tc/");
+				OpenWebsite("https://github.com/brewskidafixer/TCCTF/commits/main");
+				//OpenWebsite("https://change.vamist.dev/tc/");
 				// Engine::AcceptWebsiteOpen(true);
 				// Menu::CloseAllMenus();
 			}
