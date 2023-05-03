@@ -336,7 +336,9 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 				const f32 power = this.get_f32("deity_power");
 			
 				f32 stonks_value_old = this.get_f32("stonks_value");
-				f32 stonks_value_delta = stonks_value / stonks_value_old;
+				//causes div zero error not used aswell
+				//f32 stonks_value_delta = stonks_value / stonks_value_old;
+				
 				
 				f32 stonks_value_max = stonks_base_value_max + (power / 100.00f);
 				
