@@ -37,8 +37,8 @@ void onDie(CBlob@ this)
 			
 			if (!this.getMap().rayCastSolidNoBlobs(blob.getPosition(), this.getPosition()))
 			{
-				f32 dist = (blob.getPosition() - this.getPosition()).getLength();
-				f32 factor = 1.00f - Maths::Pow(dist / max_range, 2);
+				f32 dist = this.getDistanceTo(blob);
+				f32 factor = 1.00f - Maths::Pow(dist / max_range, 3);
 			
 				// SetKnocked(blob, 250 * factor);
 			
