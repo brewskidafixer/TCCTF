@@ -154,7 +154,9 @@ void onTick(CBlob@ this)
 							else
 							{
 								Vec2f vel = this.getVelocity();
-								CBlob@ dropped = server_CreateBlob(item.getName(), this.getTeamNum(), this.getPosition()+Vec2f(0,24.0f));
+								string droppedName = item.getName();
+								if (item.hasTag("primable")) droppedName = droppedName.replace("mat_" , "");
+								CBlob@ dropped = server_CreateBlob(droppedName, this.getTeamNum(), this.getPosition()+Vec2f(0,24.0f));
 								dropped.IgnoreCollisionWhileOverlapped(this);
 								dropped.setVelocity(Vec2f(vel.x, 0));
 								dropped.AddForce(Vec2f(0, 15.0f));
@@ -162,14 +164,8 @@ void onTick(CBlob@ this)
 								dropped.SetDamageOwnerPlayer(pilot.getPlayer());
 								dropped.Tag("no pickup");
 								
-								if (quantity > 0)
-								{
-									item.server_SetQuantity(quantity - 1);
-								}
-								if (item.getQuantity() == 0) 
-								{
-									item.server_Die();
-								}
+								if (quantity > 1) item.server_SetQuantity(quantity - 1);
+								else item.server_Die();
 							}
 						}
 					}

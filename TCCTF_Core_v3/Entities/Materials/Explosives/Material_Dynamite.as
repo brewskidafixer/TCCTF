@@ -2,8 +2,9 @@
 void onInit(CBlob@ this)
 {
 	this.Tag("explosive");
+	this.Tag("primable");
 	this.set_bool("lite", true);
-	this.maxQuantity = 4;
+	this.maxQuantity = 8;
 }
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params)

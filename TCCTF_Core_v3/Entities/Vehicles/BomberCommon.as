@@ -257,19 +257,15 @@ void BomberHandling(CBlob@ this, VehicleInfo@ v)
 						}
 						else
 						{
-							CBlob@ dropped = server_CreateBlob(item.getName(), this.getTeamNum(), this.getPosition());
+							string droppedName = item.getName();
+							if (item.hasTag("primable")) droppedName = droppedName.replace("mat_" , "");
+							CBlob@ dropped = server_CreateBlob(droppedName, this.getTeamNum(), this.getPosition()+Vec2f(0,22.0f));
 							dropped.server_SetQuantity(1);
 							dropped.SetDamageOwnerPlayer(blob.getPlayer());
 							dropped.Tag("no pickup");
 
-							if (quantity - 1 > 0)
-							{
-								item.server_SetQuantity(quantity - 1);
-							}
-							else
-							{
-								item.server_Die();
-							}
+							if (quantity > 1) item.server_SetQuantity(quantity - 1);
+							else item.server_Die();
 						}
 					}
 				}

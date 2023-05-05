@@ -1,6 +1,7 @@
 void onInit(CBlob@ this)
 {	
-	this.maxQuantity = 2;
+    this.Tag("primable");
+	this.maxQuantity = 4;
 }
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params)

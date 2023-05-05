@@ -10,6 +10,9 @@ void onInit(CBlob@ this)
 	this.SetLightRadius(48.0f);
 
 	this.Tag("projectile");
+	CBlob@[] killList;
+	getBlobsByName("smokegrenade", @killList);
+	if (killList.length > 8) this.server_Die();
 	
 	//this.server_SetTimeToDie(20);
 }
