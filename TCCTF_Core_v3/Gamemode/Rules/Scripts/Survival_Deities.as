@@ -72,6 +72,8 @@ void onSetPlayer(CRules@ this, CBlob@ blob, CPlayer@ player)
 			case Deity::dragonfriend:
 			{
 				blob.Tag("dangerous");
+				//used in HOTHOTHOT.as
+				blob.Tag("dragonfriend");
 			}
 			break;
 		}

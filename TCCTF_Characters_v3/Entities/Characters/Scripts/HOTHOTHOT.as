@@ -7,6 +7,10 @@ void onInit(CMovement@ this)
 {
 	this.getCurrentScript().tickIfTag = burning_tag;
 	this.getCurrentScript().removeIfTag = "dead";
+	
+	//set in Survival_Deities.as
+	this.getCurrentScript().removeIfTag = "dragonfriend";
+	
 }
 
 void onTick(CMovement@ this)
