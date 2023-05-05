@@ -22,7 +22,7 @@ void onInit(CBlob@ this)
 	this.Tag("explosive");
 	this.Tag("medium weight");
 	
-	this.maxQuantity = 4;
+	this.maxQuantity = 8;
 }
 
 void onDie(CBlob@ this)
@@ -81,23 +81,23 @@ void DoExplosion(CBlob@ this)
 	this.set_f32("map_damage_radius", (40.0f + random) * modifier);
 	this.set_f32("map_damage_ratio", 0.25f);
 	
-	Explode(this, 24.0f, 5.0f);
+	Explode(this, 16.0f, 3.0f);
 	
 	Vec2f pos = this.getPosition();
 	CMap@ map = getMap();
 	
 	if (isServer())
 	{
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 5; i++)
 		{
 			CBlob@ blob = server_CreateBlob("tankshell", this.getTeamNum(), this.getPosition());
-			blob.setVelocity(getRandomVelocity(angle, 15 + XORRandom(5), 45));
+			blob.setVelocity(getRandomVelocity(angle, 12 + XORRandom(5), 45));
 			blob.server_SetTimeToDie(15);
 			blob.set_u32("primed_time", getGameTime() + PRIME_TIME);
 		}
 	}
 
-	if (isClient())
+	if (isClient() && !v_fastrender)
 	{
 		this.getSprite().Gib();
 	}
