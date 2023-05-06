@@ -59,3 +59,43 @@ void MakeParticle(CBlob@ this, const Vec2f vel, const string filename = "SmallSt
 	Vec2f offset = Vec2f(8, 0).RotateBy(this.getAngleDegrees());
 	ParticleAnimated(CFileMatcher(filename).getFirst(), this.getPosition() + offset, vel, float(XORRandom(360)), 1.0f, 2 + XORRandom(3), -0.1f, false);
 }*/
+
+void GetButtonsFor(CBlob@ this, CBlob@ caller) //Mutate button
+{
+	if (this.isOverlapping(caller))
+	{
+		CBlob@ carried = caller.getCarriedBlob();
+
+		if (carried != null && (carried.getName() == "mat_acid"))
+		{
+			CBitStream params;
+			params.write_u16(caller.getNetworkID());
+			CButton@ button = caller.CreateGenericButton(23, Vec2f(0, -6), this, this.getCommandID("upgrade"), "Upgrade", params);
+			button.deleteAfterClick = false;
+		}
+	}
+}
+
+void onCommand(CBlob@ this, u8 cmd, CBitStream @params) //Mutate command
+{
+	if (cmd == this.getCommandID("upgrade"))
+	{
+		CBlob@ caller = getBlobByNetworkID(params.read_u16());
+		if (caller !is null)
+		{
+			CBlob@ carried = caller.getCarriedBlob();
+			if (carried !is null && carried.getName() == "mat_acid") // stronger foundation
+			{
+				if (carried.getQuantity() >= 100)
+				{
+					/*int remain = carried.getQuantity() - 100;
+					if (remain > 0) carried.server_SetQuantity(remain);
+					else */
+					carried.server_Die();
+					server_CreateBlob("napalmer", this.getTeamNum(), this.getPosition());
+					this.server_Die();
+				}
+			}
+		}
+	}
+}

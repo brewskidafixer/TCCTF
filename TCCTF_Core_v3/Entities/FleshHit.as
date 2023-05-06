@@ -307,7 +307,8 @@ void onDie(CBlob@ this)
 {
 	if (this.hasTag("do gib"))
 	{
-		int frac = Maths::Min(1000, this.getMass()) * 0.50f;
+		//int frac = Maths::Min(1000, this.getMass()) * 0.50f;
+		int frac = (this.getMass()* Maths::Max(1,this.getQuantity())) * 0.50f;
 		f32 radius = this.getRadius();
 		f32 explodium_amount = this.get_f32("propeskoed") * 0.50f;
 	

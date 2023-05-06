@@ -255,6 +255,11 @@ void onInit(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "mat_coal", "Coal", 500);
 		s.spawnNothing = true;
 	}
+	{
+		ShopItem@ s = addShopItem(this, "Sell Gold Ingot (100)", "$COIN$", "coin-10000", "Sell 100 Gold Ingots for 10000 coins.");
+		AddRequirement(s.requirements, "blob", "mat_goldingot", "Gold Ingot", 100);
+		s.spawnNothing = true;
+	}
 	
 	// {
 		// ShopItem@ s = addShopItem(this, "Sell Mystery Meat (50)", "$COIN$", "coin-50", "Sell 50 Mystery Meat for 50 coins.");

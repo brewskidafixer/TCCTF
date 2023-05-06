@@ -6,6 +6,7 @@
 #include "CheckSpam.as";
 #include "CTFShopCommon.as";
 #include "MakeMat.as";
+#include "MakeCrate.as";
 
 Random traderRandom(Time());
 
@@ -29,13 +30,21 @@ void onInit(CBlob@ this)
 	AddIconToken("$icon_banditpistol$", "BanditPistol.png", Vec2f(16, 8), 0);
 	
 	this.set_Vec2f("shop offset", Vec2f(0, 0));
-	this.set_Vec2f("shop menu size", Vec2f(2, 1));
+	this.set_Vec2f("shop menu size", Vec2f(3, 1));
 	this.set_string("shop description", "Badger Den");
 	this.set_u8("shop icon", 25);
 
+	/*
 	{
-		ShopItem@ s = addShopItem(this, "Sell a Steak (1)", "$steak$", "coin-100", "Groo. <3");
+		ShopItem@ s = addShopItem(this, "raise a badger", "$steak$", "badger", "Groo. <3");
 		AddRequirement(s.requirements, "blob", "steak", "Steak", 1);
+		
+		s.spawnNothing = true;
+	}
+	*/
+	{
+		ShopItem@ s = addShopItem(this, "butcher a badger", "$badger$", "butcher", "Groo. <3");
+		AddRequirement(s.requirements, "blob", "badger", "dead badger", 1);
 		
 		s.spawnNothing = true;
 	}
@@ -43,9 +52,8 @@ void onInit(CBlob@ this)
 		ShopItem@ s = addShopItem(this, "Buy a Friend (1)", "$heart$", "friend", "bison. >:(");
 		//AddRequirement(s.requirements, "coin", "", "Coins", 6666);
 		AddRequirement(s.requirements, "blob", "steak", "Steak", 3);
-		AddRequirement(s.requirements, "blob", "heart", "Heart", 2);
-		AddRequirement(s.requirements, "blob", "cake", "Cinnamon bun",1);
-		
+		AddRequirement(s.requirements, "blob", "heart", "Heart", 1);
+		AddRequirement(s.requirements, "blob", "food", "Burger",3);
 		s.spawnNothing = true;
 	}
 }
@@ -96,17 +104,37 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		{
 			string[] spl = name.split("-");
 			
-			if (spl[0] == "coin")
+			/*if (spl[0] == "coin")
 			{
 				CPlayer@ callerPlayer = callerBlob.getPlayer();
 				if (callerPlayer is null) return;
 				
 				callerPlayer.server_setCoins(callerPlayer.getCoins() +  parseInt(spl[1]));
+			}*/
+			if (spl[0] == "butcher"){
+				CBlob@ steak = server_CreateBlob("steak", -1, this.getPosition());
+				if (steak !is null)
+				{
+					steak.server_SetQuantity(3*this.getQuantity());
+					if (!callerBlob.server_PutInInventory(steak))
+					{
+						steak.setPosition(callerBlob.getPosition());
+					}
+				}
+				CBlob@ heart = server_CreateBlob("heart", -1, this.getPosition());
+				if (heart !is null)
+				{
+					if (!callerBlob.server_PutInInventory(heart))
+					{
+						heart.setPosition(callerBlob.getPosition());
+					}
+				}
 			}
 			else if (spl[0] == "friend")
 			{
 				string friend = "bison"; //spl[0].replace("rien", "sche").replace("f", "").replace("ch", "cy").replace("d", "er").replace("ee", "the");
-				CBlob@ blob = server_CreateBlob(friend, callerBlob.getTeamNum(), this.getPosition());
+				//CBlob@ blob = server_CreateBlob(friend, callerBlob.getTeamNum(), this.getPosition());
+				server_MakeCrate(friend, friend, 0, this.getTeamNum(), this.getPosition(), true, 1);
 			}
 			else if (name.findFirst("mat_") != -1)
 			{

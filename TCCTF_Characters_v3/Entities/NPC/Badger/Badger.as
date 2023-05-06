@@ -225,6 +225,16 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point
 			this.getSprite().PlaySound("/badger_pissed", 1.5f, 0.5f);
 		}
 	}
+	else if (blob.getName() == "mat_dirt" && blob.getQuantity() == 2500)
+	{
+		if (isServer())
+		{
+			CBlob@ bagel = server_CreateBlob("badgerden", this.getTeamNum(), this.getPosition());
+			blob.server_Die();
+			this.server_Die();
+		}
+		
+	}
 }
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
