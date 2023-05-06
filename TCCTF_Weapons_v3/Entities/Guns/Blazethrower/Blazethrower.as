@@ -92,6 +92,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params) //Mutate command
 					/*int remain = carried.getQuantity() - 100;
 					if (remain > 0) carried.server_SetQuantity(remain);
 					else */
+					carried.Tag("dead");
 					carried.server_Die();
 					server_CreateBlob("napalmer", this.getTeamNum(), this.getPosition());
 					this.server_Die();
