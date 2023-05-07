@@ -4,7 +4,7 @@
 void onInit(CBlob@ this)
 {
 	this.Tag("explosive");
-	this.maxQuantity = 100;
+	this.maxQuantity = 50;
 	this.set_u8("fuel_energy", 100);
 	this.Tag("mat_gas");
 }

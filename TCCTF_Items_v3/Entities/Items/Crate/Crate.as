@@ -192,7 +192,7 @@ void Land(CBlob@ this)
 	if (parachute !is null && parachute.isVisible())
 	{
 		parachute.SetVisible(false);
-		ParticlesFromSprite(parachute);
+		if (!v_fastrender) ParticlesFromSprite(parachute);
 	}
 	// unpack immediately
 	if (this.exists("packed") && this.hasTag("unpack on land"))
@@ -375,8 +375,9 @@ void onRemoveFromInventory(CBlob@ this, CBlob@ blob)
 
 void onDie(CBlob@ this)
 {
-	if (isServer())
+	if (isClient())
 	{
+		if (v_fastrender) return;
 		this.getSprite().Gib();
 		Vec2f pos = this.getPosition();
 		Vec2f vel = this.getVelocity();

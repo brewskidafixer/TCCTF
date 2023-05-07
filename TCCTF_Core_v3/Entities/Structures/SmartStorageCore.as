@@ -211,6 +211,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 
 void smartStorageAdd(CBlob@ this, CBlob@ blob)
 {
+	blob.Tag("dead");
 	if (isServer())
 	{
 		string blobName = blob.getName();
@@ -243,7 +244,6 @@ void smartStorageAdd(CBlob@ this, CBlob@ blob)
 				params.write_u16(blob.getNetworkID());
 				this.SendCommand(this.getCommandID("update_storagelayers"), params);
 			}
-			blob.Tag("dead");
 			blob.server_Die();
 		}
 		else if (cur_quantity > 0)
@@ -256,11 +256,7 @@ void smartStorageAdd(CBlob@ this, CBlob@ blob)
 				this.Sync("Storage_"+blobName, true);
 				
 				if (amount < blobQuantity) blob.server_SetQuantity(blobQuantity - amount);
-				else
-				{
-					blob.Tag("dead");
-					blob.server_Die();
-				}
+				else blob.server_Die();
 			}
 		}
 	}
