@@ -16,7 +16,7 @@ void Turret_AddButtons(CBlob@ this, CBlob@ caller)
 {
 	const u16 ammoCount = this.get_u16("ammoCount");
 	const string ammoInventoryName = (this.exists("ammoInventoryName")) ? this.get_string("ammoInventoryName") : "Gatling Gun Ammo";
-	if (ammoCount > 0)
+	if (this.isOverlapping(caller) && ammoCount > 0)
 	{
 		CBitStream params;
 		params.write_u16(caller.getNetworkID());
