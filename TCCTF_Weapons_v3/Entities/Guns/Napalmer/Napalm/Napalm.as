@@ -4,7 +4,7 @@ void onInit(CBlob@ this)
 {
 	this.server_SetTimeToDie(5 + XORRandom(30));
 	
-	this.getCurrentScript().tickFrequency = 10;
+	this.getCurrentScript().tickFrequency = 20;
 	
 	this.SetLight(true);
 	this.SetLightRadius(64.0f);
@@ -57,6 +57,7 @@ void onTick(CBlob@ this)
 
 void onTick(CSprite@ this)
 {
+	if (v_fastrender) return;
 	if (isClient())
 	{
 		CBlob@ blob = this.getBlob();

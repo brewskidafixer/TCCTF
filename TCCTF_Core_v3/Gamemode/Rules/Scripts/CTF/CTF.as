@@ -144,6 +144,7 @@ shared class CTFSpawns : RespawnSystem
 			}
 			if (player.getBlob() !is null)
 			{
+				print("Player "+p_info.username+" had blob during respawn");
 				CBlob@ blob = player.getBlob();
 				blob.server_SetPlayer(null);
 				blob.server_Die();
@@ -155,22 +156,28 @@ shared class CTFSpawns : RespawnSystem
 			{
 				string playerName = p_info.username;
 
-				for (u32 i = 0; i < sleepers.length; i++)
+				for (u8 i = 0; i < sleepers.length; i++)
 				{
 					CBlob@ sleeper = sleepers[i];
 					if (sleeper !is null && !sleeper.hasTag("dead") && sleeper.get_string("sleeper_name") == playerName)
 					{
 						CBlob@ oldBlob = player.getBlob(); // It's glitchy and spawns empty blobs on rejoin
-						if (oldBlob !is null) oldBlob.server_Die();
+						if (oldBlob !is null)
+						{
+							if (oldBlob.hasTag("sleeper")) print("Report this to DarkSlayer: oldblob sleeper: "+playerName);
+							else print("oldblob ded "+playerName);
+							oldBlob.server_Die();
+						}
+						p_info.spawnsCount++;
+						RemovePlayerFromSpawn(player);
 						if (!sleeper.hasTag("rejoined"))
 						{
-							p_info.spawnsCount++;
-							RemovePlayerFromSpawn(player);
 							sleeper.Tag("rejoined");
 							return;
 						}
 						sleeper.Untag("rejoined");
 						player.server_setCoins(sleeper.get_u16("sleeper_coins"));
+						sleeper.set_u16("sleeper_coins", 69);
 
 						sleeper.server_SetPlayer(player);
 						sleeper.set_bool("sleeper_sleeping", false);
@@ -181,8 +188,6 @@ shared class CTFSpawns : RespawnSystem
 						sleeper.SendCommand(sleeper.getCommandID("sleeper_set"), bt);
 
 						print(""+playerName + " joined, respawning him at sleeper " + sleeper.getName());
-						p_info.spawnsCount++;
-						RemovePlayerFromSpawn(player);
 						return;
 					}
 				}

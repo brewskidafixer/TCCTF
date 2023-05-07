@@ -58,8 +58,8 @@ void onInit(CBlob@ this)
 	
 	AddIconToken("$icon_swaglag_offering_2$", "AltarSwagLag_Icons.png", Vec2f(24, 24), 2);
 	{
-		ShopItem@ s = addShopItem(this, "Offering of Doritos", "$icon_swaglag_offering_2$", "offering_doritos", "Sacrifice some money to buy Doritos from the built-in vending machine.");
-		AddRequirement(s.requirements, "coin", "", "Coins", 50);
+		ShopItem@ s = addShopItem(this, "Offering of Doritos", "$icon_swaglag_offering_2$", "offering_doritos", "Sacrifice some money to buy a pack of a dozen Doritos.");
+		AddRequirement(s.requirements, "coin", "", "Coins", 750);
 		s.customButton = true;
 		s.buttonwidth = 1;	
 		s.buttonheight = 1;
@@ -189,12 +189,13 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 						}
 						else if (data == "offering_doritos")
 						{
-							this.add_f32("deity_power", 10);
+							this.add_f32("deity_power", 100);
 							if (isServer()) this.Sync("deity_power", false);
 							
 							if (isServer())
 							{
 								CBlob@ item = server_CreateBlob("doritos", this.getTeamNum(), this.getPosition());
+								item.server_SetQuantity(12);
 								callerBlob.server_Pickup(item);
 							}
 							

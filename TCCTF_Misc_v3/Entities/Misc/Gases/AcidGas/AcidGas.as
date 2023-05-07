@@ -94,17 +94,11 @@ void onTick(CBlob@ this)
 				}
 			}
 		}
-				
-		if (hit)
+		
+		if (this.isOnScreen() && hit && client)
 		{
-			if (client)
-			{
-				this.getSprite().PlaySound("Steam", 1, 1);
-				if (this.isOnScreen())
-				{
-					MakeSmokeParticle(this, hit_position, Vec2f(0, -1), "LargeSmoke");
-				}
-			}
+			this.getSprite().PlaySound("Steam", 1, 1);
+			if (!v_fastrender) MakeSmokeParticle(this, hit_position, Vec2f(0, -1), "LargeSmoke");
 		}
 		
 		if (client && this.isOnScreen())

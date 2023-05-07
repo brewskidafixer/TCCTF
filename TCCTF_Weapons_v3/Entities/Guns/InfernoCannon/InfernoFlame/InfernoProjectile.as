@@ -11,6 +11,7 @@ string[] particles =
 void onInit(CBlob@ this)
 {
 	this.getShape().SetGravityScale(0.5f);
+	this.server_SetTimeToDie(10);
 
 	this.set_string("custom_explosion_sound", "InfernoCannon_Explosion");
 
@@ -95,7 +96,7 @@ void DoExplosion(CBlob@ this)
 			blob.server_SetTimeToDie(5 + XORRandom(5));
 		}
 
-		for(int i = 0; i < 20; i++)
+		for(int i = 0; i < 15; i++)
 		{
 			map.server_setFireWorldspace(pos + Vec2f(8 - XORRandom(16), 8 - XORRandom(16)) * 8, true);
 		}
@@ -109,6 +110,7 @@ void DoExplosion(CBlob@ this)
 
 void MakeParticle(CBlob@ this, const Vec2f pos, const Vec2f vel, const string filename = "SmallSteam")
 {
+	if (v_fastrender) return;
 	if (!isClient()) return;
 
 	ParticleAnimated(filename, this.getPosition() + pos, vel, float(XORRandom(360)), 1.0f + (XORRandom(100) * 0.01f), 1 + XORRandom(8), XORRandom(100) * -0.0001f, true);

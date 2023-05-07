@@ -67,14 +67,6 @@ void GetButtonsFor(CBlob@ this, CBlob@ caller)
 	{
 		if (this.getDistanceTo(caller) <= 48)
 		{
-			{
-				bool state = this.get_bool("security_state");
-				CBitStream params;
-				params.write_bool(!state);
-				caller.CreateGenericButton((state ? 27 : 23), Vec2f(0, -7), this, 
-					this.getCommandID("security_set_state"), getTranslatedString(state ? "OFF" : "ON"), params);
-			}
-
 			Turret_AddButtons(this, caller);
 		}
 	}

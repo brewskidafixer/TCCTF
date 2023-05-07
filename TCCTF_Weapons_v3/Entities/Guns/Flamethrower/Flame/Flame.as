@@ -56,7 +56,7 @@ void onTick(CBlob@ this)
 	if (isClient())
 	{
 		this.getSprite().SetFrame(XORRandom(6));
-		ParticleAnimated("SmallFire", this.getPosition() + Vec2f(XORRandom(16) - 8, XORRandom(16) - 8), Vec2f(0, 0), 0, 1.0f, 2, 0.25f, false);
+		if (!v_fastrender) ParticleAnimated("SmallFire", this.getPosition() + Vec2f(XORRandom(16) - 8, XORRandom(16) - 8), Vec2f(0, 0), 0, 1.0f, 2, 0.25f, false);
 	}
 }
 
