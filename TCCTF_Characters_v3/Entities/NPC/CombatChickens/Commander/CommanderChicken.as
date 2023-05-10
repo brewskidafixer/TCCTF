@@ -57,8 +57,8 @@ void onInit(CBlob@ this)
 				gun_config = "autoshotgun";
 				ammo_config = "mat_shotgunammo";
 
-				this.set_u8("reactionTime", 10);
-				this.set_u8("attackDelay", 5);
+				this.set_u8("reactionTime", 5);
+				this.set_u8("attackDelay", 1);
 				this.set_f32("chaseDistance", 50);
 				this.set_f32("minDistance", 8);
 				this.set_f32("maxDistance", 400);
@@ -72,8 +72,8 @@ void onInit(CBlob@ this)
 				gun_config = "sar";
 				ammo_config = "mat_rifleammo";
 				
-				this.set_u8("reactionTime", 30);
-				this.set_u8("attackDelay", 6);
+				this.set_u8("reactionTime", 5);
+				this.set_u8("attackDelay", 1);
 				this.set_f32("chaseDistance", 400);
 				this.set_f32("minDistance", 64);
 				this.set_f32("maxDistance", 600);
@@ -86,7 +86,7 @@ void onInit(CBlob@ this)
 				ammo_config = "mat_rifleammo";
 				
 				this.set_u8("attackDelay", 1);
-				this.set_u8("reactionTime", 30);
+				this.set_u8("reactionTime", 10);
 				this.set_f32("chaseDistance", 100);
 				this.set_f32("minDistance", 8);
 				this.set_f32("maxDistance", 300);
@@ -110,18 +110,6 @@ void onInit(CBlob@ this)
 		Vec2f pos = this.getPosition();
 		CBlob@ phone = server_CreateBlob("phone", team, pos);
 		this.server_PutInInventory(phone);
-
-		if (XORRandom(100) < 60) 
-		{
-			CBlob@ bp_auto = server_CreateBlob("bp_automation_advanced", -1, pos);
-			this.server_PutInInventory(bp_auto);
-		}
-
-		if (XORRandom(100) < 80) 
-		{
-			CBlob@ bp_sdr = server_CreateBlob("bp_energetics", -1, pos);
-			this.server_PutInInventory(bp_sdr);
-		}
 
 		// gun and ammo
 		CBlob@ ammo = server_CreateBlob(ammo_config, team, pos);

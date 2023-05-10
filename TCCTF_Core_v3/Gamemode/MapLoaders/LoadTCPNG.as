@@ -451,7 +451,7 @@ class TCPNGLoader : PNGLoader
 			case tc_colors::color_sentry_chicken:
 			{
 				autotile(offset);
-				CBlob@ blob = spawnBlob(map, "sentry", offset, 250);
+				CBlob@ blob = spawnBlob(map, "soldierchicken", offset, 250);
 				blob.setPosition(blob.getPosition() + Vec2f(0, -8));
 				break;
 			}

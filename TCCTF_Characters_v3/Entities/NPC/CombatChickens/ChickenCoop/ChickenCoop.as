@@ -13,7 +13,7 @@ void onInit(CBlob@ this)
 	this.getSprite().SetZ(-50); //background
 	this.getShape().getConsts().mapCollisions = false;
 	
-	this.getCurrentScript().tickFrequency = 3600;
+	this.getCurrentScript().tickFrequency = 600;
 	
 	CSprite@ sprite = this.getSprite();
 	sprite.SetEmitSound("ChickenMarch.ogg");
@@ -157,7 +157,7 @@ void onTick(CBlob@ this)
 		
 		if (chickens.length < 16)
 		{
-			CBlob@ blob = server_CreateBlob((XORRandom(100) < 20 ? "heavychicken" : "soldierchicken"), this.getTeamNum(), this.getPosition() + Vec2f(16 - XORRandom(32), 0));
+			CBlob@ blob = server_CreateBlob((XORRandom(100) < 20 ? "soldierchicken" : "scoutchicken"), this.getTeamNum(), this.getPosition() + Vec2f(16 - XORRandom(32), 0));
 		}
 	}
 }
