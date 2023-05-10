@@ -50,12 +50,12 @@ void onInit(CBlob@ this)
 			case 1:
 			case 2:
 				gun_config = "autoshotgun";
-				ammo_config = "mat_rifleammo";
+				ammo_config = "mat_shotgunammo";
 
 				this.set_u8("attackDelay", 0);
 				this.set_u8("reactionTime", 5);
 				this.set_f32("chaseDistance", 100);
-				this.set_f32("minDistance", 24);
+				this.set_f32("minDistance", 64);
 				this.set_f32("maxDistance", 500);
 				this.set_bool("bomber", true);
 
@@ -82,7 +82,7 @@ void onInit(CBlob@ this)
 				this.set_u8("reactionTime", 45);
 				this.set_u8("attackDelay", 0);
 				this.set_f32("chaseDistance", 1337); // No chasing, they're snipers
-				this.set_f32("minDistance", 64);
+				this.set_f32("minDistance", 128);
 				this.set_f32("maxDistance", 800);
 				this.set_bool("bomber", false);
 				this.set_f32("inaccuracy", 0.025f);
@@ -105,13 +105,13 @@ void onInit(CBlob@ this)
 
 			default:
 				gun_config = "assaultrifle";
-				ammo_config = "mat_shotgunammo";
+				ammo_config = "mat_rifleammo";
 
 				this.set_u8("reactionTime", 10);
-				this.set_u8("attackDelay", 5);
-				this.set_f32("chaseDistance", 50);
-				this.set_f32("minDistance", 8);
-				this.set_f32("maxDistance", 400);
+				this.set_u8("attackDelay", 2);
+				this.set_f32("chaseDistance", 200);
+				this.set_f32("minDistance", 100);
+				this.set_f32("maxDistance", 500);
 				this.set_bool("bomber", true);
 				this.set_f32("inaccuracy", 0.001f);
 

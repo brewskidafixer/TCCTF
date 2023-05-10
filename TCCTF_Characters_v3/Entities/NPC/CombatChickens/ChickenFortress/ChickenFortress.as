@@ -6,7 +6,7 @@
 	
 	this.set_TileType("background tile", CMap::tile_castle_back);
 	
-	this.getCurrentScript().tickFrequency = 600;
+	this.getCurrentScript().tickFrequency = 1800;
 	
 	this.getSprite().SetZ(-50); //background
 	this.getShape().getConsts().mapCollisions = false;
@@ -22,7 +22,7 @@
 	
 	if (isServer())
 	{
-		server_CreateBlob("commanderchicken", -1, this.getPosition() + Vec2f(16 - XORRandom(32), 0));
+		server_CreateBlob("commanderchicken", this.getTeamNum(), this.getPosition() + Vec2f(16 - XORRandom(32), 0));
 	}
 }
 
@@ -33,24 +33,18 @@ void onTick(CBlob@ this)
 
 	if (isServer())
 	{
-		if(getGameTime() % 30 == 0)
+		CBlob@[] chickens;
+		getBlobsByTag("combat chicken", @chickens);
+		
+		if (chickens.length < 8)
 		{
-			if (XORRandom(10) < 4)
+			if (this.hasTag("stronghold")) // stronghold spawn
 			{
-				CBlob@[] chickens;
-				getBlobsByTag("combat chicken", @chickens);
-				
-				if (chickens.length < 8)
-				{
-					if (this.hasTag("stronghold")) // stronghold spawn
-					{
-						server_CreateBlob((XORRandom(100) < 75 ? "soldierchicken" : "soldierchicken"), -1, this.getPosition() + Vec2f(16 - XORRandom(32), 0));
-					}
-					else // default spawn for fortress
-					{
-					server_CreateBlob((XORRandom(100) < 75 ? "soldierchicken" : "scoutchicken"), -1, this.getPosition() + Vec2f(16 - XORRandom(32), 0));
-					}
-				}
+				server_CreateBlob("soldierchicken", this.getTeamNum(), this.getPosition() + Vec2f(16 - XORRandom(32), 0));
+			}
+			else // default spawn for fortress
+			{
+			server_CreateBlob((XORRandom(100) < 75 ? "soldierchicken" : "scoutchicken"), this.getTeamNum(), this.getPosition() + Vec2f(16 - XORRandom(32), 0));
 			}
 		}
 	}

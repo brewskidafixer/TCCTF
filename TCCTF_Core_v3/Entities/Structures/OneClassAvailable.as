@@ -9,7 +9,6 @@ void onInit(CBlob@ this)
 {
 	AddIconToken("$change_class$", "/GUI/InteractionIcons.png", Vec2f(32, 32), 12, 2);
 
-	this.Tag("change class drop inventory");
 	if(!this.exists("class offset"))
 		this.set_Vec2f("class offset", Vec2f_zero);
 

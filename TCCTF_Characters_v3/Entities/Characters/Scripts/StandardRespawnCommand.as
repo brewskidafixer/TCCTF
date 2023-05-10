@@ -116,7 +116,23 @@ void onRespawnCommand(CBlob@ this, u8 cmd, CBitStream @params)
 							{
 								if (this.getInventory() !is null)
 								{
-									caller.MoveInventoryTo(this);
+									for (u8 i = 0; i < inv.getItemsCount(); i++)
+									{
+										CBlob@ item = inv.getItem(i);
+										if (item !is null)
+										{
+											if (this.exists("Storage_"+item.getName()))
+											{
+												caller.server_PutOutInventory(item);
+												continue;
+											}
+											if (!this.server_PutInInventory(item))
+											{
+												caller.server_PutOutInventory(item);
+											}
+											else i--;
+										}
+									}
 								}
 								else // find a storage
 								{

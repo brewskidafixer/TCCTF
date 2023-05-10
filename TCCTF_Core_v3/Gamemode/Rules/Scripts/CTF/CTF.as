@@ -47,7 +47,7 @@ void Config(CTFCore@ this)
 	this.scramble_teams = cfg.read_bool("scramble_teams", true);
 
 	//spawn after death time
-	this.spawnTime = (getTicksASecond() * 5);
+	this.spawnTime = (getTicksASecond() * 7);
 
 }
 

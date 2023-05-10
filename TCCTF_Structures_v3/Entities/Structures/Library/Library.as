@@ -96,7 +96,7 @@ void onInit(CBlob@ this)
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Energetics Blueprint", "$bp_energetics$", "bp_energetics", "The blueprint for the beam tower.", true);
-		AddRequirement(s.requirements, "coin", "", "Coins", 2500);
+		AddRequirement(s.requirements, "coin", "", "Coins", 7500);
 
 		s.spawnNothing = true;
 	}

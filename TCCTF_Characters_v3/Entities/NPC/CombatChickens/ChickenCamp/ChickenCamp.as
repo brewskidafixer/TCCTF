@@ -21,7 +21,7 @@
 	
 	if (isServer())
 	{
-		server_CreateBlob("commanderchicken", -1, this.getPosition() + Vec2f(16 - XORRandom(32), 0));
+		server_CreateBlob("commanderchicken", this.getTeamNum(), this.getPosition() + Vec2f(16 - XORRandom(32), 0));
 	}
 }
 
@@ -31,18 +31,12 @@ void onTick(CBlob@ this)
 
 	if (isServer())
 	{
-		if(getGameTime() % 30 == 0)
+		CBlob@[] chickens;
+		getBlobsByTag("combat chicken", @chickens);
+		
+		if (chickens.length < 6)
 		{
-			if (XORRandom(10) < 4)
-			{
-				CBlob@[] chickens;
-				getBlobsByTag("combat chicken", @chickens);
-				
-				if (chickens.length < 8)
-				{
-					CBlob@ blob = server_CreateBlob((XORRandom(100) < 72 ? "scoutchicken" : "soldierchicken"), -1, this.getPosition() + Vec2f(16 - XORRandom(32), 0));
-				}
-			}
+			CBlob@ blob = server_CreateBlob("scoutchicken", this.getTeamNum(), this.getPosition() + Vec2f(16 - XORRandom(32), 0));
 		}
 	}
 }

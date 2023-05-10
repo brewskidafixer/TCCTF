@@ -24,7 +24,7 @@
 	{
 		for (int i = 0; i < 3; i++)
 		{
-			server_CreateBlob("commanderchicken", -1, this.getPosition() + Vec2f(16 - XORRandom(32), 0));
+			server_CreateBlob("commanderchicken", this.getTeamNum(), this.getPosition() + Vec2f(16 - XORRandom(32), 0));
 		}
 	}
 }
@@ -35,24 +35,18 @@ void onTick(CBlob@ this)
 
 	if (isServer())
 	{
-		if(getGameTime() % 30 == 0)
+		CBlob@[] chickens;
+		getBlobsByTag("combat chicken", @chickens);
+		
+		if (chickens.length < 10)
 		{
-			if (XORRandom(10) < 4)
+			if (this.hasTag("convent")) // convent spawn
 			{
-				CBlob@[] chickens;
-				getBlobsByTag("combat chicken", @chickens);
-				
-				if (chickens.length < 8)
-				{
-					if (this.hasTag("convent")) // convent spawn
-					{
-						server_CreateBlob((XORRandom(100) < 50 ? "heavychicken" : "heavychicken"), -1, this.getPosition() + Vec2f(16 - XORRandom(32), 0));
-					}
-					else // default spawn for citadel
-					{
-						server_CreateBlob((XORRandom(100) < 70 ? "heavychicken" : "soldierchicken"), -1, this.getPosition() + Vec2f(16 - XORRandom(32), 0));
-					}
-				}
+				server_CreateBlob("heavychicken", this.getTeamNum(), this.getPosition() + Vec2f(16 - XORRandom(32), 0));
+			}
+			else // default spawn for citadel
+			{
+				server_CreateBlob((XORRandom(100) < 70 ? "heavychicken" : "soldierchicken"), this.getTeamNum(), this.getPosition() + Vec2f(16 - XORRandom(32), 0));
 			}
 		}
 	}
