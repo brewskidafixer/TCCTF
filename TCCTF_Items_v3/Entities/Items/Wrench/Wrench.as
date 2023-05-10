@@ -37,19 +37,24 @@ void onTick(CBlob@ this)
 				{
 					getMap().rayCastSolidNoBlobs(this.getPosition(), pos, pos);
 					CBlob@ blob = getMap().getBlobAtPosition(pos);
-					if (blob !is null && blob.getHealth() < blob.getInitialHealth()) //Must be damaged
+					if (blob !is null)
 					{
-						if (blob.hasTag("vehicle") || blob.getShape().isStatic() && !blob.hasTag("nature"))
+						f32 maxHealth = blob.getInitialHealth();
+						if (blob.getHealth() < maxHealth) //Must be damaged
 						{
-							if (isServer())
+							if (blob.hasTag("vehicle") || blob.getShape().isStatic() && !blob.hasTag("nature"))
 							{
-								blob.Tag("MaterialLess"); //No more materials can be harvested by mining this (prevents abuse with stone doors)
-								blob.server_Heal(2);
-								//print("health"+blob.getHealth() + " "+ blob.getInitialHealth());
-							}
-							if (isClient())
-							{
-								sparks(blob.getPosition(), 1, 0.25f);
+								if (isServer())
+								{
+									blob.Tag("MaterialLess"); //No more materials can be harvested by mining this (prevents abuse with stone doors)
+									f32 heal = Maths::Min(maxHealth*0.1f, maxHealth-blob.getHealth());
+									blob.server_Heal(heal);
+									//print("health"+blob.getHealth() + " "+ blob.getInitialHealth());
+								}
+								if (isClient())
+								{
+									sparks(blob.getPosition(), 1, 0.25f);
+								}
 							}
 						}
 					}

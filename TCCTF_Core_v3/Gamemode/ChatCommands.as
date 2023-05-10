@@ -719,7 +719,11 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					{
 						CBlob@[] killList;
 						getBlobsByName(tokens[1], @killList);
-						for (int i = 0; i < killList.length; i++) if (killList[i] !is null) killList[i].server_Die();
+						for (int i = 0; i < killList.length; i++) if (killList[i] !is null)
+						{
+							killList[i].Tag("dead");
+							killList[i].server_Die();
+						}
 					}
 				}
 				else if (tokens[0]=="!grab")
