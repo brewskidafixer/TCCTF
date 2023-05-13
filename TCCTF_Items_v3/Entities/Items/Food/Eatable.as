@@ -42,7 +42,7 @@ void onInit(CBlob@ this)
 			break;
 		// doritos
 		case 739538537:	
-			this.maxQuantity = 12;
+			this.maxQuantity = 100;
 			break;
 		// ratfood
 		case 1197821324:
@@ -88,7 +88,7 @@ void Heal(CBlob@ this, CBlob@ blob)
 				break;
 			// foodcan
 			case 1260223417:
-				heal_amount = 12;
+				heal_amount = 8;
 				break;
 			// pumpkin
 			case -642166209:
@@ -112,15 +112,11 @@ void Heal(CBlob@ this, CBlob@ blob)
 				break;
 			// ratburger
 			case -527037763:
-				heal_amount = 3;
-				break;
 			// icecream
 			case 258075966:	
-				heal_amount = 3;
-				break;
 			// doritos
 			case 739538537:	
-				heal_amount = 8;
+				heal_amount = 3;
 				break;
 		}
 

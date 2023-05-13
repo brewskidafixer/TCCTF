@@ -13,7 +13,7 @@ void onInit(CBlob@ this)
 	sprite.SetEmitSound("AltarSwagLag_Music.ogg");
 	sprite.SetEmitSoundVolume(0.40f);
 	sprite.SetEmitSoundSpeed(1.00f);
-	sprite.SetEmitSoundPaused(false);
+	sprite.SetEmitSoundPaused(true);
 	
 	this.SetLight(true);
 	this.SetLightRadius(48.0f);
@@ -100,7 +100,7 @@ void onTick(CBlob@ this)
 	const bool client = isClient();
 
 	const f32 power = this.get_f32("deity_power");
-	this.setInventoryName("Altar of SwagLag\n\nMLG Power: " + power + "\nGun damage bonus: +" + Maths::Min(power * 0.010f, 200.00f) + "%");
+	this.setInventoryName("Altar of SwagLag\n\nMLG Power: " + power + "\nGun damage bonus: +" + Maths::Min(Maths::Sqrt(power*0.3f), 200.00f) + "%");
 	
 	const f32 radius = 64.00f + ((power / 100.00f) * 8.00f);
 	this.SetLightRadius(radius);
@@ -139,7 +139,6 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 								{
 									this.getSprite().PlaySound("MLG_Hit", 2.00f, 1.00f);
 									this.getSprite().PlaySound("MLG_Airhorn", 2.00f, 1.00f);
-									SetScreenFlash(255, 255, 255, 255, 3.00f);
 								}
 							}
 						}
@@ -157,7 +156,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 					{
 						if (data == "offering_protopopov")
 						{
-							this.add_f32("deity_power", 500);
+							this.add_f32("deity_power", 250);
 							if (isServer()) this.Sync("deity_power", false);
 							
 							if (isServer())
@@ -189,7 +188,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 						}
 						else if (data == "offering_doritos")
 						{
-							this.add_f32("deity_power", 100);
+							this.add_f32("deity_power", 50);
 							if (isServer()) this.Sync("deity_power", false);
 							
 							if (isServer())

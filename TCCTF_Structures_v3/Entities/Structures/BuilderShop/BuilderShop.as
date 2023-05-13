@@ -75,13 +75,6 @@ void onInit(CBlob@ this)
 		s.spawnNothing = true;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Keg", "$keg$", "keg", "Highly explosive keg used by knight only.\nCan be worn.", true);
-		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 75);
-		AddRequirement(s.requirements, "coin", "", "Coins", 70);
-
-		s.spawnNothing = true;
-	}
-	{
 		ShopItem@ s = addShopItem(this, "Jack o' Lantern", "$jackolantern$", "jackolantern", "A spooky pumpkin.", true);
 		AddRequirement(s.requirements, "blob", "lantern", "Lantern", 1);
 		AddRequirement(s.requirements, "blob", "pumpkin", "Pumpkin", 1);
