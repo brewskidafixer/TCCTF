@@ -326,6 +326,12 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 			}
 			else
 			{
+				if (name == "keg")
+				{
+					CBlob@[] kegs;
+					getBlobsByName("keg", @kegs);
+					if (kegs.length > 30) return;
+				}
 				CBlob@ blob = server_CreateBlob(spl[0], callerBlob.getTeamNum(), this.getPosition());
 
 				if (blob is null) return;

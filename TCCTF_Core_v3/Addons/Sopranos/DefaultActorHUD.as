@@ -145,6 +145,7 @@ const string[] teamItems =
 	"mat_meat",
 	"foodcan",
 	"grain",
+	"egg",
 	"pumpkin",
 	"mat_mithrilenriched"
 };
@@ -193,6 +194,7 @@ const string[] matInvName =
 	"Material_Meat.png",
 	"FoodCan.png",
 	"Grain.png",
+	"Egg_Icon.png",
 	"Pumpkin.png",
 	"Material_MithrilEnriched.png"
 };

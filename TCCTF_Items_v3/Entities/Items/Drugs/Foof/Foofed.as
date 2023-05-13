@@ -59,31 +59,26 @@ void MegaHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ h
 		dir.Normalize();
 		f32 angle = dir.Angle();
 		
-		int count = true_level * 5.00f;
-		
-		for (int i = 0; i < count; i++)
-		{
-			Vec2f pos = worldPoint + getRandomVelocity(0, XORRandom(Maths::Min(24.00f * true_level, 48)), 360);
-			
-			if (server)
-			{
-				this.server_HitMap(pos, dir, damage, HittersTC::foof);
-			}
-		}
-		
-		if (client)
-		{
-			f32 magnitude = damage * (level*0.6);
-			this.getSprite().PlaySound("FallBig" + (XORRandom(5) + 1), level, 1.00f);
-		}
-		
 		if (hitBlob !is null)
 		{
 			if (server) this.server_Hit(hitBlob, worldPoint, velocity, true_level * 0.25f, HittersTC::foof, true);
 			if (client) this.getSprite().PlaySound("nightstick_hit" + (1 + XORRandom(3)) + ".ogg", 0.9f, 0.8f);
 			
 			f32 mass = hitBlob.getMass();
-			hitBlob.AddForce(dir * Maths::Min(500.0f * true_level, mass * 10.00f));
+			hitBlob.AddForce(dir * Maths::Min(25.0f * Maths::Sqrt(true_level), Maths::Min(mass, 350)));
+		}
+		else
+		{
+			if (server)
+			{
+				int count = Maths::Sqrt(true_level) * 7.00f;
+				for (int i = 0; i < count; i++)
+				{
+					Vec2f pos = worldPoint + getRandomVelocity(0, XORRandom(Maths::Min(24.00f * true_level, 48)), 360);
+					this.server_HitMap(pos, dir, damage, HittersTC::foof);
+				}
+			}
+			if (client) this.getSprite().PlaySound("FallBig" + (XORRandom(5) + 1), Maths::Sqrt(level), 1.00f);
 		}
 	}
 }

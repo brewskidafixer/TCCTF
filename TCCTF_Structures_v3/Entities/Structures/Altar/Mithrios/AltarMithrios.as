@@ -14,7 +14,7 @@ void onInit(CBlob@ this)
 	CSprite@ sprite = this.getSprite();
 	sprite.SetEmitSound("DemonicLoop.ogg");
 	sprite.RewindEmitSound();
-	sprite.SetEmitSoundPaused(false);
+	sprite.SetEmitSoundPaused(true);
 	client_AddToChat("Mithrios Awakens.", SColor(0x00000000));
 	client_AddToChat("Mithrios has bestowed his followers with a glowing red light.", SColor(0xffff0000));
 	

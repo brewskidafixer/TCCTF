@@ -82,7 +82,6 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 								if (this.getDistanceTo(localBlob) < 128)
 								{
 									this.getSprite().PlaySound("Gregor_Offering.ogg", 2.00f, 1.00f);
-									SetScreenFlash(255, 255, 255, 255, 3.00f);
 								}
 							}
 						}

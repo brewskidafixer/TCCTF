@@ -31,6 +31,7 @@ const string[] factionStorageMats =
 	"foodcan",
 	"pumpkin",
 	"grain",
+	"egg",
 	"vodka",
 	"mat_acid",
 	"mat_oil",

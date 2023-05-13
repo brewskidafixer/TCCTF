@@ -25,7 +25,7 @@ void onInit(CBlob@ this)
 	sprite.SetEmitSound("Ivan_Music.ogg");
 	sprite.SetEmitSoundVolume(0.35f);
 	sprite.SetEmitSoundSpeed(1.0f);
-	sprite.SetEmitSoundPaused(false);
+	sprite.SetEmitSoundPaused(true);
 
 	CSpriteLayer@ shield = sprite.addSpriteLayer("shield", "Ivan_Shield.png" , 16, 64, this.getTeamNum(), 0);
 	if (shield !is null)
@@ -149,7 +149,6 @@ void onTick(CSprite@ this)
 				else step = blob.add_s16("rgbStep", power / 10);
 
 				const SColor color = HSVToRGB(step, 1.0f, 1.0f);
-				SetScreenFlash(Maths::Min((power * 0.20f) * distMod, 50), color.getRed(), color.getGreen(), color.getBlue(), 0.75f);
 			}
 		}
 	}
@@ -205,7 +204,6 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 								if (this.getDistanceTo(localBlob) < 128)
 								{
 									this.getSprite().PlaySound("Ivan_Offering.ogg", 2.00f, 1.00f);
-									SetScreenFlash(255, 255, 255, 255, 3.00f);
 								}
 							}
 						}
@@ -239,7 +237,6 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 									if (this.getDistanceTo(localBlob) < 128)
 									{
 										this.getSprite().PlaySound("Ivan_Offering.ogg", 2.00f, 1.00f);
-										SetScreenFlash(255, 255, 255, 255, 3.00f);
 									}
 								}
 							}
@@ -262,7 +259,6 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 									if (this.getDistanceTo(localBlob) < 128)
 									{
 										this.getSprite().PlaySound("Ivan_Offering.ogg", 2.00f, 1.00f);
-										SetScreenFlash(255, 255, 255, 255, 3.00f);
 									}
 								}
 							}

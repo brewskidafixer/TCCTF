@@ -20,7 +20,7 @@ void onInit(CBlob@ this)
 	sprite.SetEmitSound("Disc_MountainKing.ogg");
 	sprite.SetEmitSoundVolume(0.40f);
 	sprite.SetEmitSoundSpeed(1.00f);
-	sprite.SetEmitSoundPaused(false);
+	sprite.SetEmitSoundPaused(true);
 	
 	AddIconToken("$icon_mason_follower$", "InteractionIcons.png", Vec2f(32, 32), 11);
 	{
@@ -80,78 +80,6 @@ void onTick(CSprite@ this)
 
 	const f32 power = blob.get_f32("deity_power");
 	blob.setInventoryName("Altar of Grand Mason\n\nMasonic Power: " + power + "\nFree block chance: " + Maths::Min((power * 0.01f),MAX_FREE_BLOCK_CHANCE) + "%");
-}
-
-void onTick(CBlob@ this)
-{
-	const f32 power = this.get_f32("deity_power");
-	float range = Maths::Sqrt(power) + 10.0f; //area around altar that will be affected by stone autorepair
-	int tileChecks = range / 4 + 5; //the amount of tiles checked per tick
-	//print(range+": Range, "+ tileChecks+": TileChecks");
-
-	Vec2f pos = this.getPosition();
-	CMap@ map = getMap();
-	Vec2f topLeft = pos - Vec2f((range / 2.0f) * 8.0f, (range / 2.0f) * 8.0f);
-
-	float divisions = (range * range) / tileChecks; //How many ticks it takes to go over the entire area
-
-	if (isServer())
-	{
-		int place = (getGameTime()/15 % divisions) * tileChecks; //Uses modulo to consistantly generate an order
-
-		for (int i = 0; i < tileChecks; i++)
-		{
-			int x = Maths::Floor(place/range);
-			int y = Maths::Floor(place - x * range);
-			Vec2f tileWorldPos = topLeft + Vec2f(x * 8.0f, y * 8.0f); 
-			//print(x + " " + y);
-			TileType tile = map.getTile(tileWorldPos).type;
-			//Castle back block
-			switch(tile)
-			{
-				case CMap::tile_castle_back + 13:
-				case CMap::tile_castle_back + 14:
-				case CMap::tile_castle_back + 15:
-					makeParticle(tileWorldPos);
-					map.server_SetTile(tileWorldPos, tile - 1);
-					break;
-				case CMap::tile_castle_back + 12:
-				case CMap::tile_castle_moss:
-					makeParticle(tileWorldPos);
-					map.server_SetTile(tileWorldPos, CMap::tile_castle_back);
-					break;
-			}
-
-			//Castle block
-			if (map.isTileCastle(tile) && tile != CMap::tile_castle)
-			{
-				if (tile > CMap::tile_castle_d1 && tile != CMap::tile_castle_moss)
-				{
-					//repair by one
-					makeParticle(tileWorldPos);
-					map.server_SetTile(tileWorldPos, tile - 1);
-				}
-				else
-				{
-					//set to castle block since repairing would mess it up
-					makeParticle(tileWorldPos);
-					map.server_SetTile(tileWorldPos, CMap::tile_castle);
-				}
-			}
-
-			place++;
-		}
-	}
-}
-
-void makeParticle(Vec2f pos)
-{
-	CParticle@ spark = ParticleAnimated("SmallSteam", pos + Vec2f(0,4.0f), Vec2f(0,0), float(XORRandom(360)), 
-		0.5f + XORRandom(100) * 0.01f, 3, XORRandom(100) * -0.00005f, true);
-	if (spark !is null)
-	{
-		spark.Z = 1000;
-	}
 }
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
