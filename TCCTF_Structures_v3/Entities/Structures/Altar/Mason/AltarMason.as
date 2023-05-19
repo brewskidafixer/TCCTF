@@ -79,7 +79,7 @@ void onTick(CSprite@ this)
 	if (blob is null) return;
 
 	const f32 power = blob.get_f32("deity_power");
-	blob.setInventoryName("Altar of Grand Mason\n\nMasonic Power: " + power + "\nFree block chance: " + Maths::Min((power * 0.01f),MAX_FREE_BLOCK_CHANCE) + "%");
+	blob.setInventoryName("Altar of Grand Mason\n\nMasonic Power: " + power + "\nFree block chance: " + Maths::Min(Maths::Sqrt(power),100) + "%");
 }
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params)

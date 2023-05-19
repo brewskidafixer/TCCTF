@@ -57,6 +57,7 @@ void onInit(CBlob@ this)
 		AddIconToken("$icon_cocok$", "Altar.png", Vec2f(24, 32), 5);
 		AddIconToken("$icon_swaglag$", "Altar.png", Vec2f(24, 32), 6);
 		AddIconToken("$icon_dragonfriend$", "Altar.png", Vec2f(24, 32), 7);
+		AddIconToken("$icon_foghorn$", "Altar.png", Vec2f(24, 32), 8);
 		
 		{
 			ShopItem@ s = addShopItem(this, "Mithrios, God of Death", "$icon_mithrios$", "altar_mithrios", "A demon known for his cruelty and hunger for blood.\n\nAfter being banished from the mortal realm, he returned as a weapon of destruction.\n\n- Damage Reflection\n- Kill a random person\n- Create a Mithrios Device\n- Gain Demonic Power by killing people");
@@ -75,19 +76,6 @@ void onInit(CBlob@ this)
 			AddRequirement(s.requirements, "no more global", "altar_ivan", "Altar of Ivan", 1);
 			AddRequirement(s.requirements, "blob", "vodka", "Vodka", 4);
 			AddRequirement(s.requirements, "coin", "", "Coins", 1500);
-			s.customButton = true;
-			s.buttonwidth = 2;	
-			s.buttonheight = 2;
-			
-			s.spawnNothing = true;
-		}
-		{
-			ShopItem@ s = addShopItem(this, "Gregor Builder, God of Destruction", "$icon_gregor$", "altar_gregor", "A deranged inventor known for his bizarre contraptions - such as the deadly ebola rune.\n\nOne day after being beaten in a wizard duel, he threatened to wipe out the entire world. The Illuminati Council removed him from existence for one month instead.\n\n- No one knows how to summon him yet");
-			AddRequirement(s.requirements, "no more global", "altar_gregor", "Altar of Gregor Builder", 1);
-			AddRequirement(s.requirements, "blob", "builder", "Virgin Builder Corpse", 1);
-			AddRequirement(s.requirements, "blob", "artisancertificate", "Building for Dummies", 1);
-			AddRequirement(s.requirements, "blob", "shito", "Shito", 1);
-			AddRequirement(s.requirements, "coin", "", "Coins", 2000);
 			s.customButton = true;
 			s.buttonwidth = 2;	
 			s.buttonheight = 2;
@@ -133,7 +121,19 @@ void onInit(CBlob@ this)
 		{
 			ShopItem@ s = addShopItem(this, "Dragonfriend, God of Greed", "$icon_dragonfriend$", "altar_dragonfriend", "The god of wealth, power and greed.\n\n- Stonks Trading\n- Fire Resistance up to 100%\n- Summon a meteor\n\n- $KEY_S$+$LMB$ to conjure a fireball");
 			AddRequirement(s.requirements, "no more global", "altar_dragonfriend", "Altar of the Dragon", 1);
-			AddRequirement(s.requirements, "coin", "", "Coins", 8000);
+			AddRequirement(s.requirements, "blob", "meteor", "Meteor", 1);
+			AddRequirement(s.requirements, "coin", "", "Coins", 7500);
+			s.customButton = true;
+			s.buttonwidth = 2;	
+			s.buttonheight = 2;
+			
+			s.spawnNothing = true;
+		}
+		{
+			ShopItem@ s = addShopItem(this, "Foghorn, God of Poultry", "$icon_foghorn$", "altar_foghorn", "The god of poultry. Allows one to summon ally chickens, and morph into a chicken.");
+			AddRequirement(s.requirements, "no more global", "altar_foghorn", "Altar of Foghorn", 1);
+			AddRequirement(s.requirements, "blob", "soldierchicken", "Soldier Chicken", 1);
+			AddRequirement(s.requirements, "coin", "", "Coins", 2500);
 			s.customButton = true;
 			s.buttonwidth = 2;	
 			s.buttonheight = 2;

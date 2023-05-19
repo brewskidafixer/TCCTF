@@ -429,6 +429,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 
 void onDie(CBlob@ this)
 {
+	if (this.hasTag("dead")) return;
 	CRules@ rules = getRules();
 	if (!shouldExplode(this, rules))
 	{

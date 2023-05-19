@@ -5,7 +5,7 @@
 const u8 DEFAULT_PERSONALITY = SCARED_BIT;
 //const int MAX_EGGS = 2; //maximum symultaneous eggs
 const int MAX_CHICKENS_TO_HATCH = 2;
-const f32 CHICKEN_LIMIT_RADIUS = 120.0f;
+const f32 CHICKEN_LIMIT_RADIUS = 24.0f;
 
 int g_lastSoundPlayedTime = 0;
 //int g_layEggInterval = 0;

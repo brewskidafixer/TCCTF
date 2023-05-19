@@ -113,6 +113,9 @@ void onTick(CBlob@ this)
 		int count = getPlayerCount();
 		double mod = ((6 + count) + Maths::Max(0, count - 10)) * 0.05f;
 
+		CBlob@[] coalmines;
+		getBlobsByName("coalmine", @coalmines);
+
 		for (u8 i = 0;i<8;i++)
 		{
 			u8 index = XORRandom(resources.length);
@@ -121,12 +124,12 @@ void onTick(CBlob@ this)
 			
 			if (storage !is null)
 			{
-				amount = Maths::Max(1, amount*40);
+				amount = Maths::Max(1, (amount*160)/coalmines.length);
 				MakeMat(storage, this.getPosition(), resources[index], amount);
 			}
 			else if (!this.getInventory().isFull())
 			{
-				amount = Maths::Max(1, amount*20);
+				amount = Maths::Max(1, (amount*80)/coalmines.length);
 				MakeMat(this, this.getPosition(), resources[index], amount);
 			}
 		}

@@ -101,12 +101,6 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 
 		if (tpBlob !is null)
 		{
-			if (isClient())
-			{
-				ParticleZombieLightning(tpBlob.getPosition());
-				ParticleZombieLightning(tpBlob.getAimPos());
-			}
-
 			tpBlob.setPosition(tpBlob.getAimPos());
 			tpBlob.setVelocity(Vec2f(0.0f, 0.0f));
 		}
@@ -616,6 +610,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					if (newBlob !is null)
 					{
 						newBlob.server_SetPlayer(player);
+						blob.Tag("dead");
 						blob.server_Die();
 					}
 				}
@@ -633,6 +628,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 							if (newBlob !is null)
 							{
 								newBlob.server_SetPlayer(user);
+								userBlob.Tag("dead");
 								userBlob.server_Die();
 							}
 						}

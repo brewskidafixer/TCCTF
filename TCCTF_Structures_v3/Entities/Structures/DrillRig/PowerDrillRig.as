@@ -21,12 +21,12 @@ const string[] resources =
 
 const u8[] resourceYields = 
 {
-	6,
-	6,
-	15,
-	2,
-	2,
-	8
+	3,
+	3,
+	7,
+	1,
+	1,
+	4
 };
 
 void onInit(CBlob@ this)
