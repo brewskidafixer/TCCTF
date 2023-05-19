@@ -165,6 +165,13 @@ void ReloadIcons(CRules@ this)
 	AddIconToken("$icon_oof$", "Oof.png", Vec2f(40, 16), 0);
 	AddIconToken("$icon_gyromat$", "Gyromat.png", Vec2f(16, 16), 0);
 
+
+	// Automation
+	AddIconToken("$icon_filter_inspect$", "FilterIcons.png", Vec2f(16, 16), 0);
+	AddIconToken("$icon_filter_add$", "FilterIcons.png", Vec2f(16, 16), 1);
+	AddIconToken("$icon_whitelist$", "FilterListIcons.png", Vec2f(24, 24), 0);
+	AddIconToken("$icon_blacklist$", "FilterListIcons.png", Vec2f(24, 24), 1);
+	
 	// Fabricator
 	AddIconToken("$icon_hoverbike$", "Hoverbike.png", Vec2f(24, 16), 2);
 	AddIconToken("$icon_teleporter$", "Teleporter.png", Vec2f(32, 32), 0);

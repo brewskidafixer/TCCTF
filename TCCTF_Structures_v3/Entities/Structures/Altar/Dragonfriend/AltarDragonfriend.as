@@ -10,7 +10,7 @@ void onInit(CBlob@ this)
 	Random@ rand = Random(this.getNetworkID());
 
 	this.set_u8("deity_id", Deity::dragonfriend);
-	this.set_Vec2f("shop menu size", Vec2f(3, 2));
+	this.set_Vec2f("shop menu size", Vec2f(4, 2));
 	this.getCurrentScript().tickFrequency = 30;
 	
 	// CSprite@ sprite = this.getSprite();
@@ -55,6 +55,17 @@ void onInit(CBlob@ this)
 		
 		s.spawnNothing = true;
 	}
+	
+	AddIconToken("$icon_dragonfriend_offering_2$", "Material_Stonks.png", Vec2f(16, 16), 3);
+	{
+		ShopItem@ s = addShopItem(this, "Manipulate Market", "$icon_dragonfriend_offering_2$", "Manipulate_Market", "uses all stonks in inventory to stonk price");
+		AddRequirement(s.requirements, "blob", "mat_stonks", "Stonks", 1);
+		s.customButton = true;
+		s.buttonwidth = 1;	
+		s.buttonheight = 1;
+		s.spawnNothing = true;
+	}
+	
 	
 	// AddIconToken("$icon_dragonfriend_offering_2$", "AltarDragonfriend_Icons.png", Vec2f(24, 24), 2);
 	// {
@@ -218,15 +229,12 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 									}
 								}
 							}
-							
-							if (isServer())
-							{
-								callerPlayer.set_u8("deity_id", Deity::dragonfriend);
-								callerPlayer.Sync("deity_id", true);
-								
-								callerBlob.set_u8("deity_id", Deity::dragonfriend);
-								callerBlob.Sync("deity_id", true);
-							}
+							//if (isServer())	{
+							callerPlayer.set_u8("deity_id", Deity::dragonfriend);
+							callerBlob.set_u8("deity_id", Deity::dragonfriend);
+							callerPlayer.Sync("deity_id", true);
+							callerBlob.Sync("deity_id", true);
+							//}
 						}
 						else
 						{
@@ -285,6 +293,30 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 							{
 								this.getSprite().PlaySound("LotteryTicket_Kaching", 2.00f, 1.00f);
 							}
+						}
+						else if (data == "Manipulate_Market")
+						{
+							//get stonk value
+							f32 stonks_value = this.get_f32("stonks_value");
+							//get stonk in inventory
+							CInventory@ inv = callerBlob.getInventory();
+							u16 stonkcount = inv.getCount("mat_stonks")+1;
+							//remove stonks from inventory
+							inv.server_RemoveItems("mat_stonks", stonkcount-1);
+							
+							
+							//get sign from growth
+							if(this.get_f32("stonks_growth") < 0){
+									stonkcount = stonkcount * -1;
+							}
+							
+							f32 power = this.get_f32("deity_power");
+							f32 stonks_value_max = stonks_base_value_max + (power / 100.00f);
+							this.set_f32("stonks_value", Maths::Clamp(stonks_value + (100 * stonkcount), stonks_base_value_min, stonks_value_max));
+							this.Sync("stonks_value", true);
+							
+					
+						
 						}
 					}
 				}				
@@ -468,6 +500,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 			}
 		}
 	}
+	
 }
 
 f32 axis_x = 200;

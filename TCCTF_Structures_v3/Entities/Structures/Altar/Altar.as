@@ -121,12 +121,12 @@ void onInit(CBlob@ this)
 		{
 			ShopItem@ s = addShopItem(this, "Dragonfriend, God of Greed", "$icon_dragonfriend$", "altar_dragonfriend", "The god of wealth, power and greed.\n\n- Stonks Trading\n- Fire Resistance up to 100%\n- Summon a meteor\n\n- $KEY_S$+$LMB$ to conjure a fireball");
 			AddRequirement(s.requirements, "no more global", "altar_dragonfriend", "Altar of the Dragon", 1);
-			AddRequirement(s.requirements, "blob", "meteor", "Meteor", 1);
-			AddRequirement(s.requirements, "coin", "", "Coins", 7500);
+			//AddRequirement(s.requirements, "blob", "meteor", "Meteor", 1);
+			AddRequirement(s.requirements, "blob", "mat_gold", "gold ore", 250);
+			AddRequirement(s.requirements, "coin", "", "Coins", 4000);
 			s.customButton = true;
 			s.buttonwidth = 2;	
 			s.buttonheight = 2;
-			
 			s.spawnNothing = true;
 		}
 		{
