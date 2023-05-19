@@ -166,6 +166,7 @@ void onHitGround(CBlob@ this)
     }
 
     f32 boomRadius = 48.0f * power;
+    boomRadius *= 1 + Maths::Sqrt(this.get_f32("deity_power"))/10;
     this.set_f32("map_damage_radius", boomRadius);
     Explode(this, boomRadius, 20.0f);
 
@@ -196,13 +197,17 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
     if (isServer())
     {
         f32 multiplier = damage * 2;
+        if (!this.hasTag("dragonfriend"))
+        {
+            if (XORRandom(5) == 0) MakeMat(hitterBlob, worldPoint, "mat_plasteel", (2 + XORRandom(5)) * multiplier);
+        }
+        else multiplier *= 0.5f;
         MakeMat(hitterBlob, worldPoint, "mat_stone", (20 + XORRandom(50)) * multiplier);
         if (XORRandom(2) == 0) MakeMat(hitterBlob, worldPoint, "mat_copper", (5 + XORRandom(10)) * multiplier);
         if (XORRandom(2) == 0) MakeMat(hitterBlob, worldPoint, "mat_iron", (10 + XORRandom(40)) * multiplier);
         if (XORRandom(2) == 0) MakeMat(hitterBlob, worldPoint, "mat_mithril", (3 + XORRandom(10)) * multiplier);
         if (XORRandom(2) == 0) MakeMat(hitterBlob, worldPoint, "mat_coal", (3 + XORRandom(10)) * multiplier);
         if (XORRandom(2) == 0) MakeMat(hitterBlob, worldPoint, "mat_gold", (XORRandom(35)) * multiplier);
-        if (XORRandom(5) == 0) MakeMat(hitterBlob, worldPoint, "mat_plasteel", (2 + XORRandom(5)) * multiplier);
     }
     return damage;
 }
