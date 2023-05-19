@@ -58,7 +58,7 @@ void onInit(CBlob@ this)
 	
 	AddIconToken("$icon_dragonfriend_offering_2$", "Material_Stonks.png", Vec2f(16, 16), 3);
 	{
-		ShopItem@ s = addShopItem(this, "Manipulate Market", "$icon_dragonfriend_offering_2$", "Manipulate_Market", "uses all stonks in inventory to stonk price");
+		ShopItem@ s = addShopItem(this, "Manipulate Market", "$icon_dragonfriend_offering_2$", "Manipulate_Market", "Manipulate stonks price");
 		AddRequirement(s.requirements, "blob", "mat_stonks", "Stonks", 1);
 		s.customButton = true;
 		s.buttonwidth = 1;	
@@ -299,20 +299,21 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 							//get stonk value
 							f32 stonks_value = this.get_f32("stonks_value");
 							//get stonk in inventory
-							CInventory@ inv = callerBlob.getInventory();
-							u16 stonkcount = inv.getCount("mat_stonks")+1;
+							//CInventory@ inv = callerBlob.getInventory();
+							//s16 stonkcount = inv.getCount("mat_stonks")+1;
 							//remove stonks from inventory
-							inv.server_RemoveItems("mat_stonks", stonkcount-1);
+							//inv.server_RemoveItems("mat_stonks", stonkcount-1);
 							
-							
+							s16 stonksign = 1;
 							//get sign from growth
 							if(this.get_f32("stonks_growth") < 0){
-									stonkcount = stonkcount * -1;
+									stonksign = -1;
 							}
 							
 							f32 power = this.get_f32("deity_power");
 							f32 stonks_value_max = stonks_base_value_max + (power / 100.00f);
-							this.set_f32("stonks_value", Maths::Clamp(stonks_value + (100 * stonkcount), stonks_base_value_min, stonks_value_max));
+							//this.set_f32("stonks_value", Maths::Clamp(stonks_value + (50 * stonkcount), stonks_base_value_min, stonks_value_max));
+							this.set_f32("stonks_value", Maths::Clamp(stonks_value + (100 * stonksign), stonks_base_value_min, stonks_value_max));
 							this.Sync("stonks_value", true);
 							
 					
