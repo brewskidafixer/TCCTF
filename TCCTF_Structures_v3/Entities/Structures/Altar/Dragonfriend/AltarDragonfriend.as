@@ -48,11 +48,11 @@ void onInit(CBlob@ this)
 	AddIconToken("$icon_dragonfriend_offering_1$", "AltarDragonfriend_Icons.png", Vec2f(24, 24), 1);
 	{
 		ShopItem@ s = addShopItem(this, "Offering of the Meteor", "$icon_dragonfriend_offering_1$", "offering_meteor", "Offer 10000 coins to summon a meteor.");
-		AddRequirement(s.requirements, "blob", "mat_goldingot", "Gold Ingot", 100);
+		//AddRequirement(s.requirements, "blob", "mat_goldingot", "Gold Ingot", 100);
+		AddRequirement(s.requirements, "coin", "", "Coins", 10000);
 		s.customButton = true;
 		s.buttonwidth = 1;	
 		s.buttonheight = 1;
-		
 		s.spawnNothing = true;
 	}
 	
