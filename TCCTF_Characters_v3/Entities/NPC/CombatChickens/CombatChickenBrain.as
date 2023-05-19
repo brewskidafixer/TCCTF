@@ -195,8 +195,15 @@ void onTick(CBrain@ this)
 			
 				if (bases.length > 0) 
 				{
-					blob.set_u16("raid target", bases[XORRandom(bases.length)].getNetworkID());
-					this.getCurrentScript().tickFrequency = 1;
+					for (u8 j = 0; j < bases.length; j++)
+					{
+						if (bases[j].getTeamNum() != this.getTeamNum())
+						{
+							blob.set_u16("raid target", bases[j].getNetworkID());
+							this.getCurrentScript().tickFrequency = 1;
+							break;
+						}
+					}
 				}
 			}
 		}
