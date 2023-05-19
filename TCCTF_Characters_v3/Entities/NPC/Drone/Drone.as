@@ -402,6 +402,7 @@ void onDie(CBlob@ this)
 
 void DoExplosion(CBlob@ this)
 {
+	if (this.hasTag("dead")) return;
 	CRules@ rules = getRules();
 	if (!shouldExplode(this, rules))
 	{
@@ -421,12 +422,12 @@ void DoExplosion(CBlob@ this)
 	this.set_f32("map_damage_radius", (16.0f + random) * modifier);
 	this.set_f32("map_damage_ratio", 0.25f);
 	
-	Explode(this, 16.0f + random, 50.0f);
+	Explode(this, 16.0f + random, 20.0f);
 
-	for (int i = 0; i < 16 * modifier; i++) 
+	for (int i = 0; i < 5 * modifier; i++) 
 	{
 		Vec2f dir = getRandomVelocity(angle, 1, 80);
-		LinearExplosion(this, dir, (8.0f + XORRandom(8) + (modifier * 4)) * vellen, 6 + XORRandom(4), 10 + XORRandom(vellen), 50.0f, Hitters::explosion);
+		LinearExplosion(this, dir, (8.0f + XORRandom(8) + (modifier * 4)) * vellen, 6 + XORRandom(4), 10 + XORRandom(vellen), 10.0f, Hitters::explosion);
 	}
 	
 	Vec2f pos = this.getPosition();
@@ -442,7 +443,7 @@ void DoExplosion(CBlob@ this)
 			blob.setVelocity(Vec2f(8 - XORRandom(16), -5 - XORRandom(10)) * (0.5f));
 		}
 		
-		for (int i = 0; i < 64; i++)
+		for (int i = 0; i < 32; i++)
 		{
 			Vec2f tpos = getRandomVelocity(angle, 1, 120) * XORRandom(64);
 			if (map.isTileSolid(pos + tpos)) map.server_SetTile(pos + tpos, CMap::tile_matter);
@@ -464,14 +465,6 @@ void DoExplosion(CBlob@ this)
 			}
 		}
 	}
-	
-	if (isClient())
-	{
-		SetScreenFlash(50, 255, 255, 255);
-		this.getSprite().Gib();
-	}
-	
-	
 }
 
 void MakeParticle(CBlob@ this, const Vec2f pos, const Vec2f vel, const string filename = "SmallSteam")

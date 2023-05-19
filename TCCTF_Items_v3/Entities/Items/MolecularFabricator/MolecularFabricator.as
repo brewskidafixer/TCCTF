@@ -70,19 +70,19 @@ void onInit(CBlob@ this)
 	{
 		ShopItem@ s = addShopItem(this, "Transmute Iron to Copper", "$mat_copper$", "mat_copper-250", "Transmute 250 Iron Ore into 250 Copper Ore.");
 		AddRequirement(s.requirements, "blob", "mat_iron", "Iron Ore", 250);
-		AddRequirement(s.requirements, "blob", "mat_matter", "Amazing Technicolor Dust", 10);
+		AddRequirement(s.requirements, "blob", "mat_matter", "Amazing Technicolor Dust", 125);
 		s.spawnNothing = true;
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Transmute Copper to Gold", "$mat_gold$", "mat_gold-250", "Transmute 250 Copper Ore into 250 Gold Ore.");
 		AddRequirement(s.requirements, "blob", "mat_copper", "Copper Ore", 250);
-		AddRequirement(s.requirements, "blob", "mat_matter", "Amazing Technicolor Dust", 135);
+		AddRequirement(s.requirements, "blob", "mat_matter", "Amazing Technicolor Dust", 375);
 		s.spawnNothing = true;
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Transmute Gold to Mithril", "$mat_mithril$", "mat_mithril-250", "Transmute 250 Gold Ore into 250 Mithril Ore.");
 		AddRequirement(s.requirements, "blob", "mat_gold", "Gold Ore", 250);
-		AddRequirement(s.requirements, "blob", "mat_matter", "Amazing Technicolor Dust", 50);
+		AddRequirement(s.requirements, "blob", "mat_matter", "Amazing Technicolor Dust", 125);
 		s.spawnNothing = true;
 	}
 	{
@@ -93,8 +93,8 @@ void onInit(CBlob@ this)
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Reconstruct a Portable Molecular Fabricator", "$icon_molecularfabricator$", "molecularfabricator", "A highly advanced machine capable of restructuring molecules and atoms.");
-		AddRequirement(s.requirements, "blob", "mat_matter", "Amazing Technicolor Dust", 25);
-		AddRequirement(s.requirements, "blob", "mat_plasteel", "Plasteel Sheet", 10);
+		AddRequirement(s.requirements, "blob", "mat_matter", "Amazing Technicolor Dust", 50);
+		AddRequirement(s.requirements, "blob", "mat_plasteel", "Plasteel Sheet", 20);
 		// AddRequirement(s.requirements, "blob", "mat_mithrilingot", "Mithril Ingot", 2);
 		s.spawnNothing = true;
 	}

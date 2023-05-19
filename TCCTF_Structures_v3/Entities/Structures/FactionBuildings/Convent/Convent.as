@@ -61,7 +61,7 @@ void onInit(CBlob@ this)
 	
 	// Upgrading stuff
 	this.set_Vec2f("shop offset", Vec2f(-12, 5));
-	this.set_Vec2f("shop menu size", Vec2f(2, 3));
+	this.set_Vec2f("shop menu size", Vec2f(2, 4));
 	this.set_string("shop description", "Upgrades & Repairs");
 	this.set_u8("shop icon", 15);
 	// this.Tag(SHOP_AUTOCLOSE);
@@ -89,6 +89,13 @@ void onInit(CBlob@ this)
 		s.buttonwidth = 2;	
 		s.buttonheight = 1;
 		
+		s.spawnNothing = true;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Ancient Technology", "$molecularfabricator$", "molecularfabricator", "Construct a molecular fabricator.");
+		AddRequirement(s.requirements, "blob", "mat_matter", "Amazing Technicolor Dust", 50);
+		AddRequirement(s.requirements, "blob", "mat_plasteel", "Plasteel Sheet", 20);
+		AddRequirement(s.requirements, "coin", "", "Coins", 2500);
 		s.spawnNothing = true;
 	}
 }
