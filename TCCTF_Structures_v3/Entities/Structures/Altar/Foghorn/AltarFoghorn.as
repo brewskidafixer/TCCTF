@@ -45,12 +45,12 @@ void onTick(CBlob@ this)
 	if (power > 7500)
 	{
 		this.set_string("classtype", "heavychicken");
-		this.set_u8("maxChickens", this.get_u8("maxChickens")/4);
+		this.set_u8("maxChickens", this.get_u8("maxChickens"));
 	}
 	else if (power > 1500)
 	{
 		this.set_string("classtype", "soldierchicken");
-		this.set_u8("maxChickens", this.get_u8("maxChickens")/2);
+		this.set_u8("maxChickens", this.get_u8("maxChickens"));
 	}
 	this.setInventoryName("Altar of Foghorn\n\nUPF Power: "+power
 		+"\nChicken Morph Type: "+this.get_string("classtype")
@@ -86,12 +86,12 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 						if (this.get_f32("deity_power") > 7500)
 						{
 							this.set_string("classtype", "heavychicken");
-							this.set_u8("maxChickens", this.get_u8("maxChickens")/4);
+							this.set_u8("maxChickens", this.get_u8("maxChickens"));
 						}
 						else if (this.get_f32("deity_power") > 1500)
 						{
 							this.set_string("classtype", "soldierchicken");
-							this.set_u8("maxChickens", this.get_u8("maxChickens")/2);
+							this.set_u8("maxChickens", this.get_u8("maxChickens"));
 						}
 						if (chickens.length < this.get_u8("maxChickens"))
 						{
@@ -101,7 +101,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 								callerBlob.server_Pickup(blob);
 							}
 						}
-						else Sound::Play("NoAmmo.ogg");
+						else if (callerBlob.isMyPlayer()) Sound::Play("NoAmmo.ogg");
 					}
 					else if (data == "offering_phone")
 					{
@@ -125,7 +125,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 							s.spawnNothing = true;
 							this.Tag("ChickenTools");
 						}
-						else if (!this.hasTag("Summon"))
+						if (!this.hasTag("Summon"))
 						{
 							this.add_f32("deity_power", 250);
 							if (isServer()) this.Sync("deity_power", false);
@@ -147,12 +147,12 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 							if (this.get_f32("deity_power") > 7500)
 							{
 								this.set_string("classtype", "heavychicken");
-								this.set_u8("maxChickens", this.get_u8("maxChickens")/4);
+								this.set_u8("maxChickens", this.get_u8("maxChickens"));
 							}
 							else if (this.get_f32("deity_power") > 1500)
 							{
 								this.set_string("classtype", "soldierchicken");
-								this.set_u8("maxChickens", this.get_u8("maxChickens")/2);
+								this.set_u8("maxChickens", this.get_u8("maxChickens"));
 							}
 						}
 					}

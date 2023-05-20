@@ -132,7 +132,7 @@ void onInit(CBlob@ this)
 		{
 			ShopItem@ s = addShopItem(this, "Foghorn, God of Poultry", "$icon_foghorn$", "altar_foghorn", "The god of poultry. Allows one to summon ally chickens, and morph into a chicken.");
 			AddRequirement(s.requirements, "no more global", "altar_foghorn", "Altar of Foghorn", 1);
-			AddRequirement(s.requirements, "blob", "chicken", "Chicken", 32);
+			AddRequirement(s.requirements, "blob", "chicken", "Chicken", 20+XORRandom(60));
 			AddRequirement(s.requirements, "coin", "", "Coins", 1000+XORRandom(3000));
 			s.customButton = true;
 			s.buttonwidth = 2;	

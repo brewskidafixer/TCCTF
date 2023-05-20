@@ -67,13 +67,18 @@ void onInit(CBlob@ this)
 		
 		// s.spawnNothing = true;
 	// }
+	this.set_u32("total_stonks", 1);
 	this.set_f32("stonks_growth", 0.01f);
 	this.set_f32("stonks_daily_growth", 0.01f);
 	this.set_f32("stonks_value", rand.NextRanged(stonks_base_value_max));
+	this.set_bool("canRedeem", true);
+	this.set_u32("dividend_time", 300);
+	this.set_u32("dividend", 500);
 
 	this.addCommandID("stonks_update");
 	this.addCommandID("stonks_trade");
 	this.addCommandID("stonks_menu");
+	this.addCommandID("redeem_div");
 
 	u8 teamnum = this.getTeamNum();
 	AddIconToken("$icon_stonks1$", "Material_Stonks.png", Vec2f(16, 16), 0, teamnum);
@@ -108,8 +113,11 @@ void onTick(CBlob@ this)
 		string text = "Altar of the Dragon\n";
 		text += "\nDragon Power: " + power;
 		text += "\nFire Resistance: " + Maths::Min(power / power_fire_immunity_max * 100.00f, 100.00f) + "%";
-		text += "\nMaximum Stonks Value: " + Maths::Ceil(stonks_base_value_max + (power / 100.00f)) + " coins";
 		text += "\nFireball Power: " + Maths::Round((1.00f + Maths::Sqrt(power * 0.00002f)) * 100.00f) + "%";
+		text += "\nMaximum Stonks Value: " + Maths::Ceil(stonks_base_value_max + (power / 100.00f)) + " coins";
+		text += "\nDividends to be Collected: " +this.get_u32("dividend") + " coins";
+		text += "\nNext Dividends Payout : " +this.get_u32("dividend_time")+" seconds.";
+		text += "\nStonks Owned : " +this.get_u32("total_stonks");
 		this.setInventoryName(text);
 		
 		const f32 radius = 64.00f + ((power / 100.00f) * 8.00f);
@@ -122,6 +130,13 @@ void onTick(CBlob@ this)
 	if (resetDaily)
 	{
 		this.set_f32("stonks_daily_growth", 0.0f);
+	}
+	if (this.get_u32("dividend_time") > 1) this.sub_u32("dividend_time", 1);
+	else
+	{
+		this.add_u32("dividend", this.get_u32("total_stonks")*(this.get_f32("stonks_value")*(1+XORRandom(250))*0.001f));
+		this.set_bool("canRedeem", true);
+		this.set_u32("dividend_time", 300);
 	}
 }
 
@@ -148,12 +163,19 @@ void updateStonks(CBlob@ this, s16 quantity=10)
 
 void GetButtonsFor(CBlob@ this, CBlob@ caller)
 {
-	if (this.isOverlapping(caller) && caller.get_u8("deity_id") == Deity::dragonfriend)
+	if (!(this.isOverlapping(caller) && caller.get_u8("deity_id") == Deity::dragonfriend)) return;
 	{
 		CBitStream params;
 		params.write_u16(caller.getNetworkID());
 		
 		CButton@ buttonEject = caller.CreateGenericButton(11, Vec2f(0, -8), this, this.getCommandID("stonks_menu"), "Stonks Menu", params);
+	}
+	if (this.get_bool("canRedeem"))
+	{
+		CBitStream params;
+		params.write_u16(caller.getNetworkID());
+		
+		CButton@ buttonEject = caller.CreateGenericButton(11, Vec2f(0, 8), this, this.getCommandID("redeem_div"), "Redeem Dividends!", params);
 	}
 }
 
@@ -373,17 +395,9 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 						{
 							case 0: // Buy
 							{
-								if (isServer())
-								{
-									MakeMat(caller, this.getPosition(), "mat_stonks", quantity);
-									// this.set_f32("stonks_value", Maths::Clamp(stonks_value + (buy_price * 0.02f), stonks_base_value_min, stonks_base_value_max));
-									// this.Sync("stonks_value", false);
-								}
-								
-								if (isClient())
-								{
-									this.getSprite().PlaySound("/ChaChing.ogg");
-								}
+								if (isServer()) MakeMat(caller, this.getPosition(), "mat_stonks", quantity);
+								if (isClient()) this.getSprite().PlaySound("/ChaChing.ogg");
+								this.add_u32("total_stonks", quantity);
 							}
 							break;
 							
@@ -404,10 +418,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 											{
 												mat.Tag("do not set materials");
 												mat.server_SetQuantity(goldIngots);
-												if (!caller.server_PutInInventory(mat))
-												{
-													caller.server_Pickup(mat);
-												}
+												if (!caller.server_PutInInventory(mat)) caller.server_Pickup(mat);
 											}
 										}
 									}
@@ -420,12 +431,52 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 								{
 									this.getSprite().PlaySound("/ChaChing.ogg");
 								}
+								this.sub_u32("total_stonks", quantity);
 							}
 							break;
 						}
 						updateStonks(this, quantity);
 					}
+					else if (caller.isMyPlayer()) Sound::Play("NoAmmo.ogg");
 				}
+			}
+		}
+	}
+	else if (cmd == this.getCommandID("redeem_div"))
+	{
+		u16 caller_netid;
+		if (params.saferead_netid(caller_netid))
+		{
+			CBlob@ caller = getBlobByNetworkID(caller_netid);
+			if (caller !is null)
+			{
+				CPlayer@ callerPlayer = caller.getPlayer();
+				if (callerPlayer is null) return;
+				if (this.get_bool("canRedeem"))
+				{
+					if (isServer())
+					{
+						u32 totalCoins = callerPlayer.getCoins() + this.get_u32("dividend");
+						if (totalCoins >  30000)
+						{
+							u16 goldIngots = (totalCoins - 30000)/100;
+							if (goldIngots > 0)
+							{
+								totalCoins = totalCoins - (100 * goldIngots);
+								CBlob@ mat = server_CreateBlob("mat_goldingot");
+								if (mat !is null)
+								{
+									mat.Tag("do not set materials");
+									mat.server_SetQuantity(goldIngots);
+									if (!caller.server_PutInInventory(mat)) caller.server_Pickup(mat);
+								}
+							}
+						}
+						callerPlayer.server_setCoins(totalCoins);
+					}
+					this.set_u32("dividend", 0);
+				}
+				this.set_bool("canRedeem", false);
 			}
 		}
 	}
