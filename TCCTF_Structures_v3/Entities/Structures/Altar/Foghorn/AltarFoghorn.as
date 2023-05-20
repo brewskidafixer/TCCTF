@@ -54,7 +54,7 @@ void onInit(CBlob@ this)
 		s.spawnNothing = true;
 	}
 	
-	this.set_f32("deity_power", 0);
+	this.set_f32("deity_power", 250);
 }
 
 void onTick(CBlob@ this)
