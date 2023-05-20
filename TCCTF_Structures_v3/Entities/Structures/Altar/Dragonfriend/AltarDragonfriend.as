@@ -125,7 +125,7 @@ void onTick(CBlob@ this)
 	}
 }
 
-void updateStonks(CBlob@ this, u8 quantity=10)
+void updateStonks(CBlob@ this, s16 quantity=10)
 {
 	const f32 power = this.get_f32("deity_power");
 	f32 stonks_growth = this.get_f32("stonks_growth");;
