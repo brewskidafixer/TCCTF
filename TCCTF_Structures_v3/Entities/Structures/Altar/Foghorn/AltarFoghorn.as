@@ -30,6 +30,29 @@ void onInit(CBlob@ this)
 		
 		s.spawnNothing = true;
 	}
+	{
+		ShopItem@ s = addShopItem(this, "Offer Scrub's Chow", "$foodcan$", "offering_scrubs", "Sacrifice Scrub's chow in return for power.");
+		AddRequirement(s.requirements, "blob", "foodcan", "Scrub's Chow", 20);
+		s.customButton = true;
+		s.buttonwidth = 1;	
+		s.buttonheight = 1;
+		
+		s.spawnNothing = true;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Chicken's Outfit", "$chickentools$", "chickentools", "Morph into a chicken using chickentools.", true);
+		AddRequirement(s.requirements, "blob", "chicken", "Chicken", 1);
+		AddRequirement(s.requirements, "coin", "", "Coins", 1500);
+
+		s.spawnNothing = true;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Recruit a UPF Soldier", "$soldierchicken$", "offering_summon", "Enlist a UPF chicken soldier.", true);
+		AddRequirement(s.requirements, "blob", "egg", "Egg", 1);
+		AddRequirement(s.requirements, "coin", "", "Coins", 1750);
+
+		s.spawnNothing = true;
+	}
 	
 	this.set_f32("deity_power", 0);
 }
@@ -105,55 +128,21 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 					}
 					else if (data == "offering_phone")
 					{
-						if (!this.hasTag("Scrubs"))
-						{
-							ShopItem@ s = addShopItem(this, "Offer Scrub's Chow", "$foodcan$", "offering_scrubs", "Sacrifice Scrub's chow in return for power.");
-							AddRequirement(s.requirements, "blob", "foodcan", "Scrub's Chow", 40);
-							s.customButton = true;
-							s.buttonwidth = 1;	
-							s.buttonheight = 1;
-							
-							s.spawnNothing = true;
-							this.Tag("Scrubs");
-						}
-						if (!this.hasTag("ChickenTools"))
-						{
-							ShopItem@ s = addShopItem(this, "Chicken's Outfit", "$chickentools$", "chickentools", "Morph into a chicken using chickentools.", true);
-							AddRequirement(s.requirements, "blob", "chicken", "Chicken", 1);
-							AddRequirement(s.requirements, "coin", "", "Coins", 1500);
+						this.add_f32("deity_power", 2500);
+						if (isServer()) this.Sync("deity_power", false);
+						this.set_u8("maxChickens", Maths::FastSqrt(Maths::FastSqrt(this.get_f32("deity_power"))));
+						CBlob@[] chickens;
+						getBlobsByTag("combat chicken", chickens);
 
-							s.spawnNothing = true;
-							this.Tag("ChickenTools");
-						}
-						if (!this.hasTag("Summon"))
+						if (this.get_f32("deity_power") > 7500)
 						{
-							this.add_f32("deity_power", 250);
-							if (isServer()) this.Sync("deity_power", false);
-							ShopItem@ s = addShopItem(this, "Recruit a UPF Soldier", "$soldierchicken$", "offering_summon", "Enlist a UPF chicken soldier.", true);
-							AddRequirement(s.requirements, "blob", "chicken", "Chicken", 1);
-							AddRequirement(s.requirements, "coin", "", "Coins", 1750);
-
-							s.spawnNothing = true;
-							this.Tag("Summon");
+							this.set_string("classtype", "heavychicken");
+							this.set_u8("maxChickens", this.get_u8("maxChickens"));
 						}
-						else 
+						else if (this.get_f32("deity_power") > 1500)
 						{
-							this.add_f32("deity_power", 2500);
-							if (isServer()) this.Sync("deity_power", false);
-							this.set_u8("maxChickens", Maths::FastSqrt(Maths::FastSqrt(this.get_f32("deity_power"))));
-							CBlob@[] chickens;
-							getBlobsByTag("combat chicken", chickens);
-
-							if (this.get_f32("deity_power") > 7500)
-							{
-								this.set_string("classtype", "heavychicken");
-								this.set_u8("maxChickens", this.get_u8("maxChickens"));
-							}
-							else if (this.get_f32("deity_power") > 1500)
-							{
-								this.set_string("classtype", "soldierchicken");
-								this.set_u8("maxChickens", this.get_u8("maxChickens"));
-							}
+							this.set_string("classtype", "soldierchicken");
+							this.set_u8("maxChickens", this.get_u8("maxChickens"));
 						}
 					}
 					else if (isServer() && data == "chickentools")

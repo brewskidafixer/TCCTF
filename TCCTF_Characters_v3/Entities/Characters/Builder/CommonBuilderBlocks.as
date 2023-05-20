@@ -319,11 +319,6 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int teamnum = 7)
 		AddRequirement(b.reqs, "blob", "mat_mithrilingot", "Mithril Ingots", 30);
 		blocks[0].push_back(b);
 	}
-	{
-		BuildBlock b(CMap::tile_kudzu, "kudzu", "$kudzu_block$", "Mostly decorative kudzu leaves \n ");
-		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 20);
-		blocks[0].push_back(b);
-	}
 	
 	
 	// {
