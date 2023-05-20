@@ -159,7 +159,7 @@ void onTick(CBlob@ this)
 					Vec2f dir = holder.getAimPos() - holder.getPosition();
 					dir.Normalize();
 					holder.setVelocity(dir * (holder.isOnGround() ? 10.0f : 7.0f));
-					this.set_u32("dash time", getGameTime() + 30);
+					this.set_u32("dash time", getGameTime() + 20);
 					this.set_u32("next dash", getGameTime() + 150);
 				}
 			}

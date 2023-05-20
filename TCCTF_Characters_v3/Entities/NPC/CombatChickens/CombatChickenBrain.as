@@ -111,7 +111,7 @@ void onTick(CBrain@ this)
 				
 				// print("" + d);
 				
-				if (b.getTeamNum() != myTeam && d <= chaseDistanceSqr && !b.hasTag("dead") && b.hasTag("flesh") && !b.hasTag("invincible") && b.get_u8("deity_id") != Deity::foghorn && (isVisible(blob, b) || d < (48 * 48)))
+				if (b.getTeamNum() != myTeam && d <= chaseDistanceSqr && !b.hasTag("dead") && b.hasTag("flesh") && !b.hasTag("passive") && !b.hasTag("invincible") && b.get_u8("deity_id") != Deity::foghorn && (isVisible(blob, b) || d < (48 * 48)))
 				{
 					this.SetTarget(b);
 					blob.set_u32("nextAttack", getGameTime() + blob.get_u8("reactionTime"));
@@ -359,23 +359,6 @@ void Attack(CBrain@ this, CBlob@ target, bool useBombs)
 					blob.setKeyPressed(key_action1, false);
 					blob.set_bool("should_do_attack_hack", false);
 				}
-			}
-		}
-	}
-	else if (useBombs && blob.get_bool("bomber") && blob.get_u32("nextBomb") < getGameTime())
-	{
-		if (XORRandom(100) < 2)
-		{
-			CBlob@ bomb = server_CreateBlob("bomb", blob.getTeamNum(), blob.getPosition());
-			if (bomb !is null)
-			{
-				Vec2f dir = blob.getAimPos() - blob.getPosition();
-				f32 dist = dir.Length();
-				
-				dir.Normalize();
-				
-				bomb.setVelocity((dir * (dist * 0.4f)) + Vec2f(0, -5));
-				blob.set_u32("nextBomb", getGameTime() + 600);
 			}
 		}
 	}
