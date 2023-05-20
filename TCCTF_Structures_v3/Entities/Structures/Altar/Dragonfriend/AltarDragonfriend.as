@@ -56,16 +56,6 @@ void onInit(CBlob@ this)
 		s.spawnNothing = true;
 	}
 	
-	AddIconToken("$icon_dragonfriend_offering_2$", "Material_Stonks.png", Vec2f(16, 16), 3);
-	{
-		ShopItem@ s = addShopItem(this, "Manipulate Market", "$icon_dragonfriend_offering_2$", "Manipulate_Market", "Manipulate stonks price");
-		AddRequirement(s.requirements, "blob", "mat_stonks", "Stonks", 1);
-		s.customButton = true;
-		s.buttonwidth = 1;	
-		s.buttonheight = 1;
-		s.spawnNothing = true;
-	}
-	
 	
 	// AddIconToken("$icon_dragonfriend_offering_2$", "AltarDragonfriend_Icons.png", Vec2f(24, 24), 2);
 	// {
@@ -77,9 +67,8 @@ void onInit(CBlob@ this)
 		
 		// s.spawnNothing = true;
 	// }
-	
-	this.set_f32("stonks_volatility", 0.20f);
 	this.set_f32("stonks_growth", 0.01f);
+	this.set_f32("stonks_daily_growth", 0.01f);
 	this.set_f32("stonks_value", rand.NextRanged(stonks_base_value_max));
 
 	this.addCommandID("stonks_update");
@@ -111,79 +100,55 @@ void onTick(CBlob@ this)
 
 	if (client)
 	{
-		buy_pressed = false;	
-		sell_pressed = false;	
-	
 		const f32 power = this.get_f32("deity_power");
 	
-		const f32 stonks_volatility = this.get_f32("stonks_volatility");
 		const f32 stonks_growth = this.get_f32("stonks_growth");
 		const f32 stonks_value = this.get_f32("stonks_value");
-		
-		string volatility_text;
-		if (stonks_volatility > 0.90f) volatility_text = "extremely high";
-		else if (stonks_volatility > 0.80f) volatility_text = "very high";
-		else if (stonks_volatility > 0.60f) volatility_text = "high";
-		else if (stonks_volatility > 0.40f) volatility_text = "medium";
-		else if (stonks_volatility > 0.20f) volatility_text = "low";
-		else volatility_text = "very low";
 		
 		string text = "Altar of the Dragon\n";
 		text += "\nDragon Power: " + power;
 		text += "\nFire Resistance: " + Maths::Min(power / power_fire_immunity_max * 100.00f, 100.00f) + "%";
 		text += "\nMaximum Stonks Value: " + Maths::Ceil(stonks_base_value_max + (power / 100.00f)) + " coins";
 		text += "\nFireball Power: " + Maths::Round((1.00f + Maths::Sqrt(power * 0.00002f)) * 100.00f) + "%";
-		// text += "\n\nStonks:";
-		text += "\nVolatility: " + volatility_text;
-		// text += "\nGrowth: " + (stonks_growth >= 0 ? "+" : "-") + (Maths::Abs(s32(stonks_growth * 10000.00f) * 0.01f)) + "%";
-		// text += "\n";
-		// text += "\nSell Price: " + Maths::Ceil(stonks_value) + " coins";
-		// text += "\nBuy Price: " + Maths::Ceil(stonks_value * 0.98f) + " coins";
 		this.setInventoryName(text);
 		
 		const f32 radius = 64.00f + ((power / 100.00f) * 8.00f);
 		this.SetLightRadius(radius);
 	}
 	
-	if (isServer())
+	updateStonks(this);
+	f32 dayTime = getMap().getDayTime();
+	bool resetDaily = dayTime < 0.001f;
+	if (resetDaily)
 	{
-		updateStonks(this);
+		this.set_f32("stonks_daily_growth", 0.0f);
 	}
 }
 
-void updateStonks(CBlob@ this)
+void updateStonks(CBlob@ this, s16 quantity=10)
 {
-	// print("updating stonks");
-
 	const f32 power = this.get_f32("deity_power");
-
-	f32 stonks_volatility = this.get_f32("stonks_volatility");
-	f32 stonks_growth = this.get_f32("stonks_growth");
+	f32 stonks_growth = this.get_f32("stonks_growth");;
 	f32 stonks_value = this.get_f32("stonks_value");
 
 	f32 stonks_value_max = stonks_base_value_max + (power / 100.00f);
+	f32 stonks_growth_new = (XORRandom(2) == 0 ? 1 : -1) * (Maths::Sqrt(XORRandom(15*quantity))/1000.0f);
+	f32 stonks_value_new = stonks_value * (1.0f +stonks_growth_new);
+	this.add_f32("stonks_daily_growth", stonks_growth_new);
 
-	if (stonks_value == stonks_base_value_min || stonks_value == stonks_value_max) stonks_growth *= -Maths::Min(0.30f + stonks_volatility, 0.80f);
-	if ((XORRandom(100) * 0.01f) < Maths::Pow(stonks_volatility, 2.00f)) stonks_growth *= -stonks_volatility * 1.40f;
-	if ((XORRandom(100) * 0.01f) > Maths::Pow(stonks_volatility, 2.00f)) stonks_growth *= 0.80f;
-	if ((XORRandom(100) * 0.01f) > Maths::Pow(stonks_volatility, 3.00f)) stonks_growth *= 1.25f;
-
-	f32 stonks_volatility_new = (XORRandom(100) < 10) ? Maths::Pow(XORRandom(100) * 0.01f, 1.50f) : (stonks_volatility);
-	f32 stonks_growth_new = stonks_growth + (((1000 - XORRandom(2000)) / 1000.00f) * (stonks_volatility_new * stonks_volatility_new * 0.15f));
-	f32 stonks_value_new = Maths::Clamp(stonks_value * (1.00f + stonks_growth_new), stonks_base_value_min, stonks_value_max);
-
-	CBitStream stream;
-	
-	stream.write_f32(stonks_volatility_new);
-	stream.write_f32(stonks_growth_new);
-	stream.write_f32(stonks_value_new);
-	
-	this.SendCommand(this.getCommandID("stonks_update"), stream);
+	if (isServer())
+	{
+		CBitStream stream;
+		stream.write_f32(stonks_growth_new);
+		stream.write_f32(stonks_value_new);
+		
+		this.SendCommand(this.getCommandID("stonks_update"), stream);
+	}
 }
 
 void GetButtonsFor(CBlob@ this, CBlob@ caller)
 {
-	if (this.isOverlapping(caller))
+	if (this.isOverlapping(caller) && caller.get_u8("deity_id") == Deity::dragonfriend)
 	{
 		CBitStream params;
 		params.write_u16(caller.getNetworkID());
@@ -294,31 +259,6 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 								this.getSprite().PlaySound("LotteryTicket_Kaching", 2.00f, 1.00f);
 							}
 						}
-						else if (data == "Manipulate_Market")
-						{
-							//get stonk value
-							f32 stonks_value = this.get_f32("stonks_value");
-							//get stonk in inventory
-							//CInventory@ inv = callerBlob.getInventory();
-							//s16 stonkcount = inv.getCount("mat_stonks")+1;
-							//remove stonks from inventory
-							//inv.server_RemoveItems("mat_stonks", stonkcount-1);
-							
-							s16 stonksign = 1;
-							//get sign from growth
-							if(this.get_f32("stonks_growth") < 0){
-									stonksign = -1;
-							}
-							
-							f32 power = this.get_f32("deity_power");
-							f32 stonks_value_max = stonks_base_value_max + (power / 100.00f);
-							//this.set_f32("stonks_value", Maths::Clamp(stonks_value + (50 * stonkcount), stonks_base_value_min, stonks_value_max));
-							this.set_f32("stonks_value", Maths::Clamp(stonks_value + (100 * stonksign), stonks_base_value_min, stonks_value_max));
-							this.Sync("stonks_value", true);
-							
-					
-						
-						}
 					}
 				}				
 			}
@@ -362,25 +302,16 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 	{
 		if (isClient())
 		{
-			f32 stonks_volatility;
 			f32 stonks_growth;
 			f32 stonks_value;
 			
-			if (params.saferead_f32(stonks_volatility) && params.saferead_f32(stonks_growth) && params.saferead_f32(stonks_value))
+			if (params.saferead_f32(stonks_growth) && params.saferead_f32(stonks_value))
 			{
 				const f32 power = this.get_f32("deity_power");
-			
-				f32 stonks_value_old = this.get_f32("stonks_value");
-				//causes div zero error not used aswell
-				//f32 stonks_value_delta = stonks_value / stonks_value_old;
-				
-				
 				f32 stonks_value_max = stonks_base_value_max + (power / 100.00f);
 				
-				this.set_f32("stonks_volatility", stonks_volatility);
 				this.set_f32("stonks_growth", stonks_growth);
 				this.set_f32("stonks_value", Maths::Clamp(stonks_value, stonks_base_value_min, stonks_value_max));
-				this.Sync("stonks_volatility", true);
 				this.Sync("stonks_growth", true);
 				this.Sync("stonks_value", true);
 				
@@ -416,16 +347,15 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 						case 0: // Buy
 						{
 							AddRequirement(reqs, "coin", "", "Coins", buy_price * quantity);
+							break;
 						}
-						break;
 						
 						case 1: // Sell
 						{
 							AddRequirement(reqs, "blob", "mat_stonks", "Stonks", quantity);
+							break;
 						}
-						break;
 					}
-					
 					bool has_reqs = false;
 					if (hasRequirements(caller.getInventory(), reqs, missing))
 					{
@@ -461,10 +391,10 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 							{
 								if (isServer())
 								{
-									u16 totalCoins = callerPlayer.getCoins() + sell_price * quantity;
+									u32 totalCoins = callerPlayer.getCoins() + sell_price * quantity;
 									if (totalCoins >  30000)
 									{
-										u8 goldIngots = (totalCoins - 30000)/100;
+										u16 goldIngots = (totalCoins - 30000)/100;
 										if (goldIngots > 0)
 										{
 											totalCoins = totalCoins - (100 * goldIngots);
@@ -476,7 +406,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 												mat.server_SetQuantity(goldIngots);
 												if (!caller.server_PutInInventory(mat))
 												{
-													mat.setPosition(caller.getPosition());
+													caller.server_Pickup(mat);
 												}
 											}
 										}
@@ -493,10 +423,8 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 							}
 							break;
 						}
+						updateStonks(this, quantity);
 					}
-					
-					
-					// print("has reqs: " + has_reqs);
 				}
 			}
 		}
@@ -515,27 +443,15 @@ void onRender(CSprite@ this)
 		if (localBlob.get_u8("deity_id") == Deity::dragonfriend)
 		{
 			CBlob@ blob = this.getBlob();
-			Vec2f blobPos = blob.getPosition();
-			Vec2f localPos = localBlob.getPosition();
-			
-			bool inRange = (blobPos - localPos).getLength() < 32.00f;
-			if (inRange)
+			if (blob.getDistanceTo(localBlob) < 32)
 			{
 				const f32 power = blob.get_f32("deity_power");
 			
-				f32 stonks_volatility = blob.get_f32("stonks_volatility");
 				f32 stonks_growth = blob.get_f32("stonks_growth");
+				f32 stonks_daily_growth = blob.get_f32("stonks_daily_growth");
 				f32 stonks_value = blob.get_f32("stonks_value");
 				
 				f32 stonks_value_max = stonks_base_value_max + (power / 100.00f);
-				
-				// string volatility_text;
-				// if (stonks_volatility > 0.90f) volatility_text = "extremely high";
-				// else if (stonks_volatility > 0.80f) volatility_text = "very high";
-				// else if (stonks_volatility > 0.60f) volatility_text = "high";
-				// else if (stonks_volatility > 0.40f) volatility_text = "medium";
-				// else if (stonks_volatility > 0.20f) volatility_text = "low";
-				// else volatility_text = "very low";
 				
 				Vec2f pos = blob.getScreenPos() + Vec2f(-axis_x * 0.50f, 250);
 
@@ -544,8 +460,8 @@ void onRender(CSprite@ this)
 				GUI::DrawLine2D(pos, pos + Vec2f(axis_x, 0), SColor(255, 196, 135, 58));
 				
 				string text;
-				// text += "\nVolatility: " + volatility_text;
 				text += "\nGrowth: " + (stonks_growth >= 0 ? "+" : "-") + (Maths::Abs(s32(stonks_growth * 10000.00f) * 0.01f)) + "%";
+				text += "\nDaily Growth: " + (stonks_daily_growth >= 0 ? "+" : "-") + (Maths::Abs(s32(stonks_daily_growth * 10000.00f) * 0.01f)) + "%";
 				text += "\n";
 				text += "\nSell Price: " + Maths::Ceil(stonks_value) + " coins";
 				text += "\nBuy Price: " + Maths::Ceil(stonks_value * 1.02f) + " coins";
@@ -573,6 +489,3 @@ void onRender(CSprite@ this)
 		}
 	}
 }
-
-bool buy_pressed = false;
-bool sell_pressed = false;
