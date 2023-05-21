@@ -14,7 +14,7 @@ void onInit(CBlob@ this)
 
 	//this.set_f32("deity_power",10000); //for testing if the cap is actually working
 
-	this.getCurrentScript().tickFrequency = 15;
+	this.getCurrentScript().tickFrequency = 30;
 
 	CSprite@ sprite = this.getSprite();
 	sprite.SetEmitSound("Disc_MountainKing.ogg");
@@ -25,24 +25,11 @@ void onInit(CBlob@ this)
 	AddIconToken("$icon_mason_follower$", "InteractionIcons.png", Vec2f(32, 32), 11);
 	{
 		ShopItem@ s = addShopItem(this, "Rite of Grand Mason", "$icon_mason_follower$", "follower", "Gain Grand Mason's respect by offering him a huge pile of rocks.");
-		AddRequirement(s.requirements, "blob", "mat_stone", "Stone", 1000);
+		AddRequirement(s.requirements, "blob", "mat_stone", "Stone", 500+XORRandom(750));
 		s.customButton = true;
 		s.buttonwidth = 2;	
 		s.buttonheight = 2;
 		
-		s.spawnNothing = true;
-	}
-	{
-		ShopItem@ s = addShopItem(this, "Building for Dummies", "$artisancertificate$", "artisancertificate", "Simplified Builder manuscript for building cooperation.", true);
-		AddRequirement(s.requirements, "coin", "", "Coins", 200);
-		
-		s.spawnNothing = true;
-	}
-	{
-		ShopItem@ s = addShopItem(this, "Engineer's Tools", "$engineertools$", "engineertools", "Engineer's Tools for advanced builders.", true);
-		AddRequirement(s.requirements, "coin", "", "Coins", 250);
-		AddRequirement(s.requirements, "blob", "mat_ironingot", "Iron Ingot", 4);
-
 		s.spawnNothing = true;
 	}
 }

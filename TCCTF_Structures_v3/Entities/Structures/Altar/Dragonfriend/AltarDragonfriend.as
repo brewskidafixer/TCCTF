@@ -49,7 +49,7 @@ void onInit(CBlob@ this)
 	{
 		ShopItem@ s = addShopItem(this, "Offering of the Meteor", "$icon_dragonfriend_offering_1$", "offering_meteor", "Offer 10000 coins to summon a meteor.");
 		//AddRequirement(s.requirements, "blob", "mat_goldingot", "Gold Ingot", 100);
-		AddRequirement(s.requirements, "coin", "", "Coins", 10000);
+		AddRequirement(s.requirements, "coin", "", "Coins", 8000 + XORRandom(4000));
 		s.customButton = true;
 		s.buttonwidth = 1;	
 		s.buttonheight = 1;
@@ -250,10 +250,8 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 							{	
 								f32 stonks_value = this.get_f32("stonks_value");
 							
-								this.add_f32("deity_power", stonks_value * 0.95f);
+								this.add_f32("deity_power", stonks_value * 1.25f);
 								if (isServer()) this.Sync("deity_power", true);
-							
-								server_DropCoins(this.getPosition(), stonks_value * 0.05f);
 							}
 							
 							if (isClient())
@@ -265,15 +263,13 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 						{
 							if (isServer())
 							{
-								this.add_f32("deity_power", 9999);
+								this.add_f32("deity_power", 7000);
 								if (isServer()) this.Sync("deity_power", true);
 							
 								f32 map_width = getMap().tilemapwidth * 8.00f;
 								CBlob@ item = server_CreateBlob("meteor", this.getTeamNum(), Vec2f(XORRandom(map_width), 0));
 								item.Tag("dragonfriend");
 								item.set_f32("deity_power", this.get_f32("deity_power")/10000);
-								
-								server_DropCoins(this.getPosition(), XORRandom(100));
 							}
 							
 							if (isClient())

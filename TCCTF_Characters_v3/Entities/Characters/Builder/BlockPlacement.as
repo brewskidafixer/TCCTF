@@ -55,7 +55,7 @@ void PlaceBlock(CBlob@ this, u8 index, Vec2f cursorPos)
 				&& bc.tile != CMap::tile_copperingot && bc.tile != CMap::tile_steelingot && bc.tile != CMap::tile_ironingot)
 				{
 					//print("free block chance: " + Maths::Min((altar.get_f32("deity_power") * 0.01f),MAX_FREE_BLOCK_CHANCE));
-					if (XORRandom(100) < Maths::Min((altar.get_f32("deity_power") * 0.01f),MAX_FREE_BLOCK_CHANCE))
+					if (XORRandom(100) < Maths::Min(Maths::Sqrt(altar.get_f32("deity_power")),100))
 					{
 						take = false;
 						// print("free block!");
