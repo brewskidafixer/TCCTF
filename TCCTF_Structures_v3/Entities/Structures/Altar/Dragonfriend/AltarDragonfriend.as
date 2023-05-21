@@ -318,8 +318,8 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 	}
 	else if (cmd == this.getCommandID("stonks_update"))
 	{
-		if (isClient())
-		{
+		//if (isClient())
+		//{
 			f32 stonks_growth;
 			f32 stonks_value;
 			
@@ -336,7 +336,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 				graph[graph_index] = stonks_value;
 				graph_index = Maths::FMod(graph_index + 1, graph.size());
 			}
-		}
+		//}
 	}
 	else if (cmd == this.getCommandID("stonks_trade"))
 	{
