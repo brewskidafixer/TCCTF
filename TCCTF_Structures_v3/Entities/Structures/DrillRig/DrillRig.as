@@ -32,19 +32,19 @@ const u8[] resourceYields =
 void onInit(CBlob@ this)
 {
 	this.set_u8("drill_count", 1);
+	this.set_u8("spam", 0);
 	this.getSprite().SetZ(-50); //background
 	this.getShape().getConsts().mapCollisions = false;
 
 	this.Tag("builder always hit");
 	
-	this.getCurrentScript().tickFrequency = 60;
+	this.getCurrentScript().tickFrequency = 15;
 	
 	this.set_bool("isActive", false);
 	this.set_u8("bedrock_count", 0);
 	this.set_bool("bedrock_drillrig", false);
 	this.set_f32("gyro_bonus", 1.0f);
 	this.addCommandID("sv_toggle");
-	this.addCommandID("cl_toggle");
 	CBlob@[] blobs;
 	if (getMap().getBlobsAtPosition(this.getPosition(), @blobs))
 	{
@@ -78,10 +78,11 @@ void onTick(CBlob@ this)
 	if (isServer())
 	{
 		if (!this.get_bool("isActive")) return;
+		Vec2f drillPos = this.getPosition();
 		if (this.get_bool("bedrock_drillrig"))
 		{
 			u8 index = XORRandom(resources.length);
-			MakeMat(this, this.getPosition(), resources[index], (1 + XORRandom(resourceYields[index]))*(this.get_f32("gyro_bonus") + this.get_u8("drill_count")));
+			MakeMat(this, drillPos, resources[index], (1 + XORRandom(resourceYields[index]))*(this.get_f32("gyro_bonus") + this.get_u8("drill_count")));
 		}
 		else
 		{
@@ -89,10 +90,18 @@ void onTick(CBlob@ this)
 			
 			for (u8 i = 0; i<this.get_u8("drill_count");i++)
 			{
-				f32 depth = XORRandom(48);
-				Vec2f pos = Vec2f(this.getPosition().x + (XORRandom(32) - 16) * (1 - depth / 48), Maths::Min(this.getPosition().y + 16 + depth, (map.tilemapheight * map.tilesize) - 8));
+				f32 depth = XORRandom(64);
+				Vec2f pos = Vec2f(drillPos.x + (XORRandom(48) - 24) * (1 - depth / 64), Maths::Min(drillPos.y + 16 + depth, (map.tilemapheight * map.tilesize) - 8));
 
 				this.server_HitMap(pos, Vec2f(0, 0), 1.3f, Hitters::drill);
+			}
+			this.add_u8("spam", 1);
+			if (this.get_u8("spam") > 150)
+			{
+				this.set_u8("spam", 0);
+				CBitStream params;
+				params.write_bool(false);
+				this.SendCommand(this.getCommandID("sv_toggle"), params);
 			}
 		}
 	}
@@ -106,11 +115,12 @@ void onHitMap(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, u8 cust
 		
 		if (tile == CMap::tile_bedrock)
 		{
-			u8 index = XORRandom(resources.length);
-			MakeMat(this, this.getPosition(), resources[index], 1 + XORRandom(resourceYields[index])*this.get_f32("gyro_bonus"));
-
 			this.add_u8("bedrock_count", 1);
-			if (this.get_u8("bedrock_count") >= 5) this.set_bool("bedrock_drillrig", true);
+			if (this.get_u8("bedrock_count") >= 5)
+			{
+				this.set_bool("bedrock_drillrig", true);
+				this.getCurrentScript().tickFrequency = 60;
+			}
 		}
 	}
 }
@@ -125,32 +135,13 @@ void onDie(CBlob@ this)
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 {
-	if (isServer())
+	if (cmd == this.getCommandID("sv_toggle"))
 	{
-		if (cmd == this.getCommandID("sv_toggle"))
+		bool active = params.read_bool();
+		
+		this.set_bool("isActive", active);
+		if (!v_fastrender)
 		{
-			bool active = params.read_bool();
-			
-			this.set_bool("isActive", active);
-			if (!v_fastrender)
-			{
-				CBitStream stream;
-				stream.write_bool(active);
-				this.SendCommand(this.getCommandID("cl_toggle"), stream);
-			}
-		}
-	}
-	
-	if (isClient())
-	{
-		if (cmd == this.getCommandID("cl_toggle"))
-		{		
-			bool active = params.read_bool();
-		
-			// print("cl: " + active);
-		
-			this.set_bool("isActive", active);
-		
 			CSprite@ sprite = this.getSprite();
 		
 			sprite.PlaySound("LeverToggle.ogg");
@@ -164,10 +155,11 @@ void GetButtonsFor(CBlob@ this, CBlob@ caller)
 {
 	if (!this.isOverlapping(caller)) return;
 	
+	bool active = this.get_bool("isActive");
 	CBitStream params;
-	params.write_bool(!this.get_bool("isActive"));
+	params.write_bool(!active);
 	
-	CButton@ buttonEject = caller.CreateGenericButton(11, Vec2f(0, -8), this, this.getCommandID("sv_toggle"), (this.get_bool("isActive") ? "Turn Off" : "Turn On"), params);
+	CButton@ buttonEject = caller.CreateGenericButton(active ? 27 : 23, Vec2f(0, -8), this, this.getCommandID("sv_toggle"), (active ? "Turn Off" : "Turn On"), params);
 }
 
 void onAddToInventory( CBlob@ this, CBlob@ blob )
