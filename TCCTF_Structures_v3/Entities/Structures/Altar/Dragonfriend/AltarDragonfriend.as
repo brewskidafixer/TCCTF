@@ -49,7 +49,7 @@ void onInit(CBlob@ this)
 	{
 		ShopItem@ s = addShopItem(this, "Offering of the Meteor", "$icon_dragonfriend_offering_1$", "offering_meteor", "Offer 10000 coins to summon a meteor.");
 		//AddRequirement(s.requirements, "blob", "mat_goldingot", "Gold Ingot", 100);
-		AddRequirement(s.requirements, "coin", "", "Coins", 8000 + XORRandom(4000));
+		AddRequirement(s.requirements, "coin", "", "Coins", 10000);
 		s.customButton = true;
 		s.buttonwidth = 1;	
 		s.buttonheight = 1;
@@ -202,25 +202,19 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 							
 							if (isClient())
 							{
-								// if (callerBlob.get_u8("deity_id") != Deity::dragonfriend)
-								// {
-									// client_AddToChat(callerPlayer.getCharacterName() + " has become a follower of Dragonfriend.", SColor(255, 255, 0, 0));
-								// }
-								
-								CBlob@ localBlob = getLocalPlayerBlob();
-								if (localBlob !is null)
+								if (callerPlayer.isMyPlayer())
 								{
-									if (this.getDistanceTo(localBlob) < 128)
-									{
-										this.getSprite().PlaySound("LotteryTicket_Kaching", 2.00f, 1.00f);
-									}
+									this.getSprite().PlaySound("LotteryTicket_Kaching", 2.00f, 1.00f);
 								}
 							}
 							//if (isServer())	{
-							callerPlayer.set_u8("deity_id", Deity::dragonfriend);
-							callerBlob.set_u8("deity_id", Deity::dragonfriend);
-							callerPlayer.Sync("deity_id", true);
-							callerBlob.Sync("deity_id", true);
+							if (callerPlayer.get_u8("deity_id") != Deity::dragonfriend)
+							{
+								callerPlayer.set_u8("deity_id", Deity::dragonfriend);
+								callerBlob.set_u8("deity_id", Deity::dragonfriend);
+								callerPlayer.Sync("deity_id", true);
+								callerBlob.Sync("deity_id", true);
+							}
 							//}
 						}
 						else
@@ -364,7 +358,16 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 					{
 						case 0: // Buy
 						{
-							AddRequirement(reqs, "coin", "", "Coins", buy_price * quantity);
+							if (buy_price*quantity > 7500)
+							{
+								u16 goldIngots = (buy_price*quantity)/100;
+								AddRequirement(reqs, "blob", "mat_goldingot", "Gold Ingots", goldIngots);
+								AddRequirement(reqs, "coin", "", "Coins", (buy_price*quantity) - (goldIngots*100));
+							}
+							else
+							{
+								AddRequirement(reqs, "coin", "", "Coins", buy_price*quantity);
+							}
 							break;
 						}
 						
