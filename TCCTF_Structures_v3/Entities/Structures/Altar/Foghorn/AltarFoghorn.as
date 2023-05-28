@@ -105,13 +105,10 @@ void onTick(CBlob@ this)
 	const f32 power = this.get_f32("deity_power");
 	CBlob@[] chickens;
 	getBlobsByTag("combat chicken", chickens);
-	this.set_u8("maxChickens", Maths::FastSqrt(Maths::FastSqrt(power)));
+	this.set_u8("maxChickens", Maths::FastSqrt(Maths::FastSqrt(power))*2);
 	this.setInventoryName("Altar of Foghorn\n\nUPF Power: "+power
 		+"\nChicken Morph Type: "+this.get_string("classtype")
-		+"\nMax Scouts: "+this.get_u8("maxChickens")
-		+"\nMax Soldiers: "+this.get_u8("maxChickens")
-		+"\nMax Heavies: "+this.get_u8("maxChickens")
-		+"\nMax Commanders: "+this.get_u8("maxChickens"));
+		+"\nMax Chickens: "+this.get_u8("maxChickens"));
 }
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
@@ -136,7 +133,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 					}
 					else if (spl[0] == "offering_summon")
 					{
-						this.set_u8("maxChickens", Maths::FastSqrt(Maths::FastSqrt(this.get_f32("deity_power"))));
+						this.set_u8("maxChickens", Maths::FastSqrt(Maths::FastSqrt(this.get_f32("deity_power")))*2);
 						string chickenType = "scoutchicken";
 						u8 maxChickens = this.get_u8("maxChickens");
 						switch (parseInt(spl[1]))
@@ -158,7 +155,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 								break;
 						}
 						CBlob@[] chickens;
-						getBlobsByName(chickenType, chickens);
+						getBlobsByTag("chicken", chickens);
 						u8 chickenCount = 0;
 						u8 team = this.getTeamNum();
 						for (u8 i = 0; i < chickens.length; i++)
@@ -179,7 +176,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 					{
 						this.add_f32("deity_power", 2500);
 						if (isServer()) this.Sync("deity_power", false);
-						this.set_u8("maxChickens", Maths::FastSqrt(Maths::FastSqrt(this.get_f32("deity_power"))));
+						this.set_u8("maxChickens", Maths::FastSqrt(Maths::FastSqrt(this.get_f32("deity_power")))*2);
 						CBlob@[] chickens;
 						getBlobsByTag("combat chicken", chickens);
 

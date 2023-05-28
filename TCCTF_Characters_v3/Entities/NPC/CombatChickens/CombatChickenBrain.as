@@ -120,29 +120,12 @@ void onTick(CBrain@ this)
 					this.getCurrentScript().tickFrequency = 1;
 					
 					// print("found");
-					break;
+					return;
 				}
 			}
 			
 			blob.set_u32("next_search", getGameTime() + XORRandom(90));
 		}
-
-		
-		// print(blob.getName() + stuck);
-		
-		// print("" + this.getPathSize());
-		
-		// print("" + this.getState());
-		// print("" + this.getPathPositionAtIndex(100));
-		
-		// if (this.getPathPositionAtIndex(100) == this.getNextPathPosition())
-		// {
-			// print("reached path end");
-		// }
-		
-		// const bool reached_path_end = this.getPathPositionAtIndex(100) == this.getNextPathPosition();
-		// if (reached_path_end) print("reached path end");
-		
 		if (raider)
 		{
 			CBlob@ raid_target = getBlobByNetworkID(blob.get_u16("raid target"));
@@ -214,11 +197,9 @@ void onTick(CBrain@ this)
 				}
 			}
 		}
-		else 
-		this.getCurrentScript().tickFrequency = 15;
+		else this.getCurrentScript().tickFrequency = 15;
 	}
-	
-	if (target !is null && target !is blob)
+	else if (target !is null && target !is blob)
 	{
 		// print("" + target.getName());
 	
@@ -286,11 +267,6 @@ void onTick(CBrain@ this)
 		if (target.hasTag("dead"))
 		{
 			CPlayer@ targetPlayer = target.getPlayer();
-			
-			if (targetPlayer !is null && target.hasTag("dead"))
-			{
-				blob.set_u16("stolen coins", blob.get_u16("stolen coins") + (targetPlayer.getCoins() * 0.9f));
-			}
 		
 			ResetTarget(this);
 			this.getCurrentScript().tickFrequency = 30;
@@ -311,6 +287,40 @@ void ResetTarget(CBrain@ this)
 
 	this.SetTarget(null);
 	blob.set_bool("stuck", false);
+	
+	this.getCurrentScript().tickFrequency = 30;
+	
+	// print("search");
+	
+	const f32 chaseDistance = blob.get_f32("chaseDistance");
+	const Vec2f pos = blob.getPosition();
+	CBlob@[] blobs;
+	getMap().getBlobsInRadius(blob.getPosition(), chaseDistance, @blobs);
+	f32 chaseDistanceSqr = chaseDistance * chaseDistance;
+	
+	// getBlobsByTag("human", @blobs);
+	const u8 myTeam = blob.getTeamNum();
+	
+	f32 closestDistance = chaseDistance;
+	for (int i = 0; i < blobs.length; i++)
+	{
+		CBlob@ b = blobs[i];
+		Vec2f bp = b.getPosition() - pos;
+		f32 d = bp.LengthSquared();
+		
+		if (b.getTeamNum() != myTeam && d <= chaseDistanceSqr && !b.hasTag("dead") && (b.hasTag("flesh") || b.hasTag("auto_turret")) && !b.hasTag("passive") && !b.hasTag("invincible") && b.get_u8("deity_id") != Deity::foghorn && (isVisible(blob, b) || d < (48 * 48)))
+		{
+			if (b.getDistanceTo(blob) > closestDistance) continue;
+			closestDistance = b.getDistanceTo(blob);
+			this.SetTarget(b);
+			blob.set_u32("nextAttack", getGameTime() + blob.get_u8("reactionTime"));
+			
+			this.getCurrentScript().tickFrequency = 1;
+			return;
+		}
+	}
+	
+	blob.set_u32("next_search", getGameTime() + XORRandom(10));
 }
 
 void Attack(CBrain@ this, CBlob@ target, bool useBombs)

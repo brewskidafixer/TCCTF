@@ -322,10 +322,11 @@ void onInit(CBlob@ this)
 		s.spawnNothing = true;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Music Disc Replacement", "$musicdisc$", "musicdisc", "Change out the tunes to see if it fits your groove.");
-		AddRequirement(s.requirements, "blob", "musicdisc", "Music Disc", 1);
-		AddRequirement(s.requirements, "blob", "mat_copperwire", "Copper Wire", 1);
-		AddRequirement(s.requirements, "coin", "", "Coins", 15);
+		ShopItem@ s = addShopItem(this, "Remote Control", "$remote$", "remote", "Remote Control: Used to remotely control various things such as UAV/CruiseMissiles from afar.");
+		AddRequirement(s.requirements, "blob", "gyromat", "Gyromat", 1);
+		AddRequirement(s.requirements, "blob", "mat_battery", "Batteries", 100);
+		AddRequirement(s.requirements, "blob", "mat_copperwire", "Copper Wire", 10);
+		AddRequirement(s.requirements, "coin", "", "Coins", 1250);
 
 		s.spawnNothing = true;
 	}

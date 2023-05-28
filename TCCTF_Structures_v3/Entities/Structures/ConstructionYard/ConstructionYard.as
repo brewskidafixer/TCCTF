@@ -277,7 +277,7 @@ void onInit(CBlob@ this)
 		s.buttonheight = 2;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "UAV", "$icon_uav$", "uav", "$icon_uav$\n\n\n"+"READ BEFORE USAGE. An unmanned remotely controlled aerial vehicle used to gun people down.\n\nRequires Fuel\nRemotely Operated\n\n[E] to use.\n[LMB] to shoot\n[RMB] to exit\n[SPACE] to self-destruct", false, true);
+		ShopItem@ s = addShopItem(this, "UAV", "$icon_uav$", "uav", "$icon_uav$\n\n\n"+"READ BEFORE USAGE. An unmanned remotely controlled aerial vehicle used to gun people down.\n\nRequires Fuel\nRemotely Operated\n\n[E] to use.\n[LMB] to shoot\n[SPACE] to drop bombs.\n", false, true);
 		AddRequirement(s.requirements, "blob", "mat_steelingot", "Steel Ingot", 15);
 		AddRequirement(s.requirements, "blob", "mat_ironingot", "Iron Ingot", 10);
 		AddRequirement(s.requirements, "blob", "mat_copperwire", "Copper Wire", 10);
