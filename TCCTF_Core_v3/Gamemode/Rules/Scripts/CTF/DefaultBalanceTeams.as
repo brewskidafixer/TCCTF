@@ -328,14 +328,13 @@ void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 	string playerName = player.getUsername().split('~')[0];;
 
 	CBlob@[] sleepers;
-	getBlobsByTag("sleeper", @sleepers);
-
+	getBlobsByTag(playerName, @sleepers);
 	if (sleepers != null && sleepers.length > 0)
 	{
 		for (u32 i = 0; i < sleepers.length; i++)
 		{
 			CBlob@ sleeper = sleepers[i];
-			if (sleeper !is null && !sleeper.hasTag("dead") && sleeper.get_string("sleeper_name") == playerName)
+			if (sleeper !is null && !sleeper.hasTag("dead"))
 			{
 				addBalanceInfo(playerName, infos);
 				core.ChangePlayerTeam(player, sleeper.getTeamNum());
@@ -374,6 +373,7 @@ void onPlayerLeave(CRules@ this, CPlayer@ player)
 			blob.set_bool("sleeper_sleeping", true);
 			blob.set_string("sleeper_name", player.getUsername());
 			blob.Tag("sleeper");
+			blob.Tag(player.getUsername());
 
 			CBitStream bt;
 			bt.write_bool(true);
