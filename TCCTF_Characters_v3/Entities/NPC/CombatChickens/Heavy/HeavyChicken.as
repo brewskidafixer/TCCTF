@@ -8,6 +8,7 @@
 #include "RunnerCommon.as";
 #include "BrainCommon.as";
 #include "ThrowCommon.as";
+#include "NightVision.as";
 
 void onInit(CBlob@ this)
 {
@@ -160,6 +161,11 @@ void onTick(CBlob@ this)
 		moveVars.walkFactor *= 1.10f;
 		moveVars.jumpFactor *= 1.30f;
 	}
+	if (!this.hasTag("temp"))
+	{
+		nightVision(this);
+		this.Tag("temp");
+	}
 
 	if (getGameTime() % 30 == 0) this.set_u8("mode", 0);
 
@@ -170,7 +176,6 @@ void onTick(CBlob@ this)
 		if (isServer())
 		{
 			this.server_SetPlayer(null);
-			server_DropCoins(this.getPosition(), Maths::Max(0, Maths::Min(this.get_u16("stolen coins"), 5000)));
 			CBlob@ carried = this.getCarriedBlob();
 
 			if (carried !is null)

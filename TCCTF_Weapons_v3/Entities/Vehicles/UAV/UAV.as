@@ -10,11 +10,18 @@ void onInit(CBlob@ this)
 {
 	this.Tag("aerial");
 	this.Tag("heavy weight");
+	this.Tag("canlink");
 	
 	this.set_u16("controller_blob_netid", 0);
 	this.set_u16("controller_player_netid", 0);
+	this.set_u16("remote_id", 0);
+	this.set_string("custom name", this.getInventoryName());
 	
 	this.addCommandID("offblast");
+	this.addCommandID("changename");
+	this.addCommandID("link");
+	this.addCommandID("resetplayer");
+	this.addCommandID("explode");
 	
 	this.getShape().SetRotationsAllowed(true);
 	this.getCurrentScript().tickFrequency = 0;
@@ -24,7 +31,7 @@ void onInit(CBlob@ this)
 	settings.B_GRAV = Vec2f(0, 0.008); //Bullet Gravity
 	settings.B_TTL = 14; //Bullet Time to live
 	settings.B_SPEED = 60; //Bullet speed
-	settings.B_DAMAGE = 1.5f; //Bullet damage
+	settings.B_DAMAGE = 1.75f; //Bullet damage
 	settings.MUZZLE_OFFSET = Vec2f(-2,13);
 	settings.G_RECOIL = 0;
 
@@ -32,8 +39,8 @@ void onInit(CBlob@ this)
 	this.set_f32("CustomShootVolume", 1.0f);
 	this.set_u16("ammoCount", 0);
 
-	this.set_f32("max_fuel", 1000);
-	this.set_f32("fuel_consumption_modifier", 0.20f);
+	this.set_f32("max_fuel", 2500);
+	this.set_f32("fuel_consumption_modifier", 0.15f);
 	this.get_u32("fireDelayGun");
 
 	this.SetLightRadius(16.0f);
@@ -181,12 +188,53 @@ void onTick(CBlob@ this)
 				}
 			}
 		}
-		else if (this.isKeyJustPressed(key_action2))
+		if (this.isKeyPressed(key_action3))
 		{
-			ResetPlayer(this);
-			return;
+			if (this.get_u32("lastDropTime") < getGameTime()) 
+			{
+				CInventory@ inv = this.getInventory();
+				if (inv !is null) 
+				{
+					u32 itemCount = inv.getItemsCount();
+					if (itemCount > 0) 
+					{
+						if (isClient()) this.getSprite().PlaySound("bridge_open", 1.0f, 1.0f);
+						if (isServer()) 
+						{
+							CBlob@ item = inv.getItem(0);
+							u32 quantity = item.getQuantity();
+
+							if (item.maxQuantity > 16)
+							{ 
+								// To prevent spamming 
+								this.server_PutOutInventory(item);
+								item.setPosition(this.getPosition());
+							}
+							else
+							{
+								Vec2f vel = this.getVelocity();
+								string droppedName = item.getName();
+								if (item.hasTag("primable")) droppedName = droppedName.replace("mat_" , "");
+								CBlob@ dropped = server_CreateBlob(droppedName, this.getTeamNum(), this.getPosition()+Vec2f(0,24.0f));
+								dropped.IgnoreCollisionWhileOverlapped(this);
+								dropped.setVelocity(Vec2f(vel.x, 0));
+								dropped.AddForce(Vec2f(0, 15.0f));
+								dropped.setAngleDegrees(vel.x * -3.5f);
+								dropped.SetDamageOwnerPlayer(this.getPlayer());
+								dropped.Tag("no pickup");
+								
+								if (quantity > 1) item.server_SetQuantity(quantity - 1);
+								else item.server_Die();
+							}
+						}
+					}
+					else if (this.isMyPlayer()) Sound::Play("NoAmmo");
+					
+					this.set_u32("lastDropTime",getGameTime() + 30);
+				}
+			}
 		}
-		if (this.isKeyJustPressed(key_action3) || this.getHealth() <= 0.0f)
+		if (this.getHealth() <= 0.0f)
 		{
 			ResetPlayer(this);
 			if (isServer())
@@ -227,6 +275,13 @@ void ResetPlayer(CBlob@ this)
 
 void onDie(CBlob@ this)
 {
+	CBlob@ remote = getBlobByNetworkID(this.get_u16("remote_id"));
+	if (remote !is null)
+	{
+		CBitStream params;
+		params.write_u16(this.getNetworkID());
+		remote.SendCommand(remote.getCommandID("unlink"), params);
+	}
 	if (isServer())
 	{
 		this.set_f32("map_damage_radius", 48.0f);
@@ -257,8 +312,50 @@ void onDie(CBlob@ this)
 	}
 }
 
+void onCreateInventoryMenu(CBlob@ this, CBlob@ forBlob, CGridMenu @gridmenu)
+{
+	if (!this.isMyPlayer()) return;
+	Vec2f ul = gridmenu.getUpperLeftPosition();
+	Vec2f lr = gridmenu.getLowerRightPosition();
+
+	this.ClearGridMenusExceptInventory();
+	const int inv_posx = this.getInventory().getInventorySlots().x;
+	const int inv_posy = this.getInventory().getInventorySlots().y;
+	Vec2f pos = Vec2f(lr.x, ul.y) + Vec2f(-24*inv_posx, 104*inv_posy);
+
+	CGridMenu@ menu = CreateGridMenu(pos, this, Vec2f(2, 1), "Functions");
+
+	this.set_Vec2f("InventoryPos",pos);
+
+	AddIconToken("$explode$", "SmallExplosion1.png", Vec2f(24, 20), 1);
+	AddIconToken("$controller_icon$", "EngineerMale.png", Vec2f(32, 28), 0);
+
+	if (menu !is null)
+	{
+		menu.deleteAfterClick = true;
+
+		{
+			CGridButton@ button = menu.AddButton("$controller_icon$", "Exit Control", this.getCommandID("resetplayer"), Vec2f(1,1));
+			if (button !is null)
+			{
+				button.SetEnabled(true);
+				button.selectOneOnClick = false;
+			}
+		}
+		{
+			CGridButton@ button = menu.AddButton("$explode$", "Explode", this.getCommandID("explode"));
+			if (button !is null)
+			{
+				button.SetEnabled(true);
+				button.selectOneOnClick = false;
+			}
+		}
+	}
+}
+
 void GetButtonsFor(CBlob@ this, CBlob@ caller)
 {
+	if (caller is null) return;
 	if (this.getDistanceTo(caller) <= 48)
 	{
 		if (caller.getName() == "uav") return;
@@ -288,14 +385,23 @@ void GetButtonsFor(CBlob@ this, CBlob@ caller)
 					}
 				}
 			}
+			CBlob@ carried = caller.getCarriedBlob();
+			if (carried !is null && carried.getName() == "paper")
+			{
+				CBitStream params;
+				params.write_u16(caller.getNetworkID());
+				caller.CreateGenericButton("$paper$", Vec2f(8, -8), this, 
+					this.getCommandID("changename"), getTranslatedString("Change Name"), params);
+			}
+			if (!this.hasTag("canlink")) return;
 			if (!this.get_bool("offblast"))
 			{
 				CPlayer@ ply = caller.getPlayer();
 				if (ply !is null)
 				{
 					CBitStream params;
-					params.write_u16(ply.getNetworkID());
 					params.write_u16(caller.getNetworkID());
+					params.write_u16(ply.getNetworkID());
 					
 					caller.CreateGenericButton(11, Vec2f(0, -8), this, this.getCommandID("offblast"), "Control UAV", params);
 				}
@@ -405,8 +511,8 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 	}
 	else if (cmd == this.getCommandID("offblast"))
 	{
-		const u16 player_netid = params.read_u16();
 		const u16 caller_netid = params.read_u16();
+		const u16 player_netid = params.read_u16();
 
 		CPlayer@ ply = getPlayerByNetworkId(player_netid);
 		CBlob@ caller = getBlobByNetworkID(caller_netid);
@@ -428,6 +534,50 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 			this.SetLightColor(SColor(255, 255, 100, 0));
 			
 			this.getCurrentScript().tickFrequency = 1;
+		}
+	}
+	else if (cmd == this.getCommandID("changename"))
+	{
+		const u16 caller_netid = params.read_u16();
+		CBlob@ caller = getBlobByNetworkID(caller_netid);
+		if (caller !is null)
+		{
+			CBlob@ carried = caller.getCarriedBlob();
+			if (carried !is null && carried.getName() == "paper")
+			{
+				this.setInventoryName(carried.get_string("text"));
+				this.set_string("custom name", carried.get_string("text"));
+				if (isServer()) carried.server_Die();
+			}
+		}
+	}
+	else if (cmd == this.getCommandID("link"))
+	{
+		u16 remote;
+		if (params.saferead_netid(remote))
+		{
+			CBlob@ remoteBlob = getBlobByNetworkID(remote);
+			if (remoteBlob is null) return;
+			this.set_u16("remote_id", remote);
+			this.Untag("canlink");
+			if (isServer())
+			{
+				CBitStream stream;
+				stream.write_u16(this.getNetworkID());
+				remoteBlob.SendCommand(remoteBlob.getCommandID("link"), stream);
+			}
+		}
+	}
+	else if (cmd == this.getCommandID("resetplayer"))
+	{
+		ResetPlayer(this);
+	}
+	else if (cmd == this.getCommandID("explode"))
+	{
+		if (isServer())
+		{
+			this.server_Die();
+			ResetPlayer(this);
 		}
 	}
 }

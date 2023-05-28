@@ -10,8 +10,11 @@ void onInit(CBlob@ this)
 
 	this.Tag("explosive");
 	this.Tag("heavy weight");
+	this.Tag("canlink");
+	this.set_string("custom name", this.getInventoryName());
 
 	this.addCommandID("offblast");
+	this.addCommandID("link");
 
 	this.set_u32("no_explosion_timer", 0);
 	this.set_u32("fuel_timer", 0);
@@ -20,6 +23,7 @@ void onInit(CBlob@ this)
 
 	this.set_u16("controller_blob_netid", 0);
 	this.set_u16("controller_player_netid", 0);
+	this.set_u16("remote_id", 0);
 
 	this.getShape().SetRotationsAllowed(true);
 }
@@ -90,7 +94,7 @@ void onRemoveFromInventory(CBlob@ this, CBlob@ blob )
 void onTick(CBlob@ this)
 {
 	// payload ignition
-	if (this.getHealth() <= 0.0f || this.isKeyJustPressed(key_action1))
+	if (this.getHealth() <= 0.0f || this.isKeyJustPressed(key_action3))
 	{
 		CInventory@ inv = this.getInventory();
 		CBlob@ payload = inv.getItem(0);
@@ -210,8 +214,15 @@ void onTick(CBlob@ this)
 			}
 		}
 
-		if (this.isKeyJustPressed(key_action1) || this.getHealth() <= 0.0f)
+		if (this.isKeyJustPressed(key_action3) || this.getHealth() <= 0.0f)
 		{
+			CBlob@ remote = getBlobByNetworkID(this.get_u16("remote_id"));
+			if (remote !is null)
+			{
+				CBitStream params;
+				params.write_u16(this.getNetworkID());
+				remote.SendCommand(remote.getCommandID("unlink"), params);
+			}
 			if (isServer())
 			{
 				ResetPlayer(this);
@@ -261,6 +272,7 @@ void ResetPlayer(CBlob@ this)
 void GetButtonsFor(CBlob@ this, CBlob@ caller)
 {
 	if (this.hasTag("offblast") || this.isAttachedTo(caller)) return;
+	if (!this.hasTag("canlink")) return;
 
 	CPlayer@ ply = caller.getPlayer();
 	if (ply !is null && (this.getDistanceTo(caller) < 24))
@@ -312,6 +324,23 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 			this.SetLight(true);
 			this.SetLightRadius(128.0f);
 			this.SetLightColor(SColor(255, 255, 100, 0));
+		}
+	}
+	else if (cmd == this.getCommandID("link"))
+	{
+		u16 remote;
+		if (params.saferead_netid(remote))
+		{
+			CBlob@ remoteBlob = getBlobByNetworkID(remote);
+			if (remoteBlob is null) return;
+			this.set_u16("remote_id", remote);
+			this.Untag("canlink");
+			if (isServer())
+			{
+				CBitStream stream;
+				stream.write_u16(this.getNetworkID());
+				remoteBlob.SendCommand(remoteBlob.getCommandID("link"), stream);
+			}
 		}
 	}
 }

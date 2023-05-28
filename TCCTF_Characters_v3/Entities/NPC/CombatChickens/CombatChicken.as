@@ -42,7 +42,6 @@ void onInit(CBlob@ this)
 
 	this.Tag("dangerous");
 	this.Tag("chicken");
-	this.Tag("no change class");
 	this.Tag("heavy weight");
 }
 
@@ -71,10 +70,18 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 				if (playerBlob !is null) @hitterBlob = playerBlob;
 			}
 			
-			if (hitterBlob.isCollidable() && hitterBlob.getTeamNum() != this.getTeamNum() && !hitterBlob.hasTag("material"))
+			if (hitterBlob.isCollidable() && hitterBlob.getTeamNum() != this.getTeamNum() && (!hitterBlob.hasTag("material")))
 			{
-				if (brain.getTarget() is null) brain.SetTarget(hitterBlob);
-				else if (!hitterBlob.hasTag("material")) brain.SetTarget(hitterBlob);
+				if (hitterBlob.hasTag("weapon"))
+				{
+					AttachmentPoint@ point = hitterBlob.getAttachments().getAttachmentPointByName("PICKUP");
+					if (point !is null)
+					{
+						CBlob@ holder = point.getOccupied();
+						if (holder !is null) brain.SetTarget(holder);
+					}
+				}
+				else brain.SetTarget(hitterBlob);
 			}
 		}
 	}

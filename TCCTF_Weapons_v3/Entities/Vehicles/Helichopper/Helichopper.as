@@ -20,8 +20,7 @@ const Vec2f rocket_clampAngle = Vec2f(-180, 180);
 const f32 thrust = 1000.00f;
 
 const u32 shootDelay = 3; // Ticks
-const u32 shootDelayRocket = 15; // Ticks
-const int maxRocketStack = 25;
+const u32 shootDelayRocket = 20; // Ticks
 const u16 maxAmmo = 1000;
 
 void onInit(CBlob@ this)

@@ -1,5 +1,7 @@
 void nightVision(CBlob@ this)
 {
+    u8 team = this.getTeamNum();
+    /*
     SColor[] colors =
     {
         SColor(255, 50, 20, 255), // Blue
@@ -11,11 +13,10 @@ void nightVision(CBlob@ this)
         SColor(255, 128, 128, 255), // Violet
     };
 
-    u8 team = this.getTeamNum();
-    
     this.SetLight(true);
     this.SetLightRadius(128.0f);
     this.SetLightColor(team < colors.length ? colors[team] : SColor(255, 200, 200, 200));
+    */
 
     if (isClient() && this.isMyPlayer())
     {

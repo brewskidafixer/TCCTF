@@ -22,11 +22,11 @@ void onInit(CBlob@ this)
 
 void GetButtonsFor(CBlob@ this, CBlob@ caller)
 {
-	if (this.isOverlapping(caller))
+	if (this.getDistanceTo(caller) < 12)
 	{
 		CBlob@ carried = caller.getCarriedBlob();
 
-		if (carried != null && carried.getName() == "gyromat")
+		if (carried != null && carried !is this && carried.getName() == "gyromat")
 		{
 			CBitStream params;
 			params.write_u16(caller.getNetworkID());
@@ -45,16 +45,10 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params) //Mutate command
 			CBlob@ carried = caller.getCarriedBlob();
 			if (carried !is null && carried.getName() == "gyromat")
 			{
-				u8 gyrocount = carried.get_u8("gyromat_count") + this.get_u8("gyromat_count");
-				if (gyrocount <= 4)
-				{
-					this.add_f32("gyromat_value", carried.get_f32("gyromat_value"));
-					this.add_u8("gyromat_count", carried.get_u8("gyromat_count"));
-					
-					this.setInventoryName("Accelerated Gyromat\n+" + Maths::Round(this.get_f32("gyromat_value") * 100.00f) + "% speed");
-					carried.server_Die();
-				}
-				else if (caller.isMyPlayer()) client_AddToChat("Cannot combine! Max number of combinations is 4!", SColor(0xff444444));
+				carried.add_f32("gyromat_value", this.get_f32("gyromat_value"));
+				
+				carried.setInventoryName("Accelerated Gyromat\n+" + Maths::Round(carried.get_f32("gyromat_value") * 100.00f) + "% speed");
+				this.server_Die();
 			}
 		}
 	}

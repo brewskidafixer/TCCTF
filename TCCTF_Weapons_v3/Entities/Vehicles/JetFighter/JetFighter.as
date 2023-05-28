@@ -170,7 +170,7 @@ void onTick(CBlob@ this)
 						}
 					}
 					
-					this.set_u32("lastDropTime",getGameTime() + 4);
+					this.set_u32("lastDropTime",getGameTime() + 5);
 				}
 			}
 		}		

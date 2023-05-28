@@ -40,6 +40,18 @@ void onInit(CBlob@ this)
 	
 	this.set_f32("bomb angle", 90);
 	this.Tag("map_damage_dirt");
+	this.Tag("auto_turret");
+	this.Tag("canlink");
+
+	this.set_u16("controller_blob_netid", 0);
+	this.set_u16("controller_player_netid", 0);
+	this.set_u16("remote_id", 0);
+	this.set_string("custom name", this.getInventoryName());
+
+	this.addCommandID("offblast");
+	this.addCommandID("link");
+	this.addCommandID("resetplayer");
+	this.addCommandID("explode");
 		
 	this.set_u32("nextAttack", 0);
 
@@ -95,6 +107,12 @@ void onInit(CBlob@ this)
 
 void onTick(CBlob@ this)
 {
+	if (this.get_bool("offblast") && this.getHealth() <= 0.25f) // lost connection with scyther since low health
+	{
+		ResetPlayer(this);
+		if (isServer()) this.server_Die();
+		return;
+	}
 	if (!this.hasTag("temp"))
 	{
 		nightVision(this);
@@ -249,7 +267,7 @@ void Shoot(CBlob@ this)
 
 void onTick(CBrain@ this)
 {
-	if (isClient()){ return;}
+	if (!isServer()) return;
 	
 	CBlob@ blob = this.getBlob();
 	
@@ -396,13 +414,19 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 
 void onDie(CBlob@ this)
 {
+	CBlob@ remote = getBlobByNetworkID(this.get_u16("remote_id"));
+	if (remote !is null)
+	{
+		CBitStream params;
+		params.write_u16(this.getNetworkID());
+		remote.SendCommand(remote.getCommandID("unlink"), params);
+	}
 	DoExplosion(this);
 	if (isClient() && this.isMyPlayer()) getMap().CreateSkyGradient("skygradient.png");
 }
 
 void DoExplosion(CBlob@ this)
 {
-	if (this.hasTag("dead")) return;
 	CRules@ rules = getRules();
 	if (!shouldExplode(this, rules))
 	{
@@ -465,6 +489,114 @@ void DoExplosion(CBlob@ this)
 			}
 		}
 	}
+}
+
+void onCreateInventoryMenu(CBlob@ this, CBlob@ forBlob, CGridMenu @gridmenu)
+{
+	if (!this.isMyPlayer()) return;
+	Vec2f ul = gridmenu.getUpperLeftPosition();
+	Vec2f lr = gridmenu.getLowerRightPosition();
+
+	this.ClearGridMenusExceptInventory();
+	const int inv_posx = this.getInventory().getInventorySlots().x;
+	const int inv_posy = this.getInventory().getInventorySlots().y;
+	Vec2f pos = Vec2f(lr.x, ul.y) + Vec2f(-24*inv_posx, 76*inv_posy);
+
+	CGridMenu@ menu = CreateGridMenu(pos, this, Vec2f(inv_posx, 1), "Functions");
+
+	this.set_Vec2f("InventoryPos",pos);
+
+	AddIconToken("$explode$", "SmallExplosion1.png", Vec2f(24, 20), 1);
+	AddIconToken("$controller_icon$", "EngineerMale.png", Vec2f(32, 28), 0);
+
+	if (menu !is null)
+	{
+		menu.deleteAfterClick = true;
+
+		{
+			CGridButton@ button = menu.AddButton("$controller_icon$", "Exit Control", this.getCommandID("resetplayer"), Vec2f(1,1));
+			if (button !is null)
+			{
+				button.SetEnabled(!this.hasTag("canlink"));
+				button.selectOneOnClick = false;
+			}
+		}
+		{
+			CGridButton@ button = menu.AddButton("$explode$", "Explode", this.getCommandID("explode"));
+			if (button !is null)
+			{
+				button.SetEnabled(true);
+				button.selectOneOnClick = false;
+			}
+		}
+	}
+}
+
+void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
+{
+	if (cmd == this.getCommandID("offblast"))
+	{
+		const u16 caller_netid = params.read_u16();
+		const u16 player_netid = params.read_u16();
+
+		CBlob@ caller = getBlobByNetworkID(caller_netid);
+		CPlayer@ ply = getPlayerByNetworkId(player_netid);
+		if (ply is null || caller is null) return;
+
+		this.set_bool("offblast", true);
+		this.set_u16("controller_blob_netid", caller_netid);
+		this.set_u16("controller_player_netid", player_netid);
+
+		if (isServer())
+		{
+			this.server_SetPlayer(ply);
+		}
+		this.getCurrentScript().tickFrequency = 1;
+	}
+	else if (cmd == this.getCommandID("resetplayer"))
+	{
+		ResetPlayer(this);
+	}
+	else if (cmd == this.getCommandID("explode"))
+	{
+		if (isServer())
+		{
+			this.server_Die();
+			ResetPlayer(this);
+		}
+	}
+	else if (cmd == this.getCommandID("link"))
+	{
+		u16 remote;
+		if (params.saferead_netid(remote))
+		{
+			CBlob@ remoteBlob = getBlobByNetworkID(remote);
+			if (remoteBlob is null) return;
+			this.set_u16("remote_id", remote);
+			this.Untag("canlink");
+			if (isServer())
+			{
+				CBitStream stream;
+				stream.write_u16(this.getNetworkID());
+				remoteBlob.SendCommand(remoteBlob.getCommandID("link"), stream);
+			}
+		}
+	}
+}
+
+void ResetPlayer(CBlob@ this)
+{
+	CPlayer@ ply = getPlayerByNetworkId(this.get_u16("controller_player_netid"));
+	CBlob@ blob = getBlobByNetworkID(this.get_u16("controller_blob_netid"));
+	if (blob !is null && ply !is null && !blob.hasTag("dead"))
+	{
+		this.set_bool("offblast", false);
+		this.set_u16("controller_blob_netid", 0);
+		this.set_u16("controller_player_netid", 0);
+
+		if (isServer()) blob.server_SetPlayer(ply);
+	}
+	else if (isServer()) this.server_Die();
 }
 
 void MakeParticle(CBlob@ this, const Vec2f pos, const Vec2f vel, const string filename = "SmallSteam")

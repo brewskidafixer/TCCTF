@@ -178,7 +178,6 @@ void onTick(CBlob@ this)
 		if (isServer())
 		{
 			this.server_SetPlayer(null);
-			server_DropCoins(this.getPosition(), Maths::Max(0, Maths::Min(this.get_u16("stolen coins"), 2500)));
 			CBlob@ carried = this.getCarriedBlob();
 
 			if (carried !is null)

@@ -134,7 +134,7 @@ void onInit(CBlob@ this)
 		}
 
 		CBlob@ ammo = server_CreateBlob(ammo_config, this.getTeamNum(), this.getPosition());
-		ammo.server_SetQuantity(ammo.maxQuantity);
+		ammo.server_SetQuantity(ammo.maxQuantity/2);
 		this.server_PutInInventory(ammo);
 
 		CBlob@ gun = server_CreateBlob(gun_config, this.getTeamNum(), this.getPosition());
@@ -191,7 +191,6 @@ void onTick(CBlob@ this)
 		if (isServer())
 		{
 			this.server_SetPlayer(null);
-			server_DropCoins(this.getPosition(), Maths::Max(0, Maths::Min(this.get_u16("stolen coins"), 1000)));
 			CBlob@ carried = this.getCarriedBlob();
 
 			if (carried !is null)

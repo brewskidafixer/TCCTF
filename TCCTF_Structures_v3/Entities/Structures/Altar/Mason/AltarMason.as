@@ -25,7 +25,7 @@ void onInit(CBlob@ this)
 	AddIconToken("$icon_mason_follower$", "InteractionIcons.png", Vec2f(32, 32), 11);
 	{
 		ShopItem@ s = addShopItem(this, "Rite of Grand Mason", "$icon_mason_follower$", "follower", "Gain Grand Mason's respect by offering him a huge pile of rocks.");
-		AddRequirement(s.requirements, "blob", "mat_stone", "Stone", 500+XORRandom(750));
+		AddRequirement(s.requirements, "blob", "mat_stone", "Stone", 1000);
 		s.customButton = true;
 		s.buttonwidth = 2;	
 		s.buttonheight = 2;
@@ -66,7 +66,7 @@ void onTick(CSprite@ this)
 	if (blob is null) return;
 
 	const f32 power = blob.get_f32("deity_power");
-	blob.setInventoryName("Altar of Grand Mason\n\nMasonic Power: " + power + "\nFree block chance: " + Maths::Min(Maths::Sqrt(power),100) + "%");
+	blob.setInventoryName("Altar of Grand Mason\n\nMasonic Power: " + power + "\nFree block chance: " + Maths::Min(Maths::Sqrt(power*1.25f),100) + "%");
 }
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params)

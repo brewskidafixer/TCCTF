@@ -37,17 +37,29 @@ void onInit(CBlob@ this)
 	this.SetLightColor(SColor(255, 255, 20, 0));
 
 	this.set_string("custom_explosion_sound", "MithrilBomb_Explode.ogg");
+	this.set_string("custom name", this.getInventoryName());
 	this.set_bool("map_damage_raycast", true);
 	this.set_Vec2f("explosion_offset", Vec2f(0, 0));
 
 	this.set_f32("bomb angle", 90);
 	this.Tag("map_damage_dirt");
+	this.Tag("auto_turret");
+	this.Tag("canlink");
+
+	this.set_u16("controller_blob_netid", 0);
+	this.set_u16("controller_player_netid", 0);
+	this.set_u16("remote_id", 0);
+
+	this.addCommandID("offblast");
+	this.addCommandID("link");
+	this.addCommandID("resetplayer");
+	this.addCommandID("explode");
 
 	this.set_u32("nextAttack", 0);
 
-	this.set_f32("minDistance", 16);
-	this.set_f32("chaseDistance", 100);
-	this.set_f32("maxDistance", 600);
+	this.set_f32("minDistance", 96);
+	this.set_f32("chaseDistance", 512);
+	this.set_f32("maxDistance", 1200);
 
 	this.set_f32("inaccuracy", 0.00f);
 	this.set_u8("reactionTime", 0);
@@ -64,7 +76,7 @@ void onInit(CBlob@ this)
 
 	if (isClient())
 	{
-		Sound::Play("scyther-intro.ogg");
+		this.getSprite().PlaySound("scyther-intro.ogg");
 	}
 
 	if (isServer())
@@ -88,6 +100,18 @@ void onInit(CBlob@ this)
 
 void onTick(CBlob@ this)
 {
+	if (this.get_bool("offblast") && this.getHealth() <= 7.0f) // lost connection with scyther since low health
+	{
+		ResetPlayer(this);
+		CBlob@ remote = getBlobByNetworkID(this.get_u16("remote_id"));
+		if (remote !is null)
+		{
+			CBitStream params;
+			params.write_u16(this.getNetworkID());
+			remote.SendCommand(remote.getCommandID("unlink"), params);
+		}
+		return;
+	}
 	if (!this.hasTag("temp"))
 	{
 		nightVision(this);
@@ -96,8 +120,8 @@ void onTick(CBlob@ this)
 	RunnerMoveVars@ moveVars;
 	if (this.get("moveVars", @moveVars))
 	{
-		moveVars.walkFactor *= 1.50f;
-		moveVars.jumpFactor *= 1.50f;
+		moveVars.walkFactor *= 0.90f;
+		moveVars.jumpFactor *= 1.20f;
 		moveVars.wallclimbing = true;
 		moveVars.wallsliding = true;
 	}
@@ -201,7 +225,7 @@ void onTick(CBrain@ this)
 			// this.SetTarget(FindTarget(this, maxDistance * 100.00f));
 		// }
 
-		if (target.hasTag("dead"))
+		if (target.hasTag("dead") || target.hasTag("weapon"))
 		{
 			CPlayer@ targetPlayer = target.getPlayer();
 
@@ -227,6 +251,7 @@ CBlob@ FindTarget(CBrain@ this, f32 maxDistance)
 	// getMap().getBlobsInRadius(blob.getPosition(), maxDistance, @blobs);
 
 	getBlobsByTag("flesh", @blobs);
+	getBlobsByTag("auto_turret", @blobs);
 	const u8 myTeam = blob.getTeamNum();
 
 	f32 distance = maxDistance;
@@ -247,125 +272,6 @@ CBlob@ FindTarget(CBrain@ this, f32 maxDistance)
 
 	return getBlobByNetworkID(net_id);
 }
-
-// void onTick(CBrain@ this)
-// {
-	// if (!isServer()) return;
-
-	// CBlob@ blob = this.getBlob();
-
-	// if (blob.getPlayer() !is null) return;
-
-	// // SearchTarget(this, false, true);
-
-	// const f32 chaseDistance = blob.get_f32("chaseDistance");
-	// CBlob@ target = this.getTarget();
-	// bool hasTarget = target !is null && !target.hasTag("dead");
-
-	// if (!hasTarget)
-	// {
-		// const bool raider = blob.get_bool("raider");
-		// const Vec2f pos = blob.getPosition();
-
-		// CBlob@[] blobs;
-		// getMap().getBlobsInRadius(blob.getPosition(), chaseDistance, @blobs);
-		// u8 myTeam = blob.getTeamNum();
-
-		// for (int i = 0; i < blobs.length; i++)
-		// {
-			// CBlob@ b = blobs[i];
-			// Vec2f bp = b.getPosition() - pos;
-			// f32 d = bp.Length();
-
-			// if (b.getTeamNum() != myTeam && !b.hasTag("dead") && b.hasTag("human") && d <= chaseDistance)
-			// {
-				// this.SetTarget(b);
-				// blob.set_u32("nextAttack", getGameTime() + blob.get_u8("attackDelay"));
-				// return;
-			// }
-		// }
-
-		// if (raider)
-		// {
-			// CBlob@ raid_target = getBlobByNetworkID(blob.get_u16("raid target"));
-
-			// if (raid_target !is null)
-			// {
-				// if (getGameTime() % 30 == 0) this.SetPathTo(raid_target.getPosition(), true);
-				// Move(this, blob, this.getNextPathPosition());
-				// blob.setAimPos(raid_target.getPosition());
-
-				// this.getCurrentScript().tickFrequency = 1;
-			// }
-			// else
-			// {
-				// CBlob@[] humans;
-				// getBlobsByTag("flesh", @humans);
-
-				// if (humans.length > 0) 
-				// {
-					// blob.set_u16("raid target", humans[XORRandom(humans.length)].getNetworkID());
-				// }
-			// }
-		// }
-	// }
-	// else
-	// {
-		// this.getCurrentScript().tickFrequency = 1;
-
-		// const f32 distance = (target.getPosition() - blob.getPosition()).Length();
-		// const f32 minDistance = blob.get_f32("minDistance");
-		// const f32 maxDistance = blob.get_f32("maxDistance");
-
-		// const bool lose = distance > maxDistance;
-		// const bool chase = distance > chaseDistance;
-		// const bool retreat = distance < minDistance;
-
-		// if (lose)
-		// {
-			// this.SetTarget(null);
-			// this.getCurrentScript().tickFrequency = 30;
-			// return;
-		// }
-
-		// f32 jitter = blob.get_f32("inaccuracy");
-		// Vec2f randomness = Vec2f((100 - XORRandom(200)) * jitter, (100 - XORRandom(200)) * jitter);
-		// blob.setAimPos(target.getPosition() + randomness);
-
-		// if (blob.get_u32("nextAttack") < getGameTime())
-		// {
-			// AttachmentPoint@ point = blob.getAttachments().getAttachmentPointByName("PICKUP");
-
-			// if(point !is null) 
-			// {
-				// CBlob@ gun = point.getOccupied();
-				// if(gun !is null) 
-				// {
-					// if (blob.get_u32("nextAttack") < getGameTime())
-					// {
-						// blob.setKeyPressed(key_action1,true);
-						// blob.set_u32("nextAttack", getGameTime() + blob.get_u8("attackDelay"));
-					// }
-				// }
-			// }
-		// }
-
-		// if (chase)
-		// {
-			// if (getGameTime() % 30 == 0) this.SetPathTo(target.getPosition(), true);
-			// // if (getGameTime() % 45 == 0) this.SetHighLevelPath(blob.getPosition(), target.getPosition());
-			// Move(this, blob, this.getNextPathPosition());
-			// // print("chase")
-		// }
-		// // else if (retreat)
-		// // {
-			// // DefaultRetreatBlob( blob, target );
-			// // // print("retreat");
-		// // }
-	// }
-
-	// FloatInWater(blob); 
-// } 
 
 void Move(CBrain@ this, CBlob@ blob, Vec2f pos)
 {
@@ -420,7 +326,19 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 
 		if (brain !is null && hitterBlob !is null)
 		{
-			if (hitterBlob.getTeamNum() != this.getTeamNum()) brain.SetTarget(hitterBlob);
+			if (hitterBlob.getTeamNum() != this.getTeamNum())
+			{
+				if (hitterBlob.hasTag("weapon"))
+				{
+					AttachmentPoint@ point = hitterBlob.getAttachments().getAttachmentPointByName("PICKUP");
+					if (point !is null)
+					{
+						CBlob@ holder = point.getOccupied();
+						if (holder !is null) brain.SetTarget(holder);
+					}
+				}
+				else brain.SetTarget(hitterBlob);
+			}
 		}
 	}
 
@@ -429,7 +347,13 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 
 void onDie(CBlob@ this)
 {
-	if (this.hasTag("dead")) return;
+	CBlob@ remote = getBlobByNetworkID(this.get_u16("remote_id"));
+	if (remote !is null)
+	{
+		CBitStream params;
+		params.write_u16(this.getNetworkID());
+		remote.SendCommand(remote.getCommandID("unlink"), params);
+	}
 	CRules@ rules = getRules();
 	if (!shouldExplode(this, rules))
 	{
@@ -507,7 +431,117 @@ void DoExplosion(CBlob@ this)
 	}
 }
 
+void ResetPlayer(CBlob@ this)
+{
+	CPlayer@ ply = getPlayerByNetworkId(this.get_u16("controller_player_netid"));
+	CBlob@ blob = getBlobByNetworkID(this.get_u16("controller_blob_netid"));
+	if (blob !is null && ply !is null && !blob.hasTag("dead"))
+	{
+		this.set_bool("offblast", false);
+		this.set_u16("controller_blob_netid", 0);
+		this.set_u16("controller_player_netid", 0);
+
+		if (isServer()) blob.server_SetPlayer(ply);
+	}
+	else if (isServer()) this.server_Die();
+}
+
 void MakeParticle(CBlob@ this, const Vec2f pos, const Vec2f vel, const string filename = "SmallSteam")
 {
 	ParticleAnimated(filename, this.getPosition() + pos, vel, float(XORRandom(360)), 1.8f + XORRandom(100) * 0.01f, 2 + XORRandom(6), XORRandom(100) * -0.00005f, true);
+}
+
+void onCreateInventoryMenu(CBlob@ this, CBlob@ forBlob, CGridMenu @gridmenu)
+{
+	if (!this.isMyPlayer()) return;
+	Vec2f ul = gridmenu.getUpperLeftPosition();
+	Vec2f lr = gridmenu.getLowerRightPosition();
+
+	this.ClearGridMenusExceptInventory();
+	const int inv_posx = this.getInventory().getInventorySlots().x;
+	const int inv_posy = this.getInventory().getInventorySlots().y;
+	Vec2f pos = Vec2f(lr.x, ul.y) + Vec2f(-24*inv_posx, 66*inv_posy);
+
+	CGridMenu@ menu = CreateGridMenu(pos, this, Vec2f(inv_posx, 1), "Functions");
+
+	this.set_Vec2f("InventoryPos",pos);
+
+	AddIconToken("$explode$", "SmallExplosion1.png", Vec2f(24, 20), 1);
+	AddIconToken("$controller_icon$", "EngineerMale.png", Vec2f(32, 28), 0);
+
+	if (menu !is null)
+	{
+		menu.deleteAfterClick = true;
+
+		{
+			CGridButton@ button = menu.AddButton("$controller_icon$", "Exit Control", this.getCommandID("resetplayer"), Vec2f(1, 1));
+			if (button !is null)
+			{
+				button.SetEnabled(!this.hasTag("canlink"));
+				button.selectOneOnClick = false;
+			}
+		}
+		{
+			CGridButton@ button = menu.AddButton("$explode$", "Explode", this.getCommandID("explode"));
+			if (button !is null)
+			{
+				button.SetEnabled(true);
+				button.selectOneOnClick = false;
+			}
+		}
+	}
+}
+
+void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
+{
+	if (cmd == this.getCommandID("offblast"))
+	{
+		const u16 caller_netid = params.read_u16();
+		const u16 player_netid = params.read_u16();
+
+		CBlob@ caller = getBlobByNetworkID(caller_netid);
+		CPlayer@ ply = getPlayerByNetworkId(player_netid);
+		if (ply is null || caller is null) return;
+
+		this.set_bool("offblast", true);
+		this.set_u16("controller_blob_netid", caller_netid);
+		this.set_u16("controller_player_netid", player_netid);
+
+		if (isServer())
+		{
+			this.server_SetPlayer(ply);
+		}
+
+		if (isClient() && ply.isMyPlayer()) this.getSprite().PlaySound("scyther-intro.ogg");
+		this.getCurrentScript().tickFrequency = 1;
+	}
+	else if (cmd == this.getCommandID("resetplayer"))
+	{
+		ResetPlayer(this);
+	}
+	else if (cmd == this.getCommandID("explode"))
+	{
+		if (isServer())
+		{
+			this.server_Die();
+			ResetPlayer(this);
+		}
+	}
+	else if (cmd == this.getCommandID("link"))
+	{
+		u16 remote;
+		if (params.saferead_netid(remote))
+		{
+			CBlob@ remoteBlob = getBlobByNetworkID(remote);
+			if (remoteBlob is null) return;
+			this.set_u16("remote_id", remote);
+			this.Untag("canlink");
+			if (isServer())
+			{
+				CBitStream stream;
+				stream.write_u16(this.getNetworkID());
+				remoteBlob.SendCommand(remoteBlob.getCommandID("link"), stream);
+			}
+		}
+	}
 }

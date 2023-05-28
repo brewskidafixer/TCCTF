@@ -101,7 +101,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 					if (clip >= total) break;
 
 					// Determines what can have infinite ammunition
-					const bool isChickenBot = holder.getPlayer() is null && holder.hasTag("chicken");
+					const bool isChickenBot = holder.getPlayer() is null && holder.hasTag("npc");
 
 					if (this.hasTag("CustomShotgunReload"))
 					{

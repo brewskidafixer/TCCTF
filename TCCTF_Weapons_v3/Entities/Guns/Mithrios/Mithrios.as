@@ -314,12 +314,12 @@ bool HasAmmo(CBlob@ this, bool take, string ammoBlob)
 			if (itemName == ammoBlob)
 			{
 				u32 quantity = item.getQuantity();
-				bool has = quantity >= 50;
+				bool has = quantity > 25;
 				if (has)
 				{
 					if (take)
 					{
-						if (quantity >= 50) item.server_SetQuantity(quantity - 50);
+						if (quantity >= 25) item.server_SetQuantity(quantity - 25);
 						else
 						{
 							item.server_SetQuantity(0);
