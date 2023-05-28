@@ -99,9 +99,8 @@ CBlob@ Search(CBrain@ this, CBlob@ blob)
 		Vec2f bp = b.getPosition() - pos;
 		f32 d = bp.Length();
 
-		if (!b.hasTag("dead") && isVisible(blob, b) && 
-			(b.hasTag("flesh") || b.hasTag("npc")) && 
-			(!b.hasTag("passive") && b.getName() != "fishy"))
+		if (!b.hasTag("dead") && isVisible(blob, b) && (b.hasTag("flesh") 
+			|| b.hasTag("npc")) && !b.hasTag("passive"))
 		{
 			this.SetTarget(b);
 			return b;

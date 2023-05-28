@@ -103,16 +103,17 @@ void onTick(CBrain@ this)
 			// getBlobsByTag("human", @blobs);
 			const u8 myTeam = blob.getTeamNum();
 			
+			f32 closestDistance = chaseDistance;
 			for (int i = 0; i < blobs.length; i++)
 			{
 				CBlob@ b = blobs[i];
 				Vec2f bp = b.getPosition() - pos;
 				f32 d = bp.LengthSquared();
 				
-				// print("" + d);
-				
-				if (b.getTeamNum() != myTeam && d <= chaseDistanceSqr && !b.hasTag("dead") && b.hasTag("flesh") && !b.hasTag("passive") && !b.hasTag("invincible") && b.get_u8("deity_id") != Deity::foghorn && (isVisible(blob, b) || d < (48 * 48)))
+				if (b.getTeamNum() != myTeam && d <= chaseDistanceSqr && !b.hasTag("dead") && (b.hasTag("flesh") || b.hasTag("auto_turret")) && !b.hasTag("passive") && !b.hasTag("invincible") && b.get_u8("deity_id") != Deity::foghorn && (isVisible(blob, b) || d < (48 * 48)))
 				{
+					if (b.getDistanceTo(blob) > closestDistance) continue;
+					closestDistance = b.getDistanceTo(blob);
 					this.SetTarget(b);
 					blob.set_u32("nextAttack", getGameTime() + blob.get_u8("reactionTime"));
 					
@@ -147,7 +148,7 @@ void onTick(CBrain@ this)
 			CBlob@ raid_target = getBlobByNetworkID(blob.get_u16("raid target"));
 			if (raid_target !is null)
 			{
-				const f32 distance = (raid_target.getPosition() - blob.getPosition()).Length();
+				const f32 distance = raid_target.getDistanceTo(blob);
 				if (distance > 16)
 				{
 					const bool reached_path_end = this.getPathPositionAtIndex(100) == this.getNextPathPosition();
@@ -171,54 +172,61 @@ void onTick(CBrain@ this)
 						dir = blob.get_Vec2f("target_dir");
 						dir.Normalize();
 					}
-									
-					Move(this, blob, blob.getPosition() + dir * 24);
 				
 					if (stuck)
 					{
+						Move(this, blob, blob.getPosition() + dir * 24);
 						const f32 minDistance = blob.get_f32("minDistance");
 						const f32 maxDistance = blob.get_f32("maxDistance");
 					
 						if (distance > minDistance && distance < maxDistance)
-						{
 							Attack(this, raid_target, false);
-						}
 					}
-					
+					else Move(this, blob, raid_target.getPosition());
 					this.getCurrentScript().tickFrequency = 1;
+				}
+				if (raid_target.getTeamNum() == blob.getTeamNum())
+				{
+					blob.set_u16("raid target", 0);
 				}
 			}
 			else
 			{
 				CBlob@[] bases;
-				getBlobsByTag("faction_base", @bases);
+				getBlobsByTag("upkeep building", @bases);
 			
 				if (bases.length > 0) 
 				{
+					f32 closestDistance = 5000.0f;
 					for (u8 j = 0; j < bases.length; j++)
 					{
 						if (bases[j].getTeamNum() != blob.getTeamNum())
 						{
-							blob.set_u16("raid target", bases[j].getNetworkID());
-							this.getCurrentScript().tickFrequency = 1;
-							break;
+							f32 distance = blob.getDistanceTo(bases[j]);
+							if (distance < (closestDistance))
+							{
+								closestDistance = distance;
+								blob.set_u16("raid target", bases[j].getNetworkID());
+							}
 						}
 					}
+					this.getCurrentScript().tickFrequency = 1;
 				}
 			}
 		}
-		else this.getCurrentScript().tickFrequency = 15;
+		else 
+		this.getCurrentScript().tickFrequency = 15;
 	}
 	
 	if (target !is null && target !is blob)
-	{			
+	{
 		// print("" + target.getName());
 	
 		this.getCurrentScript().tickFrequency = 1;
 		
 		// print("" + this.lowLevelMaxSteps);
 		
-		const f32 distance = (target.getPosition() - blob.getPosition()).Length();
+		const f32 distance = target.getDistanceTo(blob);
 		const f32 minDistance = blob.get_f32("minDistance");
 		
 		const bool visibleTarget = isVisible(blob, target);
@@ -275,7 +283,7 @@ void onTick(CBrain@ this)
 			// print("retreat");
 		}
 
-		if (target.hasTag("dead")) 
+		if (target.hasTag("dead"))
 		{
 			CPlayer@ targetPlayer = target.getPlayer();
 			

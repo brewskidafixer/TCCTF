@@ -108,8 +108,6 @@ void onInit(CBlob@ this)
 
 		u8 team = this.getTeamNum();
 		Vec2f pos = this.getPosition();
-		CBlob@ phone = server_CreateBlob("phone", team, pos);
-		this.server_PutInInventory(phone);
 
 		// gun and ammo
 		CBlob@ ammo = server_CreateBlob(ammo_config, team, pos);
@@ -156,7 +154,6 @@ void onTick(CBlob@ this)
 		if (isServer())
 		{
 			this.server_SetPlayer(null);
-			server_DropCoins(this.getPosition(), Maths::Max(0, Maths::Min(this.get_u16("stolen coins"), 5000)));
 			CBlob@ carried = this.getCarriedBlob();
 
 			if (carried !is null)
