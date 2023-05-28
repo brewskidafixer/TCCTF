@@ -45,6 +45,12 @@ void onInit(CBlob@ this)
 	if (!this.exists("CustomBulletLength")) this.set_f32("CustomBulletLength", 3.0f); // Default bullet length
 
 	string vert_name = this.get_string("CustomBullet");
+	u8 teamNum = Maths::Clamp(0, this.getTeamNum(), 7);
+	if (vert_name == "Bullet_Plasma.png")
+	{
+		vert_name = "Bullet_Plasma_"+teamNum+".png";
+		this.set_string("CustomBullet", vert_name);
+	}
 	CRules@ rules = getRules();
 
 	if (isClient()) //&& !rules.get_bool(vert_name + '-inbook'))
