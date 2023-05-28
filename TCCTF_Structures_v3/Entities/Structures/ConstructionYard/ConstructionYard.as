@@ -278,10 +278,10 @@ void onInit(CBlob@ this)
 	}
 	{
 		ShopItem@ s = addShopItem(this, "UAV", "$icon_uav$", "uav", "$icon_uav$\n\n\n"+"READ BEFORE USAGE. An unmanned remotely controlled aerial vehicle used to gun people down.\n\nRequires Fuel\nRemotely Operated\n\n[E] to use.\n[LMB] to shoot\n[RMB] to exit\n[SPACE] to self-destruct", false, true);
-		AddRequirement(s.requirements, "blob", "mat_steelingot", "Steel Ingot", 20);
+		AddRequirement(s.requirements, "blob", "mat_steelingot", "Steel Ingot", 15);
 		AddRequirement(s.requirements, "blob", "mat_ironingot", "Iron Ingot", 10);
-		AddRequirement(s.requirements, "blob", "mat_copperwire", "Copper Wire", 20);
-		AddRequirement(s.requirements, "coin", "", "Coins", 1999);
+		AddRequirement(s.requirements, "blob", "mat_copperwire", "Copper Wire", 10);
+		AddRequirement(s.requirements, "coin", "", "Coins", 2999);
 		
 		s.crate_icon = 0;
 		s.customButton = true;
@@ -304,7 +304,7 @@ void onInit(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "mat_steelingot", "Steel Ingot", 40);
 		AddRequirement(s.requirements, "blob", "mat_ironingot", "Iron Ingot", 70);
 		AddRequirement(s.requirements, "blob", "mat_copperwire", "Copper Wire", 20);
-		AddRequirement(s.requirements, "coin", "", "Coins", 7999);
+		AddRequirement(s.requirements, "coin", "", "Coins", 6999);
 		
 		s.crate_icon = 0;
 		s.customButton = true;
@@ -316,7 +316,7 @@ void onInit(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "mat_steelingot", "Steel Ingot", 40);
 		AddRequirement(s.requirements, "blob", "mat_ironingot", "Iron Ingot", 20);
 		AddRequirement(s.requirements, "blob", "mat_copperwire", "Copper Wire", 20);
-		AddRequirement(s.requirements, "coin", "", "Coins", 5999);
+		AddRequirement(s.requirements, "coin", "", "Coins", 8999);
 
 		s.crate_icon = 0;
 		s.customButton = true;

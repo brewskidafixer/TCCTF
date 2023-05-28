@@ -116,7 +116,7 @@ void DoExplosion(CBlob@ this)
 	
 	Explode(this, 30.0f + random, 20.0f);
 	
-	for (int i = 0; i < 4 * modifier; i++) 
+	for (int i = 0; i < 2 * modifier; i++) 
 	{
 		Vec2f dir = getRandomVelocity(angle, 1, 120);
 		dir.x *= 2;
@@ -125,16 +125,13 @@ void DoExplosion(CBlob@ this)
 		LinearExplosion(this, dir, 8.0f + XORRandom(16) + (modifier * 8), 8 + XORRandom(24), 3, 0.125f, Hitters::explosion);
 	}
 	
-	Vec2f pos = this.getPosition();
-	CMap@ map = getMap();
-	
-	for (int i = 0; i < 35; i++)
+	this.Tag("dead");
+	this.getSprite().Gib();
+	if (v_fastrender) return;
+	for (int i = 0; i < 12; i++)
 	{
 		MakeExplosionParticle(this, Vec2f( XORRandom(64) - 32, XORRandom(80) - 60), getRandomVelocity(-angle, XORRandom(220) * 0.01f, 90), particles[XORRandom(particles.length)]);
 	}
-	
-	this.Tag("dead");
-	this.getSprite().Gib();
 }
 
 void MakeExplosionParticle(CBlob@ this, const Vec2f pos, const Vec2f vel, const string filename = "SmallSteam")

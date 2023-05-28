@@ -8,6 +8,7 @@
 
 void Turret_onInit(CBlob@ this)
 {
+	this.Tag("auto_turret");
 	this.addCommandID("addAmmo");
 	this.addCommandID("takeAmmo");
 }
