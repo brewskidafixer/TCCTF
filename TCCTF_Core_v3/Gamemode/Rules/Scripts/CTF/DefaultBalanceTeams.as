@@ -374,6 +374,7 @@ void onPlayerLeave(CRules@ this, CPlayer@ player)
 			blob.set_string("sleeper_name", player.getUsername());
 			blob.Tag("sleeper");
 			blob.Tag(player.getUsername());
+			if (blob.hasTag("nospawnmenu")) blob.Untag("nospawnmenu");
 
 			CBitStream bt;
 			bt.write_bool(true);

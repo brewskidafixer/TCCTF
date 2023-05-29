@@ -119,12 +119,12 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 				{
 					case HittersTC::bullet_low_cal:
 					case HittersTC::shotgun:
-						ratio = 0.70f;
+						ratio = 0.60f;
 						break;
 
 					case HittersTC::bullet_high_cal:
 					case HittersTC::railgun_lance:
-						ratio = 0.50f;
+						ratio = 0.40f;
 						break;
 
 					default:
@@ -138,12 +138,12 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 				{
 					case HittersTC::bullet_low_cal:
 					case HittersTC::shotgun:
-						ratio = 0.80f;
+						ratio = 0.70f;
 						break;
 
 					case HittersTC::bullet_high_cal:
 					case HittersTC::railgun_lance:
-						ratio = 0.75f;
+						ratio = 0.65f;
 						break;
 
 					default:
@@ -157,12 +157,12 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 				{
 					case HittersTC::bullet_low_cal:
 					case HittersTC::shotgun:
-						ratio = 0.90f;
+						ratio = 0.80f;
 						break;
 
 					case HittersTC::bullet_high_cal:
 					case HittersTC::railgun_lance:
-						ratio = 0.85f;
+						ratio = 0.75f;
 						break;
 
 					default:
@@ -196,12 +196,12 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 				{
 					case HittersTC::bullet_low_cal:
 					case HittersTC::shotgun:
-						ratio = 0.70f;
+						ratio = 0.60f;
 						break;
 
 					case HittersTC::bullet_high_cal:
 					case HittersTC::railgun_lance:
-						ratio = 0.50f;
+						ratio = 0.40f;
 						break;
 
 					default:
@@ -215,12 +215,12 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 				{
 					case HittersTC::bullet_low_cal:
 					case HittersTC::shotgun:
-						ratio = 0.90f;
+						ratio = 0.80f;
 						break;
 
 					case HittersTC::bullet_high_cal:
 					case HittersTC::railgun_lance:
-						ratio = 0.80f;
+						ratio = 0.70f;
 						break;
 
 					default:
@@ -234,12 +234,12 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 				{
 					case HittersTC::bullet_low_cal:
 					case HittersTC::shotgun:
-						ratio = 0.95f;
+						ratio = 0.90f;
 						break;
 
 					case HittersTC::bullet_high_cal:
 					case HittersTC::railgun_lance:
-						ratio = 0.90f;
+						ratio = 0.80f;
 						break;
 
 					default:

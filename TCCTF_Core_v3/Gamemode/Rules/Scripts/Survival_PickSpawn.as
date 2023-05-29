@@ -30,6 +30,15 @@ void BuildRespawnMenu(CRules@ this, CPlayer@ player)
         }
 
     }
+    CBlob@ oldBlob = player.getBlob();
+    if (oldBlob !is null && oldBlob.hasTag(player.getUsername()))
+    {
+    	if (!oldBlob.hasTag("nospawnmenu"))
+    	{
+    		oldBlob.Tag("nospawnmenu");
+    		return;
+    	}
+    }
 
 	if (teamNum != this.getSpectatorTeamNum())
 	{

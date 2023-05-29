@@ -26,7 +26,7 @@ void onInit(CBlob@ this)
 	settings.B_GRAV = Vec2f(0, 0.006); //Bullet Gravity
 	settings.B_TTL = 11; //Bullet Time to live
 	settings.B_SPEED = 70; //Bullet speed
-	settings.B_DAMAGE = 2.0f; //Bullet damage
+	settings.B_DAMAGE = 2.5f; //Bullet damage
 	settings.G_RECOIL = 0;
 	settings.FIRE_SOUND = "GatlingGun-Shoot0.ogg";
 	settings.MUZZLE_OFFSET = Vec2f(-38, 8.5); //Where muzzle flash and bullet spawn

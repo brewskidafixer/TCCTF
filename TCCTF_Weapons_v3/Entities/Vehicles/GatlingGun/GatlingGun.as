@@ -17,7 +17,7 @@ void onInit(CBlob@ this)
 	settings.B_GRAV = Vec2f(0, 0.006); //Bullet Gravity
 	settings.B_TTL = 12; //Bullet Time to live
 	settings.B_SPEED = 70; //Bullet speed
-	settings.B_DAMAGE = 1.5f; //Bullet damage
+	settings.B_DAMAGE = 1.75f; //Bullet damage
 	settings.MUZZLE_OFFSET = Vec2f(-24, -1); //Where muzzle flash and bullet spawn
 
 	this.set("gun_settings", @settings);
