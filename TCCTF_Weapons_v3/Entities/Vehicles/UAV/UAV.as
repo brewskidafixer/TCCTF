@@ -40,7 +40,7 @@ void onInit(CBlob@ this)
 	this.set_u16("ammoCount", 0);
 
 	this.set_f32("max_fuel", 2500);
-	this.set_f32("fuel_consumption_modifier", 0.15f);
+	this.set_f32("fuel_consumption_modifier", 0.2f);
 	this.get_u32("fireDelayGun");
 
 	this.SetLightRadius(16.0f);
@@ -129,11 +129,12 @@ void onTick(CBlob@ this)
 
 		if (this.getTickSinceCreated() % 5 == 0)
 		{
-			f32 taken = this.get_f32("fuel_consumption_modifier") * (this.getVelocity().getLength() + getHeight(this)/2);
+			f32 taken = this.get_f32("fuel_consumption_modifier") * (this.getVelocity().getLength() + Maths::Sqrt(getHeight(this)*2));
 			TakeFuel(this, taken);
 		}
 	}
-	
+	else this.getCurrentScript().tickFrequency = 0;
+	if (this.getPlayer() is null) return;
 	CSprite@ sprite = this.getSprite();
 
 	CSpriteLayer@ minigun = sprite.getSpriteLayer("arm");
@@ -258,7 +259,6 @@ void ResetPlayer(CBlob@ this)
 	this.Untag("projectile");
 	this.SetLight(false);
 	this.getSprite().SetEmitSoundPaused(true);
-	this.getCurrentScript().tickFrequency = 0;
 
 	CPlayer@ ply = getPlayerByNetworkId(this.get_u16("controller_player_netid"));
 	CBlob@ blob = getBlobByNetworkID(this.get_u16("controller_blob_netid"));

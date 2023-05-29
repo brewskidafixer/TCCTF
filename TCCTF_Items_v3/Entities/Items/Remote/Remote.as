@@ -76,7 +76,6 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 			{
 				if (this.get_u16("remote_blob_"+i) == 0)
 				{
-					print(""+i);
 					this.add_u8("total_links", 1);
 					this.set_u16("remote_blob_"+i, link);
 					break;

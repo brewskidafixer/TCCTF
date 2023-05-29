@@ -264,7 +264,7 @@ void onTick(CBlob@ this)
 						aimangle += XORRandom(2) != 0 ? -XORRandom(settings.B_SPREAD) : XORRandom(settings.B_SPREAD);
 					}
 
-					if (holder.isMyPlayer() || (isServer() && holder.getBrain() !is null && holder.getBrain().isActive()))
+					if (holder.isMyPlayer() || (isServer() && holder.getPlayer() is null && holder.getBrain() !is null && holder.getBrain().isActive()))
 					{
 						if (this.exists("ProjBlob"))
 						{

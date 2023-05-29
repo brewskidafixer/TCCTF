@@ -94,6 +94,7 @@ void DoExplosion(CBlob@ this)
 			blob.setVelocity(getRandomVelocity(angle, 12 + XORRandom(5), 45));
 			blob.server_SetTimeToDie(15);
 			blob.set_u32("primed_time", getGameTime() + PRIME_TIME);
+			blob.Untag("projectile");
 		}
 	}
 

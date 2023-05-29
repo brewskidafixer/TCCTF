@@ -9,6 +9,7 @@
 
 void onInit(CBlob@ this)
 {
+	this.Tag("upkeep building");
 	this.getSprite().SetZ(-50); //background
 	this.getShape().getConsts().mapCollisions = false;
 
