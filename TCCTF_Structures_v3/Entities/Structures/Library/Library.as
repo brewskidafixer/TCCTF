@@ -158,7 +158,7 @@ void onInit(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "mat_ironingot", "Iron Ingot", 10);
 		AddRequirement(s.requirements, "blob", "mat_copperingot", "Copper Ingot", 5);
 		AddRequirement(s.requirements, "blob", "mat_copperwire", "Copper Wire", 20);
-		AddRequirement(s.requirements, "coin", "", "Coins", 850);
+		AddRequirement(s.requirements, "coin", "", "Coins", 3750);
 		s.spawnNothing = true;
 	}
 	if (this.hasTag("mat_mithril") && this.hasTag("mat_mithrilingot"))
@@ -314,7 +314,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 						AddRequirement(s.requirements, "blob", "mat_ironingot", "Iron Ingot", 10);
 						AddRequirement(s.requirements, "blob", "mat_copperingot", "Copper Ingot", 5);
 						AddRequirement(s.requirements, "blob", "mat_copperwire", "Copper Wire", 20);
-						AddRequirement(s.requirements, "coin", "", "Coins", 850);
+						AddRequirement(s.requirements, "coin", "", "Coins", 3750);
 						s.spawnNothing = true;
 					}
 					this.Tag(carried.getName());
