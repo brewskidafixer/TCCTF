@@ -123,7 +123,7 @@ void onTick(CBlob@ this)
 	const f32 power = this.get_f32("deity_power");
 	CBlob@[] chickens;
 	getBlobsByTag("combat chicken", chickens);
-	this.set_u8("maxChickens", Maths::FastSqrt(Maths::FastSqrt(power))*1.7);
+	this.set_u8("maxChickens", Maths::FastSqrt(Maths::FastSqrt(power))*1.7f);
 	this.setInventoryName("Altar of Foghorn\n\nUPF Power: "+power
 		+"\nChicken Morph Type: "+this.get_string("classtype")
 		+"\nMax Chickens: "+this.get_u8("maxChickens"));
@@ -204,7 +204,6 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 					{
 						this.add_f32("deity_power", 2500);
 						if (isServer()) this.Sync("deity_power", false);
-						this.set_u8("maxChickens", Maths::FastSqrt(Maths::FastSqrt(this.get_f32("deity_power")))*2);
 						CBlob@[] chickens;
 						getBlobsByTag("combat chicken", chickens);
 
