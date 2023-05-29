@@ -67,7 +67,7 @@ void onInit(CBlob@ this)
 		
 		// s.spawnNothing = true;
 	// }
-	this.set_u32("total_stonks", 1);
+	this.set_u16("total_stonks", 1);
 	this.set_f32("stonks_growth", 0.01f);
 	this.set_f32("stonks_daily_growth", 0.01f);
 	this.set_f32("stonks_value", rand.NextRanged(stonks_base_value_max));
@@ -100,6 +100,18 @@ int graph_index = 0;
 
 void onTick(CBlob@ this)
 {
+	CGridMenu@ menu = getGridMenuByName("\nStonks Broker\n");
+	if (menu !is null)
+	{
+		for (u8 i = 0; i < menu.getButtonsCount(); i++)
+		{
+			CGridButton@ button = menu.getButtonOfIndex(i);
+			if (button !is null)
+			{
+				button.SetEnabled(true);
+			}
+		}
+	}
 	const bool server = isServer();
 	const bool client = isClient();
 
@@ -117,7 +129,7 @@ void onTick(CBlob@ this)
 		text += "\nMaximum Stonks Value: " + Maths::Ceil(stonks_base_value_max + (power / 100.00f)) + " coins";
 		text += "\nDividends to be Collected: " +this.get_u32("dividend") + " coins";
 		text += "\nNext Dividends Payout : " +this.get_u32("dividend_time")+" seconds.";
-		text += "\nStonks Owned : " +this.get_u32("total_stonks");
+		text += "\nStonks Owned : " +this.get_u16("total_stonks");
 		this.setInventoryName(text);
 		
 		const f32 radius = 64.00f + ((power / 100.00f) * 8.00f);
@@ -134,7 +146,7 @@ void onTick(CBlob@ this)
 	if (this.get_u32("dividend_time") > 1) this.sub_u32("dividend_time", 1);
 	else
 	{
-		this.add_u32("dividend", this.get_u32("total_stonks")*(this.get_f32("stonks_value")*(1+XORRandom(250))*0.001f));
+		this.add_u32("dividend", this.get_u16("total_stonks")*(this.get_f32("stonks_value")*(1+XORRandom(250))*0.001f));
 		this.set_bool("canRedeem", true);
 		this.set_u32("dividend_time", 300);
 	}
@@ -296,14 +308,14 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 							params.write_u16(callerBlob.getNetworkID());
 							params.write_u8(0);
 							params.write_u8(i);
-							menu.AddButton("$icon_stonks"+i+"$", "\nBuy Stonks: ("+i+")\n", this.getCommandID("stonks_trade"), params);
+							CGridButton@ button = menu.AddButton("$icon_stonks"+i+"$", "\nBuy Stonks: ("+i+")\n", this.getCommandID("stonks_trade"), params);
 						}
 						{
 							CBitStream params;
 							params.write_u16(callerBlob.getNetworkID());
 							params.write_u8(1);
 							params.write_u8(i);
-							menu.AddButton("$icon_stonks"+i+"$", "\nSell Stonks: ("+i+")\n", this.getCommandID("stonks_trade"), params);
+							CGridButton@ button = menu.AddButton("$icon_stonks"+i+"$", "\nSell Stonks: ("+i+")\n", this.getCommandID("stonks_trade"), params);
 						}
 					}
 				}
@@ -358,16 +370,17 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 					{
 						case 0: // Buy
 						{
-							if (buy_price*quantity > 7500)
+							if (callerPlayer.getCoins() > buy_price*quantity)
+							{
+								AddRequirement(reqs, "coin", "", "Coins", buy_price*quantity);
+							}
+							else
 							{
 								u16 goldIngots = (buy_price*quantity)/100;
 								AddRequirement(reqs, "blob", "mat_goldingot", "Gold Ingots", goldIngots);
 								AddRequirement(reqs, "coin", "", "Coins", (buy_price*quantity) - (goldIngots*100));
 							}
-							else
-							{
-								AddRequirement(reqs, "coin", "", "Coins", buy_price*quantity);
-							}
+							
 							break;
 						}
 						
@@ -387,16 +400,27 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 						
 						has_reqs = true;
 					}
+					else if (caller.isMyPlayer()) Sound::Play("NoAmmo.ogg");
 					
 					if (has_reqs)
 					{
+						CGridMenu@ menu = getGridMenuByName("\nStonks Broker\n");
+						if (menu !is null)
+						for (u8 i = 0; i < menu.getButtonsCount(); i++)
+						{
+							CGridButton@ button = menu.getButtonOfIndex(i);
+							if (button !is null)
+							{
+								button.SetEnabled(false);
+							}
+						}
 						switch (action)
 						{
 							case 0: // Buy
 							{
 								if (isServer()) MakeMat(caller, this.getPosition(), "mat_stonks", quantity);
 								if (isClient()) this.getSprite().PlaySound("/ChaChing.ogg");
-								this.add_u32("total_stonks", quantity);
+								this.add_u16("total_stonks", quantity);
 							}
 							break;
 							
@@ -430,13 +454,12 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 								{
 									this.getSprite().PlaySound("/ChaChing.ogg");
 								}
-								this.sub_u32("total_stonks", quantity);
+								this.sub_u16("total_stonks", Maths::Min(this.get_u16("total_stonks"), quantity));
 							}
 							break;
 						}
 						updateStonks(this, quantity);
 					}
-					else if (caller.isMyPlayer()) Sound::Play("NoAmmo.ogg");
 				}
 			}
 		}

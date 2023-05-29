@@ -51,7 +51,7 @@ void onInit(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "egg", "Egg", 1);
 		AddRequirement(s.requirements, "blob", "lighthelmet", "Light Helmet", 1);
 		AddRequirement(s.requirements, "blob", "lightvest", "Light Vest", 1);
-		AddRequirement(s.requirements, "coin", "", "Coins", 1500);
+		AddRequirement(s.requirements, "coin", "", "Coins", 1250);
 		s.customButton = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;
@@ -63,7 +63,7 @@ void onInit(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "egg", "Egg", 1);
 		AddRequirement(s.requirements, "blob", "mediumhelmet", "Medium Helmet", 1);
 		AddRequirement(s.requirements, "blob", "mediumvest", "Medium Vest", 1);
-		AddRequirement(s.requirements, "coin", "", "Coins", 3500);
+		AddRequirement(s.requirements, "coin", "", "Coins", 3250);
 		s.customButton = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;
@@ -75,7 +75,7 @@ void onInit(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "egg", "Egg", 1);
 		AddRequirement(s.requirements, "blob", "heavyhelmet", "Heavy Helmet", 1);
 		AddRequirement(s.requirements, "blob", "heavyvest", "Heavy Vest", 1);
-		AddRequirement(s.requirements, "coin", "", "Coins", 7500);
+		AddRequirement(s.requirements, "coin", "", "Coins", 7000);
 		s.customButton = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;
@@ -87,11 +87,29 @@ void onInit(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "egg", "Egg", 1);
 		AddRequirement(s.requirements, "blob", "lighthelmet", "Light Helmet", 1);
 		AddRequirement(s.requirements, "blob", "mediumvest", "Medium Vest", 1);
-		AddRequirement(s.requirements, "coin", "", "Coins", 5000);
+		AddRequirement(s.requirements, "coin", "", "Coins", 4500);
 		s.customButton = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;
 
+		s.spawnNothing = true;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Ransom Eggs", "$egg$", "offering_eggs", "Offer Eggs's in return for power.");
+		AddRequirement(s.requirements, "blob", "egg", "Egg", 12);
+		s.customButton = true;
+		s.buttonwidth = 1;	
+		s.buttonheight = 1;
+		
+		s.spawnNothing = true;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Ransom Chickens", "$chicken$", "offering_chickens", "Offer Chicken Slaves in return for power.");
+		AddRequirement(s.requirements, "blob", "chicken", "Chicken", 8);
+		s.customButton = true;
+		s.buttonwidth = 1;	
+		s.buttonheight = 1;
+		
 		s.spawnNothing = true;
 	}
 	
@@ -105,7 +123,7 @@ void onTick(CBlob@ this)
 	const f32 power = this.get_f32("deity_power");
 	CBlob@[] chickens;
 	getBlobsByTag("combat chicken", chickens);
-	this.set_u8("maxChickens", Maths::FastSqrt(Maths::FastSqrt(power))*2);
+	this.set_u8("maxChickens", Maths::FastSqrt(Maths::FastSqrt(power))*1.7);
 	this.setInventoryName("Altar of Foghorn\n\nUPF Power: "+power
 		+"\nChicken Morph Type: "+this.get_string("classtype")
 		+"\nMax Chickens: "+this.get_u8("maxChickens"));
@@ -128,12 +146,22 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 					string[] spl = data.split("-");
 					if (data == "offering_scrubs")
 					{
-						this.add_f32("deity_power", 125);
+						this.add_f32("deity_power", 175);
+						if (isServer()) this.Sync("deity_power", false);
+					}
+					else if (data == "offering_eggs")
+					{
+						this.add_f32("deity_power", 150);
+						if (isServer()) this.Sync("deity_power", false);
+					}
+					else if (data == "offering_chickens")
+					{
+						this.add_f32("deity_power", 150);
 						if (isServer()) this.Sync("deity_power", false);
 					}
 					else if (spl[0] == "offering_summon")
 					{
-						this.set_u8("maxChickens", Maths::FastSqrt(Maths::FastSqrt(this.get_f32("deity_power")))*2);
+						this.set_u8("maxChickens", Maths::FastSqrt(Maths::FastSqrt(this.get_f32("deity_power")))*1.7f);
 						string chickenType = "scoutchicken";
 						u8 maxChickens = this.get_u8("maxChickens");
 						switch (parseInt(spl[1]))

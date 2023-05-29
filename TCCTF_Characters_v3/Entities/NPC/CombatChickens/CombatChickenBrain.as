@@ -57,7 +57,7 @@ void onTick(CBrain@ this)
 	}
 	else
 	{
-		stuck = blob.get_bool("stuck");
+		stuck = false;
 	}
 	
 	// print("" + (target == null));
@@ -86,7 +86,7 @@ void onTick(CBrain@ this)
 	// print("" + next_search + "; " + getGameTime());
 	
 	if (target is null)
-	{	
+	{
 		const bool raider = blob.get_bool("raider");
 		const Vec2f pos = blob.getPosition();
 	
@@ -158,7 +158,7 @@ void onTick(CBrain@ this)
 				
 					if (stuck)
 					{
-						Move(this, blob, blob.getPosition() + dir * 24);
+						Move(this, blob, blob.getPosition() + Vec2f(XORRandom(48) - 24, -(5 + XORRandom(16))));
 						const f32 minDistance = blob.get_f32("minDistance");
 						const f32 maxDistance = blob.get_f32("maxDistance");
 					
@@ -177,29 +177,39 @@ void onTick(CBrain@ this)
 			{
 				CBlob@[] bases;
 				getBlobsByTag("upkeep building", @bases);
+				bool foundBase = false;
 			
 				if (bases.length > 0) 
 				{
-					f32 closestDistance = 5000.0f;
+					f32 closestDistance = 888.0f;
 					for (u8 j = 0; j < bases.length; j++)
 					{
+						f32 posy = blob.getPosition().y;
+						f32 ydif = 200.0f;
 						if (bases[j].getTeamNum() != blob.getTeamNum())
 						{
+							f32 curydif = Maths::Abs(posy - bases[j].getPosition().y);
 							f32 distance = blob.getDistanceTo(bases[j]);
-							if (distance < (closestDistance))
+							if (bases[j].hasTag("faction_base")) distance/2;
+							if (curydif < ydif*1.2f && distance < closestDistance)
 							{
 								closestDistance = distance;
 								blob.set_u16("raid target", bases[j].getNetworkID());
+								foundBase = true;
 							}
 						}
 					}
-					this.getCurrentScript().tickFrequency = 1;
+				}
+				if (!foundBase)
+				{
+					if (XORRandom(2) == 0) RandomTurn(blob);
+					this.getCurrentScript().tickFrequency = 15;
 				}
 			}
 		}
 		else this.getCurrentScript().tickFrequency = 15;
 	}
-	else if (target !is null && target !is blob)
+	else if (target !is blob)
 	{
 		// print("" + target.getName());
 	
