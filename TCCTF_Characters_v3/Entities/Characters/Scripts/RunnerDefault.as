@@ -265,5 +265,6 @@ bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
 
 bool isInventoryAccessible(CBlob@ this, CBlob@ forBlob)
 {
-	return (forBlob !is this) && ((getKnocked(this) > 0) || (this.get_f32("babbyed") > 0) || (this.isKeyPressed(key_down)) || (this.hasTag("dead")));
+	return (forBlob !is this) && ((getKnocked(this) > 0) || (this.get_f32("babbyed") > 0) || this.hasTag("dead") 
+		|| ((this.isKeyPressed(key_down) || this.getPlayer() is null) && forBlob.getTeamNum() == this.getTeamNum()));
 }

@@ -220,11 +220,11 @@ class Bullet
                         }
                         else
                         {
-                            if (isTileConcrete(tile.type) || isTileMossyConcrete(tile.type)){ ///Concrete and leaves are somewhat resistant to bullet fire
-                                if (XORRandom(3) < 1)map.server_DestroyTile(hitpos, damage * 0.25f);
+                            if (isTileConcrete(tile.type) || isTileIron(tile.type)){ ///Concrete and leaves are somewhat resistant to bullet fire
+                                if (XORRandom(2) == 0)map.server_DestroyTile(hitpos, damage * 0.25f);
                             } else
                             if (map.isTileGroundStuff(tile.type) || isTileReinforcedConcrete(tile.type)){ ///Earth and reinforced concrete are very resistant to bullet fire
-                                if (XORRandom(6) < 1)map.server_DestroyTile(hitpos, damage * 0.25f);
+                                if (XORRandom(4) == 0)map.server_DestroyTile(hitpos, damage * 0.25f);
                             } else
                             if(isTilePlasteel(tile.type)){ ///Plasteel does not take bullet damage
                             }
