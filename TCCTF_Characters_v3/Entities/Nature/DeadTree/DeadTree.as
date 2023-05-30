@@ -16,8 +16,8 @@ void onDie(CBlob@ this)
 	
 	if (isServer())
 	{
-		server_CreateBlob("mat_wood", this.getTeamNum(), this.getPosition() - Vec2f(0, XORRandom(64))).server_SetQuantity(100 + XORRandom(50));
-		server_CreateBlob("mat_coal", this.getTeamNum(), this.getPosition() - Vec2f(0, XORRandom(64))).server_SetQuantity(45 + XORRandom(20));
+		server_CreateBlob("mat_wood", -1, this.getPosition() - Vec2f(0, XORRandom(64))).server_SetQuantity(100 + XORRandom(50));
+		server_CreateBlob("mat_coal", -1, this.getPosition() - Vec2f(0, XORRandom(64))).server_SetQuantity(60 + XORRandom(40));
 	}
 }
 

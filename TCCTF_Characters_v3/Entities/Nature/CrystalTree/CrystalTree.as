@@ -24,18 +24,18 @@ void onDie(CBlob@ this)
 		for (int i = 0; i < (3); i++)
 		{
 			{
-				CBlob@ blob = server_CreateBlob("mat_mithril", this.getTeamNum(), this.getPosition() - Vec2f(0, XORRandom(64)));
-				blob.server_SetQuantity(10 + XORRandom(20));
+				CBlob@ blob = server_CreateBlob("mat_mithril", -1, this.getPosition() - Vec2f(0, XORRandom(64)));
+				blob.server_SetQuantity(5 + XORRandom(10));
 				blob.setVelocity(Vec2f(XORRandom(4) - 2, -2 - XORRandom(3)));
 			}
 			{
-				CBlob@ blob = server_CreateBlob("mat_matter", this.getTeamNum(), this.getPosition() - Vec2f(0, XORRandom(64)));
-				blob.server_SetQuantity(40 + XORRandom(30));
+				CBlob@ blob = server_CreateBlob("mat_matter", -1, this.getPosition() - Vec2f(0, XORRandom(64)));
+				blob.server_SetQuantity(40 + XORRandom(50));
 				blob.setVelocity(Vec2f(XORRandom(4) - 2, -2 - XORRandom(3)));
 			}
 			{
-				CBlob@ blob = server_CreateBlob("mat_wood", this.getTeamNum(), this.getPosition() - Vec2f(0, XORRandom(64)));
-				blob.server_SetQuantity(20 + XORRandom(40));
+				CBlob@ blob = server_CreateBlob("mat_wood", -1, this.getPosition() - Vec2f(0, XORRandom(64)));
+				blob.server_SetQuantity(15 + XORRandom(20));
 				blob.setVelocity(Vec2f(XORRandom(4) - 2, -2 - XORRandom(3)));
 			}
 		}
