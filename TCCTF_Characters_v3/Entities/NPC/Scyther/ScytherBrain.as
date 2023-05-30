@@ -57,7 +57,7 @@ void onInit(CBlob@ this)
 
 	this.set_u32("nextAttack", 0);
 
-	this.set_f32("minDistance", 96);
+	this.set_f32("minDistance", 256);
 	this.set_f32("chaseDistance", 512);
 	this.set_f32("maxDistance", 1200);
 
@@ -263,7 +263,7 @@ CBlob@ FindTarget(CBrain@ this, f32 maxDistance)
 		Vec2f bp = b.getPosition() - pos;
 		f32 d = bp.Length();
 
-		if (d < distance && b.getTeamNum() != myTeam && !b.hasTag("dead") && !b.hasTag("passive") && !b.hasTag("invincible"))
+		if (d < distance && isVisible(blob, b) && b.getTeamNum() != myTeam && !b.hasTag("dead") && !b.hasTag("passive") && !b.hasTag("invincible"))
 		{
 			distance = d;
 			net_id = b.getNetworkID();

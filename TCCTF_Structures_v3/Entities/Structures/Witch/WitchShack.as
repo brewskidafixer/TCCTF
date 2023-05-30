@@ -71,14 +71,14 @@ void onInit(CBlob@ this)
 		s.spawnNothing = true;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Ancient Technology", "$molecularfabricator$", "molecularfabricator", "I will hand this to you, but you must collect and deliver me these items.\nHint: you can collect plasteel from a rocc that falls from the sky.");
-		AddRequirement(s.requirements, "blob", "mat_mithrilingot", "Mithril Ingot", 20);
-		AddRequirement(s.requirements, "blob", "mat_plasteel", "Plasteel", 20);
-		AddRequirement(s.requirements, "blob", "chicken", "Chicken", 20);
-		AddRequirement(s.requirements, "blob", "egg", "Egg", 20);
-		AddRequirement(s.requirements, "blob", "grain", "Grain", 20);
-		AddRequirement(s.requirements, "blob", "pumpkin", "Pumpkin", 20);
-		AddRequirement(s.requirements, "coin", "", "Coins", 12500);
+		ShopItem@ s = addShopItem(this, "Witch's Quest", "$molecularfabricator$", "molecularfabricator", "I will hand this to you, but you must collect and deliver me these items.\nHint: you can collect plasteel from a rocc that falls from the sky.");
+		AddRequirement(s.requirements, "blob", "mat_mithrilingot", "Mithril Ingot", 50);
+		AddRequirement(s.requirements, "blob", "mat_plasteel", "Plasteel", 50);
+		AddRequirement(s.requirements, "blob", "chicken", "Chicken", 50);
+		AddRequirement(s.requirements, "blob", "egg", "Egg", 50);
+		AddRequirement(s.requirements, "blob", "grain", "Grain", 50);
+		AddRequirement(s.requirements, "blob", "pumpkin", "Pumpkin", 50);
+		AddRequirement(s.requirements, "coin", "", "Coins", 25000);
 		s.spawnNothing = true;
 	}
 	{

@@ -39,7 +39,7 @@ void onInit(CBlob@ this)
 		s.spawnNothing = true;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Deconstruct a Busted Scyther Component", "$icon_matter_1$", "mat_matter-25", "Deconstruct 1 Busted Scyther Component into 25 units of Amazing Technicolor Dust.");
+		ShopItem@ s = addShopItem(this, "Deconstruct a Busted Scyther Component", "$icon_matter_1$", "mat_matter-100", "Deconstruct 1 Busted Scyther Component into 100 units of Amazing Technicolor Dust.");
 		AddRequirement(s.requirements, "blob", "scythergib", "Busted Scyther Component", 1);
 		// AddRequirement(s.requirements, "blob", "mat_mithrilingot", "Mithril Ingot", 5);
 		s.spawnNothing = true;
@@ -100,9 +100,9 @@ void onInit(CBlob@ this)
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Reconstruct a Force Field Generator", "$icon_fieldgenerator$", "fieldgenerator", "A high-tech force field generator. Strikes anything that is made of flesh and doesn't match its internal filter.");
-		AddRequirement(s.requirements, "blob", "mat_matter", "Amazing Technicolor Dust", 50);
+		AddRequirement(s.requirements, "blob", "mat_matter", "Amazing Technicolor Dust", 175);
 		AddRequirement(s.requirements, "blob", "mat_plasteel", "Plasteel Sheet", 25);
-		AddRequirement(s.requirements, "blob", "mat_mithrilingot", "Mithril Ingot", 5);
+		AddRequirement(s.requirements, "blob", "mat_mithrilingot", "Mithril Ingot", 20);
 		s.spawnNothing = true;
 	}
 	{
@@ -173,26 +173,25 @@ void onInit(CBlob@ this)
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Reconstruct a Translocator (2)", "$icon_teleporter$", "teleporter", "A pair of matter exchange-based teleportation devices.\n\nRadius scales with amount of mithril inside.");
-		AddRequirement(s.requirements, "blob", "mat_matter", "Amazing Technicolor Dust", 50);
+		AddRequirement(s.requirements, "blob", "mat_matter", "Amazing Technicolor Dust", 500);
 		AddRequirement(s.requirements, "blob", "mat_plasteel", "Plasteel Sheet", 50);
-		AddRequirement(s.requirements, "blob", "mat_mithrilingot", "Mithril Ingot", 10);
+		AddRequirement(s.requirements, "blob", "mat_mithrilingot", "Mithril Ingot", 50);
 		s.spawnNothing = true;
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Reconstruct a Scyther", "$icon_scyther$", "scyther", "A light combat mechanoid equipped with a Charge Blaster.");
-		AddRequirement(s.requirements, "blob", "scythergib", "Busted Scyther Component", 2);
-		AddRequirement(s.requirements, "blob", "mat_matter", "Amazing Technicolor Dust", 25);
-		AddRequirement(s.requirements, "blob", "mat_plasteel", "Plasteel Sheet", 50);
-		AddRequirement(s.requirements, "blob", "mat_mithrilingot", "Mithril Ingot", 5);
+		AddRequirement(s.requirements, "blob", "mat_matter", "Amazing Technicolor Dust", 250);
+		AddRequirement(s.requirements, "blob", "mat_plasteel", "Plasteel Sheet", 200);
+		AddRequirement(s.requirements, "blob", "mat_mithrilingot", "Mithril Ingot", 15);
 		AddRequirement(s.requirements, "blob", "mat_mithril", "Mithril", 250);
 		AddRequirement(s.requirements, "blob", "chargeblaster", "Charge Blaster", 1);
 		s.spawnNothing = true;
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Reconstruct a Hoverbike", "$icon_hoverbike$", "hoverbike", "An extremely fast hoverbike utilizing levitators.");
-		AddRequirement(s.requirements, "blob", "mat_matter", "Amazing Technicolor Dust", 40);
+		AddRequirement(s.requirements, "blob", "mat_matter", "Amazing Technicolor Dust", 100);
 		AddRequirement(s.requirements, "blob", "mat_plasteel", "Plasteel Sheet", 20);
-		AddRequirement(s.requirements, "blob", "mat_mithrilingot", "Mithril Ingot", 2);
+		AddRequirement(s.requirements, "blob", "mat_mithrilingot", "Mithril Ingot", 10);
 		s.spawnNothing = true;
 	}
 	{
@@ -203,23 +202,7 @@ void onInit(CBlob@ this)
 		s.spawnNothing = true;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Reconstruct a Busted Scyther Component", "$icon_scythergib$", "scythergib", "A completely useless garbage, brand new.");
-		AddRequirement(s.requirements, "blob", "mat_matter", "Amazing Technicolor Dust", 25);
-		AddRequirement(s.requirements, "blob", "mat_steelingot", "Steel Ingot", 2);
-		AddRequirement(s.requirements, "blob", "mat_mithrilingot", "Mithril Ingot", 1);
-		s.spawnNothing = true;
-	}
-	{
-		ShopItem@ s = addShopItem(this, "Reconstruct a Drone Core", "$drone$", "dronecore", "Turn into a drone.");
-		AddRequirement(s.requirements, "blob", "scythergib", "Busted Scyther Component", 1);
-		AddRequirement(s.requirements, "blob", "mat_matter", "Amazing Technicolor Dust", 50);
-		AddRequirement(s.requirements, "blob", "mat_mithrilingot", "Mithril Ingot", 10);
-		AddRequirement(s.requirements, "blob", "mat_plasteel", "Plasteel Sheet", 25);
-		s.spawnNothing = true;
-	}
-	{
 		ShopItem@ s = addShopItem(this, "Reconstruct a Drone", "$drone$", "drone", "Reconstruct a Drone follower.");
-		AddRequirement(s.requirements, "blob", "scythergib", "Busted Scyther Component", 1);
 		AddRequirement(s.requirements, "blob", "mat_matter", "Amazing Technicolor Dust", 50);
 		AddRequirement(s.requirements, "blob", "mat_mithrilingot", "Mithril Ingot", 5);
 		AddRequirement(s.requirements, "blob", "mat_plasteel", "Plasteel Sheet", 25);
@@ -231,17 +214,6 @@ void onInit(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "mat_plasteel", "Plasteel Sheet", 25);
 		AddRequirement(s.requirements, "blob", "mat_mithrilingot", "Mithril Ingot", 10);
 		AddRequirement(s.requirements, "blob", "mat_mininuke", "Mininuke", 1);
-		s.spawnNothing = true;
-	}
-	{
-		ShopItem@ s = addShopItem(this, "Reconstruct a Scyther Core", "$icon_scyther$", "scythercore", "Turn into a scyther.");
-		AddRequirement(s.requirements, "blob", "scythergib", "Busted Scyther Component", 2);
-		AddRequirement(s.requirements, "blob", "mat_matter", "Amazing Technicolor Dust", 25);
-		AddRequirement(s.requirements, "blob", "mat_plasteel", "Plasteel Sheet", 50);
-		AddRequirement(s.requirements, "blob", "mat_mithrilingot", "Mithril Ingot", 5);
-		AddRequirement(s.requirements, "blob", "mat_mithril", "Mithril", 250);
-		AddRequirement(s.requirements, "blob", "chargeblaster", "Charge Blaster", 1);
-		AddRequirement(s.requirements, "blob", "dronecore", "Drone Core", 1);
 		s.spawnNothing = true;
 	}
 }

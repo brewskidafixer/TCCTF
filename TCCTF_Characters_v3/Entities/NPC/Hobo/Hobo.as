@@ -130,6 +130,7 @@ void onInit(CBlob@ this)
 	this.Tag("flesh");
 	this.Tag("migrant");
 	this.Tag("human");
+	this.Tag("migrant");
 	this.getBrain().server_SetActive(true);
 
 	this.set_u32("nextTalk", getGameTime() + XORRandom(60));

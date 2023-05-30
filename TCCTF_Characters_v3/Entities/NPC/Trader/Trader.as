@@ -127,6 +127,7 @@ void onInit(CBlob@ this)
 	this.set_f32("gib health", -2.0f);
 	this.Tag("flesh");
 	this.Tag("migrant");
+	this.Tag("passive");
 	this.Tag("human");
 	this.getBrain().server_SetActive(true);
 

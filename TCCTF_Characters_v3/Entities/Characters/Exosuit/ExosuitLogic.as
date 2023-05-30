@@ -67,6 +67,7 @@ void onInit(CBlob@ this)
 	this.Tag("human");
 	this.Tag("gas immune");
 	this.Tag("pigger immune");
+	this.Tag("no drown");
 
 	this.set_u32("next warp", 0);
 	// this.set_u32("last hit", 0);
@@ -191,7 +192,7 @@ void onTick(CBlob@ this)
 		HitInfo@[] hitInfos;
 		Vec2f hitPos;
 
-		map.rayCastSolid(pos, pos + (aimDir * -64.0f), hitPos);
+		map.rayCastSolid(pos, pos + (aimDir * -96.0f), hitPos);
 
 		f32 length = (hitPos - pos).Length();
 		f32 angle =	-aimDir.Angle() + 180;
@@ -225,7 +226,7 @@ void onTick(CBlob@ this)
 
 						if ((blob.isCollidable() || blob.hasTag("flesh")) && blob.getTeamNum() != this.getTeamNum()) 
 						{
-							this.server_Hit(blob, hitInfos[i].hitpos, Vec2f(0,0), 4.0f, Hitters::crush);
+							this.server_Hit(blob, hitInfos[i].hitpos, Vec2f(0,0), 6.0f, Hitters::crush);
 							SetKnocked(blob, length * 0.5f);
 							blob.setVelocity(blob.getVelocity() + (-aimDir * (length / 12.0f)));
 						}
@@ -354,7 +355,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		this.setVelocity(this.getVelocity() + (velocity * damage_reflected * 0.25f));
 
 		SetKnocked(hitterBlob, 30.0f * damage_reflected);
-		SetKnocked(this, 30.0f * damage_reflected);
+		SetKnocked(this, 15.0f * damage_reflected);
 
 		if (isServer() && !recursionPrevent)
 		{
