@@ -1,7 +1,7 @@
 // Script by Tflippy & Gingerbeard
 #include "Hitters.as";
 #include "HittersTC.as";
-const u32 fuel_timer_max = 30 * 5;
+const u32 fuel_timer_max = 30 * 8;
 
 void onInit(CBlob@ this)
 {

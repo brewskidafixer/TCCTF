@@ -9,6 +9,7 @@ const u16 maxAmmo = 500;
 void onInit(CBlob@ this)
 {
 	this.Tag("aerial");
+	this.Tag("ignore extractor");
 	this.Tag("heavy weight");
 	this.Tag("canlink");
 	

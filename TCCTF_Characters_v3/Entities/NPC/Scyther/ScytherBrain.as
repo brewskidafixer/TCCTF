@@ -263,7 +263,7 @@ CBlob@ FindTarget(CBrain@ this, f32 maxDistance)
 		Vec2f bp = b.getPosition() - pos;
 		f32 d = bp.Length();
 
-		if (d < distance && b.getTeamNum() != myTeam && !b.hasTag("dead") && !b.hasTag("invincible"))
+		if (d < distance && b.getTeamNum() != myTeam && !b.hasTag("dead") && !b.hasTag("passive") && !b.hasTag("invincible"))
 		{
 			distance = d;
 			net_id = b.getNetworkID();
