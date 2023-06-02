@@ -196,27 +196,6 @@ void onInit(CBlob@ this)
 	this.set("taunt personality", b);  //personalities[(this.getNetworkID() % personalities.length)] );
 }
 
-void onTick(CBlob@ this)
-{
-	if (this.getPlayer() is null)
-	{
-		UpdateAction(this);
-		
-		if (this.get_u8("taunt action") == no_action)
-		{
-			if (this.get_u32("next talk") < getGameTime() && XORRandom(100) < 5)
-			{
-				if (hasFriends(this))
-				{
-					PromptAction(this, talk, XORRandom(5));
-					this.set_u32("next talk", getGameTime() + 100 + XORRandom(1000));
-				}
-			}
-		}
-	}
-	else this.getCurrentScript().runFlags |= Script::remove_after_this; //not needed
-}
-
 f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
 {
 	if (hitterBlob.hasTag("player") && !this.hasTag("dead"))

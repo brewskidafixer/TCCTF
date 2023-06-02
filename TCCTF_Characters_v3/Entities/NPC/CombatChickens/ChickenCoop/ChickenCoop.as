@@ -19,6 +19,10 @@ void onInit(CBlob@ this)
 	sprite.SetEmitSound("ChickenMarch.ogg");
 	sprite.SetEmitSoundPaused(false);
 	sprite.SetEmitSoundVolume(0.3f);
+
+	this.SetLight(true);
+	this.SetLightRadius(196.0f);
+	this.SetLightColor(SColor(255, 255, 240, 171));
 	
 	this.Tag("minimap_small");
 	this.set_u8("minimap_index", 27);
@@ -128,10 +132,11 @@ void onInit(CBlob@ this)
 	{	
 		u8 team = this.getTeamNum();
 	
-		for (int i = 0; i < (1 + XORRandom(2)); i++)
+		for (int i = 0; i < 3; i++)
 		{
-			server_CreateBlob("commanderchicken", team, this.getPosition() + Vec2f(64 - XORRandom(32), 0));
+			server_CreateBlob("soldierchicken", team, this.getPosition() + Vec2f(64 - XORRandom(32), 0));
 		}
+		server_CreateBlob("commanderchicken", team, this.getPosition() + Vec2f(64 - XORRandom(32), 0));
 		
 		CBlob@[] blobs;
 		getMap().getBlobsInRadius(this.getPosition(), 256.0f, @blobs);
@@ -155,9 +160,9 @@ void onTick(CBlob@ this)
 		CBlob@[] chickens;
 		getBlobsByTag("combat chicken", @chickens);
 		
-		if (chickens.length < 16)
+		if (chickens.length < 20)
 		{
-			CBlob@ blob = server_CreateBlob((XORRandom(100) < 20 ? "soldierchicken" : "scoutchicken"), this.getTeamNum(), this.getPosition() + Vec2f(16 - XORRandom(32), 0));
+			CBlob@ blob = server_CreateBlob((XORRandom(100) < 30 ? "soldierchicken" : "scoutchicken"), this.getTeamNum(), this.getPosition() + Vec2f(16 - XORRandom(32), 0));
 		}
 	}
 }

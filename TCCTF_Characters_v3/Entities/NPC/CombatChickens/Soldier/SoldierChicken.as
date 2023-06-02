@@ -135,6 +135,7 @@ void onInit(CBlob@ this)
 		CBlob@ gun = server_CreateBlob(gun_config, this.getTeamNum(), this.getPosition());
 		if (gun !is null)
 		{
+			gun.Tag("chickengun");
 			this.server_Pickup(gun);
 
 			if (gun.hasCommandID("reload"))

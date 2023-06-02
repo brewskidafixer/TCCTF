@@ -35,13 +35,7 @@ void onInit(CBlob@ this)
 	this.SetLightColor(SColor(255, 255, 0, 0));
 	Turret_onInit(this);
 
-	if (isServer())
-	{
-		if (this.getTeamNum() == 250)
-		{
-			this.set_u16("ammoCount", 250);
-		}
-	}
+	if (this.getTeamNum() == 3) this.set_u16("ammoCount", 250);
 }
 
 void onInit(CSprite@ this)
@@ -162,7 +156,7 @@ void onTick(CBlob@ this)
 				{
 					this.server_Hit(t, t.getPosition(), Vec2f(0, 0), 0.03f * burn_time * (t.hasTag("explosive") ? 20.00f : 2.00f), Hitters::fire, true);
 
-					this.sub_u16("ammoCount", Maths::Max(0, 2));
+					if (myTeam != 3) this.sub_u16("ammoCount", Maths::Max(0, 2));
 				}
 
 				if (isClient())

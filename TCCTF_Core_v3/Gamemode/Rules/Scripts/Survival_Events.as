@@ -5,6 +5,7 @@ void onInit(CRules@ this)
 	u32 time = getGameTime();
 	this.set_u32("lastMeteor", time);
 	this.set_u32("lastWreckage", time);
+	this.set_bool("meteorrain", false);
 }
 
 void onRestart(CRules@ this)
@@ -12,6 +13,7 @@ void onRestart(CRules@ this)
 	u32 time = getGameTime();
 	this.set_u32("lastMeteor", time);
 	this.set_u32("lastWreckage",time);
+	this.set_bool("meteorrain", false);
 }
 
 void onTick(CRules@ this)
@@ -26,8 +28,10 @@ void onTick(CRules@ this)
 		u32 time = getGameTime();
 		u32 timeSinceMeteor = time - lastMeteor;
 		u32 timeSinceWreckage = time - lastWreckage;
+		u32 meteorTime = 4000;
+		if (this.get_bool("meteorrain")) meteorTime = 1000;
 
-        if (timeSinceMeteor > 4000 && XORRandom(Maths::Max(25000 - timeSinceMeteor, 0)) == 0) // Meteor strike
+        if (timeSinceMeteor > meteorTime && XORRandom(Maths::Max(25000 - timeSinceMeteor, 0)) == 0) // Meteor strike
         {
 			tcpr("[RGE] Random event: Meteor");
             server_CreateBlob("meteor", -1, Vec2f(XORRandom(map.tilemapwidth) * map.tilesize, 0.0f));

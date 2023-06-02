@@ -58,6 +58,7 @@ void onInit(CRules@ this)
 	//this.addCommandID("startInfection");
 	//this.addCommandID("endInfection");
 	this.addCommandID("SendChatMessage");
+	this.set_bool("lockteams", false);
 
 	if (isClient()) this.set_bool("log",false);//so no clients can get logs unless they do ~logging
 	if (isServer()) this.set_bool("log",true);//server always needs to log anyway
@@ -476,7 +477,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 						if (user !is null && user.isBot())
 						{
 							CBitStream params;
-							params.write_u16(getPlayerIndex(user));
+							params.write_string(user.getUsername());
 							this.SendCommand(this.getCommandID("kickPlayer"),params);
 						}
 					}
@@ -702,6 +703,23 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					if (tokens.length<2) return false;
 					blob.Tag(tokens[1]);
 				}
+				else if (tokens[0]=="!changeteam")
+				{
+					if (tokens.length < 2) return false;
+					bool forMe = tokens.length == 2;
+					if (forMe)
+					{
+						player.server_setTeamNum(parseInt(tokens[1]));
+					}
+					else
+					{
+						CPlayer@ user = GetPlayer(tokens[1]);
+						if (user !is null)
+						{
+							user.server_setTeamNum(parseInt(tokens[2]));
+						}
+					}
+				}
 				else if (tokens[0]=="!kill")
 				{
 					if (tokens.length<2) return false;
@@ -721,6 +739,22 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 							killList[i].server_Die();
 						}
 					}
+				}
+				else if (tokens[0]=="!killchicken")
+				{
+					if (tokens.length == 1)
+					{
+						CBlob@[] killList;
+						getBlobsByTag("chickengun", @killList);
+						for (int i = 0; i < killList.length; i++) if (killList[i] !is null && !killList[i].isAttached()) killList[i].server_Die();
+					}
+					{
+						CBlob@[] killList;
+						getBlobsByTag("chicken", @killList);
+						for (int i = 0; i < killList.length; i++) if (killList[i] !is null) killList[i].server_Die();
+						return false;
+					}
+					return false;
 				}
 				else if (tokens[0]=="!grab")
 				{
@@ -810,7 +844,28 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 				else if (tokens[0] == "!warmup")
 				{
 					this.SetCurrentState(WARMUP);
-				} 
+				}
+				else if (tokens[0] == "!lockteams")
+				{
+					this.set_bool("lockteams", !this.get_bool("lockteams"));
+				}
+				else if (tokens[0] == "!oneside")
+				{
+					if (tokens.length > 1)
+					{
+						u8 onlyTeam = parseInt(tokens[1]);
+						for (u8 p = 0; p < getPlayerCount(); p++)
+						{
+							CPlayer@ lePlayer = getPlayer(p);
+							if (lePlayer.getTeamNum() != onlyTeam && lePlayer !is player)
+							{
+								lePlayer.server_setTeamNum(onlyTeam);
+								if (lePlayer.getBlob() !is null) lePlayer.getBlob().server_setTeamNum(onlyTeam);
+							}
+						}
+						this.set_bool("lockteams", true);
+					}
+				}
 				else
 				{
 					if (tokens.length > 0)

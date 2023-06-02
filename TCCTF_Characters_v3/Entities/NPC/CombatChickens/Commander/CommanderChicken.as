@@ -25,7 +25,7 @@ void onInit(CBlob@ this)
 	this.set_u8("reactionTime", 20);
 	this.set_u8("attackDelay", 0);
 	this.set_bool("bomber", false);
-	this.set_bool("raider", false);
+	this.set_bool("raider", true);
 
 	// this.set_u32("next_event", getGameTime() + (30 * 60 * 5) + XORRandom(30 * 60 * 5));
 
@@ -117,6 +117,7 @@ void onInit(CBlob@ this)
 		CBlob@ gun = server_CreateBlob(gun_config, team, pos);
 		if (gun !is null)
 		{
+			gun.Tag("chickengun");
 			this.server_Pickup(gun);
 
 			if (gun.hasCommandID("reload"))
