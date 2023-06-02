@@ -794,6 +794,7 @@ CBlob@ CreateArrow(CBlob@ this, Vec2f arrowPos, Vec2f arrowVel, u8 arrowType)
 		arrow.set_u8("arrow type", arrowType);
 		arrow.SetDamageOwnerPlayer(this.getPlayer());
 		arrow.Init();
+		arrow.Untag("projectile");
 
 		arrow.IgnoreCollisionWhileOverlapped(this);
 		arrow.server_setTeamNum(this.getTeamNum());
