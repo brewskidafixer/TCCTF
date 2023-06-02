@@ -418,7 +418,6 @@ shared class CTFCore : RulesCore
 		 */
 
 		RulesCore::Update(); //update respawns
-		CheckTeamWon();
 
 	}
 

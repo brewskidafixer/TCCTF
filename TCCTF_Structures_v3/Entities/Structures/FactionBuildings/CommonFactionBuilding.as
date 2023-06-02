@@ -171,6 +171,7 @@ void onChangeTeam(CBlob@ this, const int oldTeam)
 			// }
 		}
 	}
+	CheckTeamWon();
 }
 
 void SetNearbyBlobsToTeam(CBlob@ this, const int oldTeam, const int newTeam)
@@ -212,6 +213,7 @@ void onDie(CBlob@ this)
 
 		this.SendCommand(this.getCommandID("faction_destroyed"), bt);
 	}
+	CheckTeamWon();
 }
 
 void GetButtonsFor(CBlob@ this, CBlob@ caller)
@@ -452,4 +454,51 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	}
 
 	return damage;
+}
+
+void CheckTeamWon()
+{
+	CRules@ rules = getRules();
+	if (rules is null || !rules.isMatchRunning()) { return; }
+
+	CBlob@[] flags;
+	getBlobsByTag("faction_base", @flags);
+
+	int winteamIndex = -1;
+	s8 team_wins_on_end = -1;
+	u8 aliveTeams = 0;
+
+	for (uint team_num = 0; team_num < rules.getTeamsCount(); team_num++)
+	{
+		if (aliveTeams > 1) return;
+		for (uint i = 0; i < flags.length; i++)
+		{
+			if (team_num == flags[i].getTeamNum())
+			{
+				flags.removeAt(i);
+				aliveTeams++;
+				winteamIndex = team_num;
+				break;
+			}
+		}
+	}
+	if (aliveTeams == 0) return;
+
+	rules.set_s8("team_wins_on_end", team_wins_on_end);
+
+	if (winteamIndex >= 0 && winteamIndex < 8)
+	{
+		const string[] teamNames = {
+			"Blue Team",
+			"Red Team",
+			"Elf Nation",
+			"UPF Federation",
+			"Dutch Republic",
+			"Confederacy of the Space Union",
+			"The Shadow Clan"
+		};
+		rules.SetTeamWon(winteamIndex);   //game over!
+		rules.SetGlobalMessage(teamNames[winteamIndex] + " wins the game!");
+		rules.SetCurrentState(GAME_OVER);
+	}
 }
