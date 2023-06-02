@@ -53,7 +53,7 @@ void onInit(CBlob@ this)
 	}
 	{
 		ShopItem@ s = addShopItem(this, "High Caliber Ammunition (30)", "$icon_rifleammo$", "mat_rifleammo-30", "Bullets for rifles. Effective against armored targets.");
-		AddRequirement(s.requirements, "coin", "", "Coins", 120);
+		AddRequirement(s.requirements, "coin", "", "Coins", 200);
 
 		s.spawnNothing = true;
 	}
@@ -293,7 +293,7 @@ void onInit(CBlob@ this)
 	}
 	{
 		ShopItem@ s = addShopItem(this, "TKB-521", "$tkb521$", "tkb521", "A nice machinegun with a big magazine and medium damage.\n\nUses Gatling Ammunition.\n$icon_gatlingammo$");
-		AddRequirement(s.requirements, "coin", "", "Coins", 2250);
+		AddRequirement(s.requirements, "coin", "", "Coins", 2500);
 		
 		s.customButton = true;
 		s.buttonwidth = 2;

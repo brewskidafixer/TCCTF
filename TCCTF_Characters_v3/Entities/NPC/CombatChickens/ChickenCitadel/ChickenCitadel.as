@@ -15,17 +15,13 @@
 	this.Tag("minimap_small");
 	this.set_u8("minimap_index", 27);
 	
-	CSprite@ sprite = this.getSprite();
-	sprite.SetEmitSound("ChickenMarch.ogg");
-	sprite.SetEmitSoundPaused(false);
-	sprite.SetEmitSoundVolume(0.5f);
+	this.SetLight(true);
+	this.SetLightRadius(196.0f);
+	this.SetLightColor(SColor(255, 255, 240, 210));
 	
 	if (isServer())
 	{
-		for (int i = 0; i < 3; i++)
-		{
-			server_CreateBlob("commanderchicken", this.getTeamNum(), this.getPosition() + Vec2f(16 - XORRandom(32), 0));
-		}
+		server_CreateBlob("heavychicken", this.getTeamNum(), this.getPosition() + Vec2f(16 - XORRandom(32), 0));
 	}
 }
 
@@ -38,7 +34,7 @@ void onTick(CBlob@ this)
 		CBlob@[] chickens;
 		getBlobsByTag("combat chicken", @chickens);
 		
-		if (chickens.length < 10)
+		if (chickens.length < 16)
 		{
 			if (this.hasTag("convent")) // convent spawn
 			{

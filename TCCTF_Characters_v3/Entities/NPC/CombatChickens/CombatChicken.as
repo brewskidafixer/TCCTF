@@ -43,6 +43,7 @@ void onInit(CBlob@ this)
 	this.Tag("dangerous");
 	this.Tag("chicken");
 	this.Tag("heavy weight");
+	this.set_f32("raidcooldown", 120);
 }
 
 f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)

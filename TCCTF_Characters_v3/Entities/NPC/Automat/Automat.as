@@ -21,6 +21,7 @@ void onInit( CBrain@ this )
 void onInit(CBlob@ this)
 {
 	this.Tag("builder always hit");
+	this.Tag("auto_turret");
 	//causes infinite ammo
 	//this.Tag("npc");
 

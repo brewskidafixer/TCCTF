@@ -1,5 +1,4 @@
-
-void onTick(CBlob@ blob)
+void onInit(CBlob@ this)
 {
-	
+	this.Tag("auto_turret");
 }

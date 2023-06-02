@@ -36,6 +36,9 @@ namespace tc_colors
 		color_hobo_neutral = 0xff493326,
 		color_badgerden = 0xff46412d,
 
+		color_scyther		 	= 0xff736A82,
+		color_drone 			= 0xff6D7C82,
+
 		color_chickencoop 		= 0xff964619,
 		color_chickencamp 		= 0xff96461a,
 		color_chickenfortress 	= 0xff96461b,
@@ -43,9 +46,11 @@ namespace tc_colors
 		color_chickencitadel 	= 0xff96461d,
 		color_chickenconvent 	= 0xff96461e,
 
+		color_pumpkin	 		= 0xffb96437,
+
 		color_civillianchicken 	= 0xffb98c75,
 		color_merchantchicken 	= 0xffbec728,
-		color_scoutchicken 		= 0xffb96437,
+		color_scoutchicken 		= 0xffFC884C,
 		color_soldierchicken 	= 0xffb96438,
 		color_heavychicken 		= 0xffb96439,
 
@@ -117,17 +122,17 @@ namespace tc_colors
 		green_main_spawn       = 0xFF9DCA22, // ARGB(255, 157, 202,  34);
 		purple_main_spawn      = 0xFFD379E0, // ARGB(255, 211, 121, 224);
 		orange_main_spawn      = 0xFFCD6120, // ARGB(255, 205,  97,  32);
-		aqua_main_spawn        = 0xFF2EE5A2, // ARGB(255,  46, 229, 162);
-		teal_main_spawn        = 0xFF5F84EC, // ARGB(255,  95, 132, 236);
+		cyan_main_spawn        = 0xFF2EE5A2, // ARGB(255,  46, 229, 162);
+		indigo_main_spawn        = 0xFF5F84EC, // ARGB(255,  95, 132, 236);
 		gray_main_spawn        = 0xFFC4CFA1, // ARGB(255, 196, 207, 161);
 
 		blue_spawn             = 0xFF00C8C8, // ARGB(255,   0, 200, 200);
 		red_spawn              = 0xFFC80000, // ARGB(255, 200,   0,   0);
 		green_spawn            = 0xFF649B0D, // ARGB(255, 100, 155,  13);
-		purple_spawn           = 0xFF9E3ACC, // ARGB(255, 158,  58, 204);
+		purple_spawn           = 0xFFD330E0, // ARGB(255, 211,  48, 224);
 		orange_spawn           = 0xFF844715, // ARGB(255, 132,  71,  21);
-		aqua_spawn             = 0xFF4F9B7F, // ARGB(255,  79, 155, 127);
-		teal_spawn             = 0xFF4149F0, // ARGB(255,  65,  73, 240);
+		cyan_spawn             = 0xFF4F9B7F, // ARGB(255,  79, 155, 127);
+		indigo_spawn             = 0xFF4149F0, // ARGB(255,  65,  73, 240);
 		gray_spawn             = 0xFF97A792, // ARGB(255, 151, 167, 146);
 
 		redbarrier			   = 0xFFE43771
@@ -205,61 +210,79 @@ class TCPNGLoader : PNGLoader
 				break;
 			}
 
+			case tc_colors::color_scyther:
+			{
+				autotile(offset);
+				spawnBlob(map, "scyther", offset, 5);
+				break;
+			}
+			case tc_colors::color_drone:
+			{
+				autotile(offset);
+				spawnBlob(map, "drone", offset, 5);
+				break;
+			}
+
 			case tc_colors::color_chickencoop:
 			{
 				autotile(offset);
-				spawnBlob(map, "chickencoop", offset, 250);
+				spawnBlob(map, "chickencoop", offset, 3);
 				break;
 			}
 			case tc_colors::color_chickencamp:
 			{
 				autotile(offset);
-				spawnBlob(map, "chickencamp", offset, -1);
+				spawnBlob(map, "chickencamp", offset, 3);
 				break;
 			}
 			case tc_colors::color_chickenfortress:
 			{
 				autotile(offset);
-				spawnBlob(map, "chickenfortress", offset, -1);
+				spawnBlob(map, "chickenfortress", offset, 3);
 				break;
 			}
 			case tc_colors::color_chickenstronghold:
 			{
 				autotile(offset);
-				spawnBlob(map, "chickenstronghold", offset, -1);
+				spawnBlob(map, "chickenstronghold", offset, 3);
 				break;
 			}
 			case tc_colors::color_chickencitadel:
 			{
 				autotile(offset);
-				spawnBlob(map, "chickencitadel", offset, -1);
+				spawnBlob(map, "chickencitadel", offset, 3);
 				break;
 			}
 			case tc_colors::color_chickenconvent:
 			{
 				autotile(offset);
-				spawnBlob(map, "chickenconvent", offset, -1);
+				spawnBlob(map, "chickenconvent", offset, 3);
+				break;
+			}
+
+			case tc_colors::color_pumpkin:
+			{
+				autotile(offset);
+				spawnBlob(map, "pumpkin_plant", offset, -1);
 				break;
 			}
 
 			case tc_colors::color_scoutchicken:
 			{
 				autotile(offset);
-				spawnBlob(map, "pumpkin_plant", offset, -1);
+				spawnBlob(map, "scoutchicken", offset, 3);
 				break;
 			}
 			case tc_colors::color_soldierchicken:
 			{
 				autotile(offset);
-				CBlob@ blob = spawnBlob(map, "soldierchicken", offset, -1);
-				blob.set_bool("raider", XORRandom(100) < 25);
+				CBlob@ blob = spawnBlob(map, "soldierchicken", offset, 3);
 				break;
 			}
 			case tc_colors::color_heavychicken:
 			{
 				autotile(offset);
-				CBlob@ blob = spawnBlob(map, "heavychicken", offset, -1);
-				blob.set_bool("raider", XORRandom(100) < 10);
+				CBlob@ blob = spawnBlob(map, "heavychicken", offset, 3);
 				break;
 			}
 
@@ -298,6 +321,17 @@ class TCPNGLoader : PNGLoader
 			case tc_colors::red_spawn:
 			{
 				spawnBlob(map, "stronghold", offset, 1);
+				break;
+			}
+			case tc_colors::purple_spawn:
+			{
+				spawnBlob(map, "citadel", offset, 3);
+				spawnBlob(map, "phone", offset, 3);
+				break;
+			}
+			case tc_colors::cyan_spawn:
+			{
+				spawnBlob(map, "convent", offset, 5);
 				break;
 			}
 
@@ -381,7 +415,7 @@ class TCPNGLoader : PNGLoader
 			case tc_colors::color_irondoor_chicken:
 			{
 				map.SetTile(offset, CMap::tile_biron);
-				spawnBlob(map, "iron_door", offset, 250, true);
+				spawnBlob(map, "iron_door", offset, 3, true);
 				break;
 			}
 			case tc_colors::color_plasteel:
@@ -401,14 +435,14 @@ class TCPNGLoader : PNGLoader
 			}
 			case tc_colors::color_chickenmarket:
 			{
-				CBlob@ blob = spawnBlob(map, "chickenmarket", offset, 250);
+				CBlob@ blob = spawnBlob(map, "chickenmarket", offset, 3);
 				blob.setPosition(blob.getPosition() + Vec2f(0, -16));
 				break;
 			}
 			case tc_colors::color_civillianchicken:
 			{
 				autotile(offset);
-				spawnBlob(map, "civillianchicken", offset, 250);
+				spawnBlob(map, "civillianchicken", offset, 3);
 				break;
 			}
 			case tc_colors::color_barbedwire:
@@ -423,7 +457,7 @@ class TCPNGLoader : PNGLoader
 				spawnBlob(map, "iron_platform", offset, -1, true);
 				break;
 			}
-			case tc_colors::color_iron_platform_right:
+			case tc_colors::color_iron_platform_left:
 			{
 				map.SetTile(offset, CMap::tile_biron);
 				spawnBlob(map, "iron_platform", offset, -1, true, Vec2f_zero, -90);
@@ -435,7 +469,7 @@ class TCPNGLoader : PNGLoader
 				spawnBlob(map, "iron_platform", offset, -1, true, Vec2f_zero, 180);
 				break;
 			}
-			case tc_colors::color_iron_platform_left:
+			case tc_colors::color_iron_platform_right:
 			{
 				map.SetTile(offset, CMap::tile_biron);
 				spawnBlob(map, "iron_platform", offset, -1, true, Vec2f_zero, 90);
@@ -444,14 +478,14 @@ class TCPNGLoader : PNGLoader
 			case tc_colors::color_zapper_chicken:
 			{
 				autotile(offset);
-				CBlob@ blob = spawnBlob(map, "zapper", offset, 250);
+				CBlob@ blob = spawnBlob(map, "zapper", offset, 3);
 				blob.setPosition(blob.getPosition() + Vec2f(0, -8));
 				break;
 			}
 			case tc_colors::color_sentry_chicken:
 			{
 				autotile(offset);
-				CBlob@ blob = spawnBlob(map, "soldierchicken", offset, 250);
+				CBlob@ blob = spawnBlob(map, "sentry", offset, 3);
 				blob.setPosition(blob.getPosition() + Vec2f(0, -8));
 				break;
 			}
@@ -476,30 +510,30 @@ class TCPNGLoader : PNGLoader
 			case tc_colors::color_sam:
 			{
 				autotile(offset);
-				spawnBlob(map, "sam", offset, 250);
+				spawnBlob(map, "sam", offset, 3);
 				break;
 			}
 			case tc_colors::color_lws:
 			{
 				autotile(offset);
-				spawnBlob(map, "lws", offset, 250);
+				spawnBlob(map, "lws", offset, 3);
 				break;
 			}
 			case tc_colors::color_sat:
 			{
 				autotile(offset);
-				spawnBlob(map, "sat", offset, 250);
+				spawnBlob(map, "sat", offset, 3);
 				break;
 			}
 			case tc_colors::color_helichopper:
 			{
-				CBlob@ blob = spawnBlob(map, "helichopper", offset, 250);
+				CBlob@ blob = spawnBlob(map, "helichopper", offset, 3);
 				blob.setPosition(blob.getPosition() + Vec2f(0, 0));
 				break;
 			}
 			case tc_colors::color_train:
 			{
-				CBlob@ blob = spawnBlob(map, "train", offset, 250);
+				CBlob@ blob = spawnBlob(map, "train", offset, 3);
 				map.SetTile(offset, CMap::tile_biron);
 				blob.setPosition(blob.getPosition() + Vec2f(0, -11));
 				break;

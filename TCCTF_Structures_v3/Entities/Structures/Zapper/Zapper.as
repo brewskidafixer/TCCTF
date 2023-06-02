@@ -27,6 +27,7 @@ void onInit(CBlob@ this)
 	this.set_string("ammoName", "mat_battery");
 	this.set_string("ammoInventoryName", "Batteries");
 	this.set_string("ammoIconName", "$mat_battery$");
+	if (this.getTeamNum() == 3) this.set_u16("ammoCount", 100);
 	Turret_onInit(this);
 }
 
@@ -177,7 +178,7 @@ void Zap(CBlob@ this, CBlob@ target)
 	if (isServer())
 	{
 		this.server_Hit(target, target.getPosition(), Vec2f(0, 0), damage, HittersTC::electric, true);
-		this.sub_u16("ammoCount", Maths::Max(0, 5));
+		if (this.getTeamNum() != 3) this.sub_u16("ammoCount", Maths::Max(0, 5));
 	}
 
 	if (isClient())

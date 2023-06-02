@@ -36,7 +36,7 @@ void onTick(CBlob@ this)
 		CBlob@[] chickens;
 		getBlobsByTag("combat chicken", @chickens);
 		
-		if (chickens.length < 8)
+		if (chickens.length < 12)
 		{
 			if (this.hasTag("stronghold")) // stronghold spawn
 			{

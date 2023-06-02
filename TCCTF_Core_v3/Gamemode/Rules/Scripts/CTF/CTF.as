@@ -141,8 +141,7 @@ shared class CTFSpawns : RespawnSystem
 			}
 			if (player.getTeamNum() != int(p_info.team))
 			{
-				print("correcting team");
-				player.server_setTeamNum(p_info.team);
+				 core.ChangePlayerTeam(player, Maths::Min(player.getTeamNum(), getRules().getTeamsCount()-1));
 			}
 			if (player.getBlob() !is null)
 			{
@@ -312,7 +311,9 @@ shared class CTFSpawns : RespawnSystem
 		}
 		else
 		{
-			error("PLAYER TEAM NOT SET CORRECTLY! " + info.team + " / " + CTF_core.teams.length);
+			core.ChangePlayerTeam(player, Maths::Min(player.getTeamNum(), getRules().getTeamsCount()-1));
+
+			print("PLAYER TEAM NOT SET CORRECTLY! " + info.team + " / " + CTF_core.teams.length);
 		}
 	}
 

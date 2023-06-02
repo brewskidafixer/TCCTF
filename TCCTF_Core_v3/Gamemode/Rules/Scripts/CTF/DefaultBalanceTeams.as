@@ -243,7 +243,7 @@ void BalanceAll(CRules@ this, RulesCore@ core, BalanceInfo[]@ infos, int type = 
 			break;
 	}
 
-	int numTeams = this.getTeamsCount();
+	int numTeams = 2;
 	int team = XORRandom(128) % numTeams;
 
 	for (u32 i = 0; i < len; i++)
@@ -443,20 +443,26 @@ void onPlayerRequestTeamChange(CRules@ this, CPlayer@ player, u8 newTeam)
 	int newSize = getTeamSize(core.teams, newTeam);
 	int oldSize = getTeamSize(core.teams, oldTeam);
 
-	if (!getSecurity().checkAccess_Feature(player, "always_change_team")
-	        && (!spect && newSize + 1 > oldSize - 1 + TEAM_DIFFERENCE_THRESHOLD //changing to bigger team
-	            || spect && newTeam == getLargestTeam(core.teams)
-	            && getTeamDifference(core.teams) + 1 > TEAM_DIFFERENCE_THRESHOLD //or changing to bigger team from spect
-	           ))
+	if (!getSecurity().checkAccess_Feature(player, "always_change_team"))
 	{
-		//awww shit, thats a SERVER_ONLY script :/
-		// if(player.isMyPlayer())
-		// 	client_AddToChat("Can't change teams now - it would imbalance them.");
+		if (getRules().get_bool("lockteams"))
+		{
+			if (player.isMyPlayer()) getNet().server_SendMsg("Cannot Switch Teams! Reason: Teams are locked.");
+			return;
+		}
+		if (!spect && newSize + 1 > oldSize - 1 + TEAM_DIFFERENCE_THRESHOLD //changing to bigger team
+		            || spect && newTeam == getLargestTeam(core.teams)
+		            && getTeamDifference(core.teams) + 1 > TEAM_DIFFERENCE_THRESHOLD //or changing to bigger team from spect
+		           )
+		{
+			//awww shit, thats a SERVER_ONLY script :/
+			// if(player.isMyPlayer())
+			// 	client_AddToChat("Can't change teams now - it would imbalance them.");
+			if (player.isMyPlayer()) getNet().server_SendMsg("Switching " + player.getUsername() + " back to "
+			                        + (spect ? "spectator" : core.teams[oldTeam].name) + " - teams unbalanced");
 
-		getNet().server_SendMsg("Switching " + player.getUsername() + " back to "
-		                        + (spect ? "spectator" : core.teams[oldTeam].name) + " - teams unbalanced");
-
-		return;
+			return;
+		}
 	}
 
 	core.ChangePlayerTeam(player, newTeam);

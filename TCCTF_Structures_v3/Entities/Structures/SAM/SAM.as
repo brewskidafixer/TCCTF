@@ -34,6 +34,7 @@ void onInit(CBlob@ this)
 	this.set_string("ammoIconName", "$mat_sammissile$");
 
 	this.set_bool("security_state", true);
+	if (this.getTeamNum() == 3) this.set_u16("ammoCount", 9);
 	Turret_onInit(this);
 }
 
@@ -132,7 +133,7 @@ void onTick(CBlob@ this)
 						m.Tag("self_destruct");
 						m.Init();
 
-						this.sub_u16("ammoCount", 1);
+						if (myTeam != 3) this.sub_u16("ammoCount", 1);
 					}
 
 					this.getSprite().PlaySound("Missile_Launch.ogg");

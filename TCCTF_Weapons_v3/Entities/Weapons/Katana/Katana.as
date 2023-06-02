@@ -62,7 +62,7 @@ void onTick(CBlob@ this)
 				for (u16 i = 0; i < dashhit.length; i++)
 				{
 					CBlob@ e = dashhit[i];
-					if (e is null || e is holder || e.getTeamNum() == team) continue;
+					if (e is null || !e.hasTag("flesh") || e.getTeamNum() == team) continue;
 					if (isServer()) holder.server_Hit(e, e.getPosition(), Vec2f(), 1.5f, Hitters::sword, true);
 				}
 			}
@@ -137,8 +137,9 @@ void onTick(CBlob@ this)
 						for (uint i = 0; i < hitInfos.length; i++)
 						{
 							CBlob@ blob = hitInfos[i].blob;
-							if (blob !is null && blob.getTeamNum() != team && !blob.hasTag("invincible"))
+							if (blob !is null && blob.getTeamNum() != team && blob.hasTag("flesh"))
 							{
+								if (getMap().rayCastSolid(holder.getPosition(), blob.getPosition())) continue;
 								if (isServer())
 								{
 									holder.server_Hit(blob, blob.getPosition(), Vec2f(), 2.0f, Hitters::stab, true);

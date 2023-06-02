@@ -21,7 +21,7 @@
 	
 	if (isServer())
 	{
-		server_CreateBlob("commanderchicken", this.getTeamNum(), this.getPosition() + Vec2f(16 - XORRandom(32), 0));
+		server_CreateBlob("soldierchicken", this.getTeamNum(), this.getPosition() + Vec2f(16 - XORRandom(32), 0));
 	}
 }
 
@@ -34,7 +34,7 @@ void onTick(CBlob@ this)
 		CBlob@[] chickens;
 		getBlobsByTag("combat chicken", @chickens);
 		
-		if (chickens.length < 6)
+		if (chickens.length < 8)
 		{
 			CBlob@ blob = server_CreateBlob("scoutchicken", this.getTeamNum(), this.getPosition() + Vec2f(16 - XORRandom(32), 0));
 		}

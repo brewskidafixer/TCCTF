@@ -42,13 +42,7 @@ void onInit(CBlob@ this)
 	this.set_string("ammoInventoryName", "Gatling Gun Ammo");
 	this.set_string("ammoIconName", "$icon_gatlingammo$");
 
-	if (isServer())
-	{
-		if (this.getTeamNum() == 250)
-		{
-			this.set_u16("ammoCount", 500);
-		}
-	}
+	if (this.getTeamNum() == 3) this.set_u16("ammoCount", 500);
 	Turret_onInit(this);
 }
 
@@ -216,7 +210,7 @@ void onTick(CBlob@ this)
 					}
 
 					this.set_u32("next_shoot", getGameTime() + 3);
-					if (myTeam != 250)
+					if (myTeam != 3)
 					{
 						this.sub_u16("ammoCount", 1);
 						if (isServer()) this.Sync("ammoCount", true);
