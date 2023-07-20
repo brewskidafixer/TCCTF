@@ -424,7 +424,8 @@ shared class CTFCore : RulesCore
 	//HELPERS
 	bool allTeamsHavePlayers()
 	{
-		for (uint i = 0; i < teams.length; i++)
+		//for (uint i = 0; i < teams.length; i++)
+		for (uint i = 0; i < 2; i++)
 		{
 			if (teams[i].players_count < minimum_players_in_team)
 			{
