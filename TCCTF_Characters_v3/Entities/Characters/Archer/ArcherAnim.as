@@ -2,20 +2,19 @@
 
 #include "ArcherCommon.as"
 #include "FireParticle.as"
-#include "RunnerAnimCommon.as"
-#include "RunnerCommon.as"
-#include "Knocked.as"
+#include "RunnerAnimCommon.as";
+#include "RunnerCommon.as";
+#include "KnockedCommon.as";
 #include "PixelOffsets.as"
 #include "RunnerTextures.as"
-#include "IsCool.as"
+#include "Accolades.as"
 
-const f32 config_offset = -4.0f;
+
+const f32 config_offset = -6.0f;
 const string shiny_layer = "shiny bit";
 
 void onInit(CSprite@ this)
 {
-	RunnerTextures@ runner_tex = addRunnerTextures(this, "archer", "Archer");
-
 	LoadSprites(this);
 }
 
@@ -29,37 +28,30 @@ void LoadSprites(CSprite@ this)
 	int armour = PLAYER_ARMOUR_STANDARD;
 
 	CPlayer@ p = this.getBlob().getPlayer();
-
-	if(p !is null){
+	if (p !is null)
+	{
 		armour = p.getArmourSet();
-	}
-
-	bool patreon = true;
-
-	CSecurity@ security = getSecurity();
-	if (p !is null && !(security.checkAccess_Feature(p, "patreon")))
-	{
-		patreon = false;
-	}
-
-	if(p !is null && (IsCool(p.getUsername()) || patreon))
-	{
-		ensureCorrectRunnerTexture(this, "archer_cape", "ArcherCape");
-	}
-	else
-	{
-		switch (armour)
+		if (armour == PLAYER_ARMOUR_STANDARD)
 		{
-		case PLAYER_ARMOUR_STANDARD:
-			ensureCorrectRunnerTexture(this, "archer", "Archer");
-			break;
-		case PLAYER_ARMOUR_CAPE:
-			ensureCorrectRunnerTexture(this, "archer_cape", "ArcherCape");
-			break;
-		case PLAYER_ARMOUR_GOLD:
-			ensureCorrectRunnerTexture(this, "archer_gold",  "ArcherGold");
-			break;
+			Accolades@ acc = getPlayerAccolades(p.getUsername());
+			if (acc.hasCape())
+			{
+				armour = PLAYER_ARMOUR_CAPE;
+			}
 		}
+	}
+
+	switch (armour)
+	{
+	case PLAYER_ARMOUR_STANDARD:
+		ensureCorrectRunnerTexture(this, "archer", "Archer");
+		break;
+	case PLAYER_ARMOUR_CAPE:
+		ensureCorrectRunnerTexture(this, "archer_cape", "ArcherCape");
+		break;
+	case PLAYER_ARMOUR_GOLD:
+		ensureCorrectRunnerTexture(this, "archer_gold",  "ArcherGold");
+		break;
 	}
 
 
@@ -242,14 +234,16 @@ void onTick(CSprite@ this)
 	needs_shiny = false;
 	bool crouch = false;
 
-	const u8 knocked = getKnocked(blob);
-	Vec2f pos = blob.getPosition();
+	bool knocked = isKnocked(blob);
+	Vec2f pos = blob.getPosition() + Vec2f(0, -2);
 	Vec2f aimpos = blob.getAimPos();
+	pos.x += this.isFacingLeft() ? 2 : -2;
+
 	// get the angle of aiming with mouse
 	Vec2f vec = aimpos - pos;
 	f32 angle = vec.Angle();
 
-	if (knocked > 0)
+	if (knocked)
 	{
 		if (inair)
 		{
@@ -263,6 +257,10 @@ void onTick(CSprite@ this)
 	else if (blob.hasTag("seated"))
 	{
 		this.SetAnimation("default");
+	}
+	else if(archer.charge_state == ArcherParams::stabbing)
+	{
+		this.SetAnimation("stab");
 	}
 	else if (firing || legolas)
 	{
@@ -297,12 +295,13 @@ void onTick(CSprite@ this)
 		{
 			this.SetAnimation("fall");
 			this.animation.timer = 0;
+			bool inwater = blob.isInWater();
 
-			if (vy < -1.5)
+			if (vy < -1.5 * (inwater ? 0.7 : 1))
 			{
 				this.animation.frame = 0;
 			}
-			else if (vy > 1.5)
+			else if (vy > 1.5 * (inwater ? 0.7 : 1))
 			{
 				this.animation.frame = 2;
 			}
@@ -383,7 +382,7 @@ void onTick(CSprite@ this)
 		{
 			shiny.RotateBy(10, Vec2f());
 
-			shiny_offset.RotateBy(this.isFacingLeft() ?  shiny_angle : -shiny_angle);
+			shiny_offset.RotateBy(this.isFacingLeft() ?  shiny_angle : -shiny_angle, Vec2f(3, -2));
 			shiny.SetOffset(shiny_offset);
 		}
 	}
@@ -391,7 +390,7 @@ void onTick(CSprite@ this)
 	DrawBowEffects(this, blob, archer, arrowType);
 
 	//set the head anim
-	if (knocked > 0 || crouch)
+	if (knocked || crouch)
 	{
 		blob.Tag("dead head");
 	}
@@ -424,15 +423,18 @@ void DrawBow(CSprite@ this, CBlob@ blob, ArcherInfo@ archer, f32 armangle, const
 			animname = "fired";
 		}
 
-		u16 frontframe = 0;
-		f32 temp = Maths::Min(archer.charge_time, ArcherParams::ready_time);
-		f32 ready_tween = temp / ArcherParams::ready_time;
-		armangle = armangle * ready_tween;
-		armOffset = Vec2f(-1.0f, 4.0f + config_offset + 2.0f * (1.0f - ready_tween));
-		setArmValues(frontarm, true, armangle, 0.1f, animname, Vec2f(-4.0f * sign, 0.0f), armOffset);
-		frontarm.animation.frame = frontframe;
+		if (archer.charge_state != ArcherParams::legolas_charging)
+		{
+			u16 frontframe = 0;
+			f32 temp = Maths::Min(archer.charge_time, ArcherParams::ready_time);
+			f32 ready_tween = temp / ArcherParams::ready_time;
+			armangle = armangle * ready_tween;
+			armOffset = Vec2f(-1.0f, 4.0f + config_offset + 2.0f * (1.0f - ready_tween));
+			setArmValues(frontarm, true, armangle, 0.1f, animname, Vec2f(-4.0f * sign, 0.0f), armOffset);
+			frontarm.animation.frame = frontframe;
 
-		setArmValues(arrow, false, 0, 0, "default", Vec2f(), Vec2f());
+			setArmValues(arrow, false, 0, 0, "default", Vec2f(), Vec2f());
+		}
 	}
 	else if (archer.charge_state == ArcherParams::readying)
 	{
@@ -463,8 +465,8 @@ void DrawBow(CSprite@ this, CBlob@ blob, ArcherInfo@ archer, f32 armangle, const
 		if (archer.charge_state == ArcherParams::legolas_ready)
 		{
 			needs_shiny = true;
-			shiny_offset = Vec2f(-12.0f, 0.0f);   //TODO:
-			shiny_angle = armangle;
+			shiny_offset = Vec2f(-13.0f, -2.5f);
+			shiny_angle = arrowangle;
 		}
 	}
 	else
@@ -479,7 +481,7 @@ void DrawBow(CSprite@ this, CBlob@ blob, ArcherInfo@ archer, f32 armangle, const
 
 	// fire arrow particles
 
-	if (arrowType == ArrowType::fire && getGameTime() % 6 == 0)
+	if (arrowType == ArrowType::fire && hasArrows(blob) && getGameTime() % 6 == 0)
 	{
 		Vec2f offset = Vec2f(12.0f, 0.0f);
 
@@ -499,7 +501,7 @@ void DrawBowEffects(CSprite@ this, CBlob@ blob, ArcherInfo@ archer, const u8 arr
 
 	if (arrowType == ArrowType::fire)
 	{
-		if (IsFiring(blob))
+		if (IsFiring(blob) && hasArrows(blob))
 		{
 			blob.SetLight(true);
 			blob.SetLightRadius(blob.getRadius() * 2.0f);
@@ -511,7 +513,7 @@ void DrawBowEffects(CSprite@ this, CBlob@ blob, ArcherInfo@ archer, const u8 arr
 	}
 
 	//quiver
-	bool has_arrows = blob.get_bool("has_arrow");
+	bool has_arrows = hasAnyArrows(blob);
 	doQuiverUpdate(this, has_arrows, true);
 }
 
@@ -534,7 +536,8 @@ void doRopeUpdate(CSprite@ this, CBlob@ blob, ArcherInfo@ archer)
 		return;
 	}
 
-	Vec2f off = archer.grapple_pos - blob.getPosition();
+	Vec2f adjusted_pos = Vec2f(archer.grapple_pos.x, Maths::Max(0.0, archer.grapple_pos.y));
+	Vec2f off = adjusted_pos - blob.getPosition();
 
 	f32 ropelen = Maths::Max(0.1f, off.Length() / 32.0f);
 	if (ropelen > 200.0f)
@@ -572,6 +575,12 @@ void doQuiverUpdate(CSprite@ this, bool has_arrows, bool quiver)
 
 	if (quiverLayer !is null)
 	{
+		if (not this.isVisible()) {
+			quiverLayer.SetVisible(false);
+			return;
+		}
+		quiverLayer.SetVisible(true);
+
 		if (quiver)
 		{
 			quiverLayer.SetVisible(true);
@@ -642,8 +651,6 @@ void onGib(CSprite@ this)
 	vel.y -= 3.0f;
 	f32 hp = Maths::Min(Maths::Abs(blob.getHealth()), 2.0f) + 1.0f;
 	const u8 team = blob.getTeamNum();
-
-	if(!isClient()){return;}
 	CParticle@ Body     = makeGibParticle("Entities/Characters/Archer/ArcherGibs.png", pos, vel + getRandomVelocity(90, hp , 80), 0, 0, Vec2f(16, 16), 2.0f, 20, "/BodyGibFall", team);
 	CParticle@ Arm      = makeGibParticle("Entities/Characters/Archer/ArcherGibs.png", pos, vel + getRandomVelocity(90, hp - 0.2 , 80), 1, 0, Vec2f(16, 16), 2.0f, 20, "/BodyGibFall", team);
 	CParticle@ Shield   = makeGibParticle("Entities/Characters/Archer/ArcherGibs.png", pos, vel + getRandomVelocity(90, hp , 80), 2, 0, Vec2f(16, 16), 2.0f, 0, "Sounds/material_drop.ogg", team);

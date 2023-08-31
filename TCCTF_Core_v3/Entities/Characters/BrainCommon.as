@@ -26,50 +26,18 @@ void InitBrain(CBrain@ this)
 	}
 }
 
-CBlob@ getNewTarget(CBrain@ this, CBlob @blob, const bool seeThroughWalls = false, const bool seeBehindBack = false, const bool targetAnimals = false, const bool targetNPCs = false)
+CBlob@ getNewTarget(CBrain@ this, CBlob @blob, const bool seeThroughWalls = false, const bool seeBehindBack = false)
 {
-	CBlob@[] blobs;
-	getBlobsByTag("player", @blobs);
-	if (targetAnimals) getBlobsByTag("animal", @blobs);
-	if (targetNPCs) getBlobsByTag("npc", @blobs);
-	
+	CBlob@[] players;
+	getBlobsByTag("player", @players);
 	Vec2f pos = blob.getPosition();
-	for (uint i = 0; i < blobs.length; i++)
+	for (uint i = 0; i < players.length; i++)
 	{
-		CBlob@ potential = blobs[i];
+		CBlob@ potential = players[i];
 		Vec2f pos2 = potential.getPosition();
 		const bool isBot = blob.getPlayer() !is null && blob.getPlayer().isBot();
-		if (potential !is blob 
-				&& (blob.getTeamNum()!=potential.getTeamNum() || (blob.getTeamNum()<0 || blob.getTeamNum()>=7))
-				&& !potential.hasTag("notarget")
+		if (potential !is blob && blob.getTeamNum() != potential.getTeamNum()
 		        && (pos2 - pos).getLength() < 600.0f
-		        && (isBot || seeBehindBack || Maths::Abs(pos.x - pos2.x) < 40.0f || (blob.isFacingLeft() && pos.x > pos2.x) || (!blob.isFacingLeft() && pos.x < pos2.x))
-		        && (isBot || seeThroughWalls || isVisible(blob, potential))
-		        && !potential.hasTag("dead") && !potential.hasTag("migrant")
-		   )
-		{
-			blob.set_Vec2f("last pathing pos", potential.getPosition());
-			return potential;
-		}
-	}
-	return null;
-}
-
-CBlob@ getNewTargetByTag(CBrain@ this, CBlob @blob, const bool seeThroughWalls = false, const bool seeBehindBack = false, const string targetTag = "")
-{
-	CBlob@[] blobs;
-	getBlobsByTag(targetTag, @blobs);
-	
-	Vec2f pos = blob.getPosition();
-	for (uint i = 0; i < blobs.length; i++)
-	{
-		CBlob@ potential = blobs[i];
-		Vec2f pos2 = potential.getPosition();
-		const bool isBot = blob.getPlayer() !is null && blob.getPlayer().isBot();
-		if (potential !is blob 
-				&& (blob.getTeamNum()!=potential.getTeamNum() || (blob.getTeamNum()<0 || blob.getTeamNum()>=7))
-				&& !potential.hasTag("notarget")
-		        && (pos2 - pos).getLength() < 1000.0f
 		        && (isBot || seeBehindBack || Maths::Abs(pos.x - pos2.x) < 40.0f || (blob.isFacingLeft() && pos.x > pos2.x) || (!blob.isFacingLeft() && pos.x < pos2.x))
 		        && (isBot || seeThroughWalls || isVisible(blob, potential))
 		        && !potential.hasTag("dead") && !potential.hasTag("migrant")
@@ -90,13 +58,13 @@ void Repath(CBrain@ this)
 bool isVisible(CBlob@blob, CBlob@ target)
 {
 	Vec2f col;
-	return !getMap().rayCastSolidNoBlobs(blob.getPosition(), target.getPosition(), col);
+	return !getMap().rayCastSolid(blob.getPosition(), target.getPosition(), col);
 }
 
 bool isVisible(CBlob@ blob, CBlob@ target, f32 &out distance)
 {
 	Vec2f col;
-	bool visible = !getMap().rayCastSolidNoBlobs(blob.getPosition(), target.getPosition(), col);
+	bool visible = !getMap().rayCastSolid(blob.getPosition(), target.getPosition(), col);
 	distance = (blob.getPosition() - col).getLength();
 	return visible;
 }
@@ -134,38 +102,6 @@ bool JustGo(CBlob@ blob, CBlob@ target)
 	return false;
 }
 
-bool JustGoToPosition(CBlob@ blob, Vec2f point)
-{
-	Vec2f mypos = blob.getPosition();
-	const f32 horiz_distance = Maths::Abs(point.x - mypos.x);
-
-	if (horiz_distance > blob.getRadius() * 0.75f)
-	{
-		if (point.x < mypos.x)
-		{
-			blob.setKeyPressed(key_left, true);
-		}
-		else
-		{
-			blob.setKeyPressed(key_right, true);
-		}
-
-		if (point.y + getMap().tilesize * 0.7f < mypos.y)  	 // dont hop with me
-		{
-			blob.setKeyPressed(key_up, true);
-		}
-
-		if (blob.isOnLadder() && point.y > mypos.y)
-		{
-			blob.setKeyPressed(key_down, true);
-		}
-
-		return true;
-	}
-
-	return false;
-}
-
 void JumpOverObstacles(CBlob@ blob)
 {
 	Vec2f pos = blob.getPosition();
@@ -183,7 +119,7 @@ void JumpOverObstacles(CBlob@ blob)
 		}
 }
 
-void DefaultChaseBlob(CBlob@ blob, CBlob @target, bool repath = true)
+void DefaultChaseBlob(CBlob@ blob, CBlob @target)
 {
 	CBrain@ brain = blob.getBrain();
 	Vec2f targetPos = target.getPosition();
@@ -203,7 +139,7 @@ void DefaultChaseBlob(CBlob@ blob, CBlob @target, bool repath = true)
 	}
 
 	// repath if no clear path after going at it
-	if (repath && XORRandom(50) == 0 && (blob.get_Vec2f("last pathing pos") - targetPos).getLength() > 50.0f)
+	if (XORRandom(50) == 0 && (blob.get_Vec2f("last pathing pos") - targetPos).getLength() > 50.0f)
 	{
 		Repath(brain);
 		blob.set_Vec2f("last pathing pos", targetPos);
@@ -234,7 +170,7 @@ void DefaultChaseBlob(CBlob@ blob, CBlob @target, bool repath = true)
 
 			case CBrain::searching:
 				//if (sv_test)
-				//	set_emote( blob, Emotes::dots );
+				//	set_emote( blob, "dots" );
 				break;
 
 			case CBrain::stuck:
@@ -282,7 +218,7 @@ bool DefaultRetreatBlob(CBlob@ blob, CBlob@ target)
 	return true;
 }
 
-void SearchTarget(CBrain@ this, const bool seeThroughWalls = false, const bool seeBehindBack = true, const bool targetAnimals = false, const bool targetNPCs = false)
+void SearchTarget(CBrain@ this, const bool seeThroughWalls = false, const bool seeBehindBack = true)
 {
 	CBlob @blob = this.getBlob();
 	CBlob @target = this.getTarget();
@@ -292,7 +228,7 @@ void SearchTarget(CBrain@ this, const bool seeThroughWalls = false, const bool s
 	if (target is null)
 	{
 		CBlob@ oldTarget = target;
-		@target = getNewTarget(this, blob, seeThroughWalls, seeBehindBack, targetAnimals, targetNPCs);
+		@target = getNewTarget(this, blob, seeThroughWalls, seeBehindBack);
 		this.SetTarget(target);
 
 		if (target !is oldTarget)
@@ -307,7 +243,7 @@ void onChangeTarget(CBlob@ blob, CBlob@ target, CBlob@ oldTarget)
 	// !!!
 	if (oldTarget is null)
 	{
-		set_emote(blob, Emotes::attn, 1);
+		set_emote(blob, "attn", 1);
 	}
 }
 

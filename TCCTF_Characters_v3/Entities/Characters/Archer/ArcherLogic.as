@@ -2,7 +2,7 @@
 
 #include "ArcherCommon.as"
 #include "ThrowCommon.as"
-#include "Knocked.as"
+#include "KnockedCommon.as"
 #include "Hitters.as"
 #include "RunnerCommon.as"
 #include "ShieldCommon.as";
@@ -12,8 +12,14 @@
 const int FLETCH_COOLDOWN = 45;
 const int PICKUP_COOLDOWN = 15;
 const int fletch_num_arrows = 1;
-const int STAB_DELAY = 10;
-const int STAB_TIME = 22;
+const int STAB_DELAY = 12;
+const int STAB_TIME = 20;
+// code for the following is a bit stupid, TODO: make it normal
+// x = WEAKSHOT_CHARGE
+const int WEAKSHOT_CHARGE = 11; // 12 (x+1) in reality
+const int MIDSHOT_CHARGE = 13; // 24 (x+13) in reality
+const int FULLSHOT_CHARGE = 25; // 36 (x+25) in reality
+const int TRIPLESHOT_CHARGE = 89; // 100 (x+89) in reality 
 
 void onInit(CBlob@ this)
 {
@@ -22,13 +28,10 @@ void onInit(CBlob@ this)
 
 	this.set_s8("charge_time", 0);
 	this.set_u8("charge_state", ArcherParams::not_aiming);
-	this.set_u8("charge_increment", 1);
 	this.set_bool("has_arrow", false);
 	this.set_f32("gib health", -1.5f);
-	
 	this.Tag("player");
 	this.Tag("flesh");
-	this.Tag("human");
 
 	//centered on arrows
 	//this.set_Vec2f("inventory offset", Vec2f(0.0f, 122.0f));
@@ -40,6 +43,7 @@ void onInit(CBlob@ this)
 	this.getSprite().SetEmitSound("Entities/Characters/Archer/BowPull.ogg");
 	this.addCommandID("shoot arrow");
 	this.addCommandID("pickup arrow");
+	this.addCommandID("switch");
 	this.getShape().getConsts().net_threshold_multiplier = 0.5f;
 
 	this.addCommandID(grapple_sync_cmd);
@@ -72,10 +76,46 @@ void ManageGrapple(CBlob@ this, ArcherInfo@ archer)
 	Vec2f pos = this.getPosition();
 
 	const bool right_click = this.isKeyJustPressed(key_action2);
-	if (right_click)
+
+	// fletch arrows from tree
+	if(this.isKeyPressed(key_action2)
+		&& charge_state != ArcherParams::stabbing
+		&& !archer.grappling
+		&& this.isOnGround()
+		&& !this.isKeyPressed(key_action1)
+		&& !this.wasKeyPressed(key_action1))
+	{
+		Vec2f aimpos = this.getAimPos();
+		CBlob@[] blobs;
+		if(getMap().getBlobsInRadius(aimpos, 8.0f, blobs))
+		{
+			for (int i = 0; i < blobs.size(); i++)
+			{
+				CBlob@ target = blobs[i];
+				string name = target.getName();
+
+				if (target !is null
+					&& (target.hasTag("tree") || name == "log" || name == "mat_wood")
+					&& Vec2f(target.getPosition() - pos).Length() <= 24.0f)
+				{
+					this.set_u16("stabHitID",  target.getNetworkID());
+					charge_state = ArcherParams::stabbing;
+					archer.charge_time = 0;
+					archer.stab_delay = 0;
+					sprite.SetEmitSoundPaused(true);
+					archer.charge_state = charge_state;
+					break;
+				}
+			}
+
+		}
+	}
+
+	if (right_click && charge_state != ArcherParams::stabbing)
 	{
 		// cancel charging
-		if (charge_state != ArcherParams::not_aiming)
+		if (charge_state != ArcherParams::not_aiming &&
+		    charge_state != ArcherParams::fired) // allow grapple right after firing
 		{
 			charge_state = ArcherParams::not_aiming;
 			archer.charge_time = 0;
@@ -213,8 +253,6 @@ void ManageGrapple(CBlob@ this, ArcherInfo@ archer)
 						if (this.get("moveVars", @moveVars))
 						{
 							moveVars.walljumped_side = Walljump::NONE;
-							moveVars.wallrun_start = pos.y;
-							moveVars.wallrun_current = pos.y;
 						}
 					}
 				}
@@ -232,7 +270,7 @@ void ManageGrapple(CBlob@ this, ArcherInfo@ archer)
 				if (b !is null)
 				{
 					archer.grapple_pos = b.getPosition();
-					if ((b.isKeyJustPressed(key_action1) && !b.hasTag("noLMB")) ||
+					if (b.isKeyJustPressed(key_action1) ||
 					        b.isKeyJustPressed(key_action2) ||
 					        this.isKeyPressed(key_use))
 					{
@@ -267,6 +305,7 @@ void ManageGrapple(CBlob@ this, ArcherInfo@ archer)
 		}
 
 	}
+
 }
 
 void ManageBow(CBlob@ this, ArcherInfo@ archer, RunnerMoveVars@ moveVars)
@@ -291,8 +330,6 @@ void ManageBow(CBlob@ this, ArcherInfo@ archer, RunnerMoveVars@ moveVars)
 	const bool pressed_action2 = this.isKeyPressed(key_action2);
 	Vec2f pos = this.getPosition();
 
-	int charge_increment = this.get_u8("charge_increment");
-
 	if (responsible)
 	{
 		if ((getGameTime() + this.getNetworkID()) % 10 == 0)
@@ -307,10 +344,12 @@ void ManageBow(CBlob@ this, ArcherInfo@ archer, RunnerMoveVars@ moveVars)
 			}
 		}
 
-		this.set_bool("has_arrow", hasarrow);
-		this.Sync("has_arrow", isServer());
+		if (hasarrow != this.get_bool("has_arrow"))
+		{
+			this.set_bool("has_arrow", hasarrow);
+			this.Sync("has_arrow", isServer());
+		}
 
-		archer.stab_delay = 0;
 	}
 
 	if (charge_state == ArcherParams::legolas_charging) // fast arrows
@@ -340,7 +379,7 @@ void ManageBow(CBlob@ this, ArcherInfo@ archer, RunnerMoveVars@ moveVars)
 			if (archer.legolas_arrows == ArcherParams::legolas_arrows_count)
 			{
 				Sound::Play("/Stun", pos, 1.0f, this.getSexNum() == 0 ? 1.0f : 1.5f);
-				SetKnocked(this, 15);
+				setKnocked(this, 15);
 			}
 			else if (pressed)
 			{
@@ -375,12 +414,20 @@ void ManageBow(CBlob@ this, ArcherInfo@ archer, RunnerMoveVars@ moveVars)
 		moveVars.walkFactor *= 0.75f;
 		moveVars.canVault = false;
 
-		const bool just_action1 = this.isKeyJustPressed(key_action1);
+		bool just_action1 = this.isKeyJustPressed(key_action1);
 
 		//	printf("charge_state " + charge_state );
+		if (hasarrow && charge_state == ArcherParams::no_arrows)
+		{
+			// (when key_action1 is down) reset charge state when:
+			// * the player has picks up arrows when inventory is empty
+			// * the player switches arrow type while charging bow
+			charge_state = ArcherParams::not_aiming;
+			just_action1 = true;
+		}
 
 		if ((just_action1 || this.wasKeyPressed(key_action2) && !pressed_action2) &&
-		        (charge_state == ArcherParams::not_aiming || charge_state == ArcherParams::fired))
+		        (charge_state == ArcherParams::not_aiming || charge_state == ArcherParams::fired || charge_state == ArcherParams::stabbing))
 		{
 			charge_state = ArcherParams::readying;
 			hasarrow = hasArrows(this);
@@ -406,7 +453,7 @@ void ManageBow(CBlob@ this, ArcherInfo@ archer, RunnerMoveVars@ moveVars)
 
 				if (ismyplayer && !this.wasKeyPressed(key_action1))   // playing annoying no ammo sound
 				{
-					Sound::Play("Entities/Characters/Sounds/NoAmmo.ogg");
+					this.getSprite().PlaySound("Entities/Characters/Sounds/NoAmmo.ogg", 0.5);
 				}
 
 			}
@@ -440,7 +487,7 @@ void ManageBow(CBlob@ this, ArcherInfo@ archer, RunnerMoveVars@ moveVars)
 		}
 		else if (charge_state == ArcherParams::readying)
 		{
-			charge_time += charge_increment;
+			charge_time++;
 
 			if (charge_time > ArcherParams::ready_time)
 			{
@@ -450,9 +497,22 @@ void ManageBow(CBlob@ this, ArcherInfo@ archer, RunnerMoveVars@ moveVars)
 		}
 		else if (charge_state == ArcherParams::charging)
 		{
-			charge_time += charge_increment;
+			if(!hasarrow)
+			{
+				charge_state = ArcherParams::no_arrows;
+				charge_time = 0;
+				
+				if (ismyplayer)   // playing annoying no ammo sound
+				{
+					this.getSprite().PlaySound("Entities/Characters/Sounds/NoAmmo.ogg", 0.5);
+				}
+			}
+			else
+			{
+				charge_time++;
+			}
 
-			if (charge_time >= ArcherParams::legolas_period)
+			if (charge_time >= TRIPLESHOT_CHARGE)
 			{
 				// Legolas state
 
@@ -474,7 +534,7 @@ void ManageBow(CBlob@ this, ArcherInfo@ archer, RunnerMoveVars@ moveVars)
 		{
 			if (charge_time < ArcherParams::ready_time)
 			{
-				charge_time += charge_increment;
+				charge_time++;
 			}
 		}
 	}
@@ -488,6 +548,42 @@ void ManageBow(CBlob@ this, ArcherInfo@ archer, RunnerMoveVars@ moveVars)
 
 				charge_time = ArcherParams::fired_time;
 				charge_state = ArcherParams::fired;
+			}
+			else if(charge_state == ArcherParams::stabbing)
+			{
+				archer.stab_delay++;
+				if (archer.stab_delay == STAB_DELAY)
+				{
+					// hit tree and get an arrow
+					CBlob@ stabTarget = getBlobByNetworkID(this.get_u16("stabHitID"));
+					if (stabTarget !is null)
+					{
+						if (stabTarget.getName() == "mat_wood")
+						{
+							u16 quantity = stabTarget.getQuantity();
+							if (quantity > 4)
+							{
+								stabTarget.server_SetQuantity(quantity-4);
+							}
+							else
+							{
+								stabTarget.server_Die();
+
+							}
+							fletchArrow(this);
+						}
+						else
+						{
+							this.server_Hit(stabTarget, stabTarget.getPosition(), Vec2f_zero, 0.25f,  Hitters::stab);
+
+						}
+
+					}
+				}
+				else if(archer.stab_delay >= STAB_TIME)
+				{
+					charge_state = ArcherParams::not_aiming;
+				}
 			}
 			else //fired..
 			{
@@ -525,38 +621,35 @@ void ManageBow(CBlob@ this, ArcherInfo@ archer, RunnerMoveVars@ moveVars)
 	if (responsible)
 	{
 		// set cursor
-
 		if (ismyplayer && !getHUD().hasButtons())
 		{
 			int frame = 0;
-			//	print("archer.charge_time " + archer.charge_time + " / " + ArcherParams::shoot_period );
-			if (archer.charge_state == ArcherParams::readying)
+			if (archer.charge_state != ArcherParams::readying && archer.charge_state != ArcherParams::charging && archer.charge_state != ArcherParams::legolas_charging && archer.charge_state != ArcherParams::legolas_ready)
 			{
-				//readying shot
-				frame = 2 + int((float(archer.charge_time) / float(ArcherParams::shoot_period + ArcherParams::ready_time)) * 8) * 2.0f;
+				frame = 0;
 			}
-			else if (archer.charge_state == ArcherParams::charging)
+			else if (archer.charge_state == ArcherParams::readying) // Charging weak shot
 			{
-				if (archer.charge_time < ArcherParams::shoot_period)
+				frame = 0 + int(archer.charge_time / 2);
+			}
+			else if (archer.charge_time > 0 && archer.charge_state == ArcherParams::charging)
+			{
+				if (archer.charge_time >= 1 && archer.charge_time <= 2) // Weakest shot charged (charge_time resets to 0 when that happens for some reason..)
 				{
-					//charging shot
-					frame = 2 + int((float(ArcherParams::ready_time + archer.charge_time) / float(ArcherParams::shoot_period + ArcherParams::ready_time)) * 8) * 2;
+					frame = 6;
 				}
-				else
+				else if (archer.charge_state != ArcherParams::legolas_ready && archer.charge_time <= FULLSHOT_CHARGE) // Charging midshot & fullshot
 				{
-					//charging legolas
-					frame = 1 + int((float(archer.charge_time - ArcherParams::shoot_period) / (ArcherParams::legolas_period - ArcherParams::shoot_period)) * 9) * 2;
+					frame = 6 + int((archer.charge_time - 1) / 2);
+				}
+				else if (archer.charge_state != ArcherParams::legolas_ready && archer.charge_time > FULLSHOT_CHARGE) // Charging 3x
+				{
+					frame = 18 + int((archer.charge_time - FULLSHOT_CHARGE) / 4);
 				}
 			}
-			else if (archer.charge_state == ArcherParams::legolas_ready)
+			else // 3x charged
 			{
-				//legolas ready
-				frame = 19;
-			}
-			else if (archer.charge_state == ArcherParams::legolas_charging)
-			{
-				//in between shooting multiple legolas shots
-				frame = 1;
+				frame = 34;
 			}
 			getHUD().SetCursorFrame(frame);
 		}
@@ -601,7 +694,7 @@ void onTick(CBlob@ this)
 		return;
 	}
 
-	if (getKnocked(this) > 0 || this.isInInventory())
+	if (isKnocked(this) || this.isInInventory())
 	{
 		archer.grappling = false;
 		archer.charge_state = 0;
@@ -613,6 +706,8 @@ void onTick(CBlob@ this)
 
 	ManageGrapple(this, archer);
 
+	//print("state before: " + archer.charge_state);
+
 	RunnerMoveVars@ moveVars;
 	if (!this.get("moveVars", @moveVars))
 	{
@@ -620,6 +715,8 @@ void onTick(CBlob@ this)
 	}
 
 	ManageBow(this, archer, moveVars);
+
+	//print("state after: " + archer.charge_state);
 }
 
 bool checkGrappleStep(CBlob@ this, ArcherInfo@ archer, CMap@ map, const f32 dist)
@@ -710,11 +807,11 @@ void ClientFire(CBlob@ this, const s8 charge_time, const bool hasarrow, const u8
 	{
 		f32 arrowspeed;
 
-		if (charge_time < ArcherParams::ready_time / 2 + ArcherParams::shoot_period_1)
+		if (charge_time < MIDSHOT_CHARGE)
 		{
 			arrowspeed = ArcherParams::shoot_max_vel * (1.0f / 3.0f);
 		}
-		else if (charge_time < ArcherParams::ready_time / 2 + ArcherParams::shoot_period_2)
+		else if (charge_time < FULLSHOT_CHARGE)
 		{
 			arrowspeed = ArcherParams::shoot_max_vel * (4.0f / 5.0f);
 		}
@@ -723,7 +820,8 @@ void ClientFire(CBlob@ this, const s8 charge_time, const bool hasarrow, const u8
 			arrowspeed = ArcherParams::shoot_max_vel;
 		}
 
-		ShootArrow(this, this.getPosition() + Vec2f(0.0f, -2.0f), this.getAimPos() + Vec2f(0.0f, -2.0f), arrowspeed, arrow_type, legolas);
+		Vec2f offset(this.isFacingLeft() ? 2 : -2, -2);
+		ShootArrow(this, this.getPosition() + offset, this.getAimPos(), arrowspeed, arrow_type, legolas);
 	}
 }
 
@@ -794,7 +892,6 @@ CBlob@ CreateArrow(CBlob@ this, Vec2f arrowPos, Vec2f arrowVel, u8 arrowType)
 		arrow.set_u8("arrow type", arrowType);
 		arrow.SetDamageOwnerPlayer(this.getPlayer());
 		arrow.Init();
-		arrow.Untag("projectile");
 
 		arrow.IgnoreCollisionWhileOverlapped(this);
 		arrow.server_setTeamNum(this.getTeamNum());
@@ -838,7 +935,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 			int r = 0;
 			for (int i = 0; i < ArcherParams::legolas_arrows_volley; i++)
 			{
-				if (isServer())
+				if (getNet().isServer())
 				{
 					CBlob@ arrow = CreateArrow(this, arrowPos, arrowVel, arrowType);
 					if (i > 0 && arrow !is null)
@@ -846,8 +943,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 						arrow.Tag("shotgunned");
 					}
 				}
-				
-				if (arrowType != ArrowType::normal) this.TakeBlob(arrowTypeNames[arrowType], 1);
+				this.TakeBlob(arrowTypeNames[ arrowType ], 1);
 				arrowType = ArrowType::normal;
 
 				//don't keep firing if we're out of arrows
@@ -866,13 +962,13 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		}
 		else
 		{
-			if (isServer())
+			if (getNet().isServer())
 			{
 				CreateArrow(this, arrowPos, arrowVel, arrowType);
 			}
 
 			this.getSprite().PlaySound("Entities/Characters/Archer/BowFire.ogg");
-			if (arrowType != ArrowType::normal) this.TakeBlob(arrowTypeNames[arrowType], 1);
+			this.TakeBlob(arrowTypeNames[ arrowType ], 1);
 		}
 
 		archer.fletch_cooldown = FLETCH_COOLDOWN; // just don't allow shoot + make arrow
@@ -900,33 +996,6 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 				}
 			}
 
-			// if (isServer())
-			// {
-				// CBlob@ mat_arrows = server_CreateBlobNoInit('mat_arrows');
-
-				// if (mat_arrows !is null)
-				// {
-					// mat_arrows.Tag('custom quantity');
-					// mat_arrows.Init();
-
-					// mat_arrows.server_SetQuantity(1); // unnecessary
-
-					// if (not this.server_PutInInventory(mat_arrows))
-					// {
-						// mat_arrows.setPosition(this.getPosition());
-					// }
-
-					// if (arrow !is null)
-					// {
-						// arrow.server_Die();
-					// }
-					// else
-					// {
-						// canPickSpriteArrow(this, true);
-					// }
-				// }
-			// }
-
 			this.getSprite().PlaySound("Entities/Items/Projectiles/Sounds/ArrowHitGround.ogg");
 		}
 	}
@@ -953,15 +1022,26 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 			{
 				type = 0;
 			}
-			if (this.getBlobCount(arrowTypeNames[type]) > 0)
+			if (hasArrows(this, type))
 			{
-				archer.arrow_type = type;
-				if (this.isMyPlayer())
-				{
-					Sound::Play("/CycleInventory.ogg");
-				}
+				CycleToArrowType(this, archer, type);
 				break;
 			}
+		}
+	}
+	else if (cmd == this.getCommandID("switch"))
+	{
+		// switch to arrow
+		ArcherInfo@ archer;
+		if (!this.get("archerInfo", @archer))
+		{
+			return;
+		}
+
+		u8 type;
+		if (params.saferead_u8(type) && hasArrows(this, type))
+		{
+			CycleToArrowType(this, archer, type);
 		}
 	}
 	else
@@ -982,15 +1062,22 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 	}
 }
 
+void CycleToArrowType(CBlob@ this, ArcherInfo@ archer, u8 arrowType)
+{
+	archer.arrow_type = arrowType;
+	if (this.isMyPlayer())
+	{
+		Sound::Play("/CycleInventory.ogg");
+	}
+}
+
 // arrow pick menu
 void onCreateInventoryMenu(CBlob@ this, CBlob@ forBlob, CGridMenu @gridmenu)
 {
-	int teamnum = this.getTeamNum();
-	if (teamnum > 6) teamnum = 7;
-	AddIconToken("$Arrow$", "ArcherIcons", Vec2f(16, 32), 0, teamnum);
-	AddIconToken("$WaterArrow$", "ArcherIcons", Vec2f(16, 32), 1, teamnum);
-	AddIconToken("$FireArrow$", "ArcherIcons", Vec2f(16, 32), 2, teamnum);
-	AddIconToken("$BombArrow$", "ArcherIcons", Vec2f(16, 32), 3, teamnum);
+	AddIconToken("$Arrow$", "Entities/Characters/Archer/ArcherIcons.png", Vec2f(16, 32), 0, this.getTeamNum());
+	AddIconToken("$WaterArrow$", "Entities/Characters/Archer/ArcherIcons.png", Vec2f(16, 32), 1, this.getTeamNum());
+	AddIconToken("$FireArrow$", "Entities/Characters/Archer/ArcherIcons.png", Vec2f(16, 32), 2, this.getTeamNum());
+	AddIconToken("$BombArrow$", "Entities/Characters/Archer/ArcherIcons.png", Vec2f(16, 32), 3, this.getTeamNum());
 	
 	if (arrowTypeNames.length == 0)
 	{
@@ -1020,7 +1107,7 @@ void onCreateInventoryMenu(CBlob@ this, CBlob@ forBlob, CGridMenu @gridmenu)
 
 			if (button !is null)
 			{
-				bool enabled = i == 0 || this.getBlobCount(arrowTypeNames[i]) > 0;
+				bool enabled = hasArrows(this, i);
 				button.SetEnabled(enabled);
 				button.selectOneOnClick = true;
 
@@ -1082,38 +1169,26 @@ void onHitBlob(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@
 {
 	if (customData == Hitters::stab)
 	{
-		if (damage > 0.0f)
-		{
+		fletchArrow(this);
+	}
+}
 
-			// fletch arrow
-			if (hitBlob.hasTag("tree"))	// make arrow from tree
-			{
-				if (isServer())
-				{
-					CBlob@ mat_arrows = server_CreateBlobNoInit('mat_arrows');
-					if (mat_arrows !is null)
-					{
-						mat_arrows.Tag('custom quantity');
-						mat_arrows.Init();
+void fletchArrow(CBlob@ this)
+{
+	this.getSprite().PlaySound("Entities/Items/Projectiles/Sounds/ArrowHitGround.ogg");
+}
 
-						mat_arrows.server_SetQuantity(fletch_num_arrows);
+void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint)
+{
+	ArcherInfo@ archer;
+	if (!this.get("archerInfo", @archer))
+	{
+		return;
+	}
 
-						if (not this.server_PutInInventory(mat_arrows))
-						{
-							mat_arrows.setPosition(this.getPosition());
-						}
-					}
-				}
-				this.getSprite().PlaySound("Entities/Items/Projectiles/Sounds/ArrowHitGround.ogg");
-			}
-			else
-				this.getSprite().PlaySound("KnifeStab.ogg");
-		}
-
-		if (blockAttack(hitBlob, velocity, 0.0f))
-		{
-			this.getSprite().PlaySound("/Stun", 1.0f, this.getSexNum() == 0 ? 1.0f : 1.5f);
-			SetKnocked(this, 30);
-		}
+	if (this.isAttached() && canSend(this))
+	{
+		archer.grappling = false;
+		SyncGrapple(this);
 	}
 }
