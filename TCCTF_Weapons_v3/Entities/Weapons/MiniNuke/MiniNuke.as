@@ -18,6 +18,7 @@ void onInit(CBlob@ this)
 	
 	this.Tag("projectile");
 	this.Tag("explosive");
+	this.maxQuantity = 3;
 	
 	CSprite@ sprite = this.getSprite();
 	sprite.SetEmitSound("Shell_Whistle.ogg");

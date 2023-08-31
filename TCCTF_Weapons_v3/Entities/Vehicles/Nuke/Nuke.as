@@ -129,7 +129,7 @@ void onTick(CBlob@ this)
 				boom.setPosition(this.getPosition());
 				boom.set_f32("mithril_amount", 50);
 				boom.set_u8("boom_start", 1);
-				boom.set_u8("boom_end", 25);
+				boom.set_u8("boom_end", 50);
 				boom.Init();
 				
 				this.server_Die();
