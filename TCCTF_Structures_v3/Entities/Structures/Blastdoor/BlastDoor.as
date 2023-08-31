@@ -48,11 +48,6 @@ void onSetStatic(CBlob@ this, const bool isStatic)
 	this.getSprite().PlaySound("/build_door.ogg");
 }
 
-bool isOpen(CBlob@ this)
-{
-	return !this.getShape().getConsts().collidable;
-}
-
 void setOpen(CBlob@ this, bool open)
 {
 	CSprite@ sprite = this.getSprite();

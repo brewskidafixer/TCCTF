@@ -473,7 +473,6 @@ void Fire(CBlob@ this, VehicleInfo@ v, CBlob@ caller, const u8 charge)
 		{
 			// empty shot
 			this.getSprite().PlayRandomSound(v.empty_sound);
-			Vehicle_onFire(this, v, null, 0);
 		}
 
 		// finally set the delay
@@ -691,7 +690,7 @@ void Vehicle_StandardControls(CBlob@ this, VehicleInfo@ v)
 							//custom firing requirements
 						{
 							u8 charge = 0;
-							if (Vehicle_canFire(this, v, ap.isKeyPressed(key_action1), ap.wasKeyPressed(key_action1), charge) && canFire(this, v))
+							if (canFire(this, v) && ap.wasKeyPressed(key_action1))
 							{
 								CBitStream fireParams;
 								fireParams.write_u16(blob.getNetworkID());
